@@ -12,4 +12,8 @@ public class Fox extends Animal implements Entity {
         this.satiety = 10;
     }
 
+    @Override
+    public String animalCode() {
+        return "F";
+    }
 }

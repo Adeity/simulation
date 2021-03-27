@@ -11,7 +11,7 @@ public abstract class Animal {
         String res = "";
         res += getClass().getSimpleName();
         return res;
-
     }
 
+    protected abstract String animalCode();
 }

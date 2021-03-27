@@ -7,7 +7,28 @@ public class Block {
         GRASS,
         GRASS_WITH_GRAIN,
         BUSH,
-        WATER
+        WATER;
+
+
+        public String terrainCode() {
+            String res ="";
+            switch (this) {
+                case GRASS:
+                    res = "G";
+                    break;
+                case BUSH:
+                    res = "B";
+                    break;
+                case WATER:
+                    res = "W";
+                    break;
+                case GRASS_WITH_GRAIN:
+                    res = "R";
+                    break;
+            }
+            return res;
+
+        }
     }
 
     private Terrain terrain;
@@ -32,12 +53,6 @@ public class Block {
         this.animal = animal;
     }
 
-    /**
-     * constructor
-     * @param terrain
-     * @param animal
-     */
-
     public Block(Terrain terrain, Animal animal) {
         this.terrain = terrain;
         this.animal = animal;
@@ -50,6 +65,20 @@ public class Block {
 
     @Override
     public String toString() {
-        return "T: " + terrain + " A: " + animal;
+        String animal;
+        String terrain;
+        if(this.animal == null) {
+            animal = "N";
+        }
+        else{
+            animal = this.animal.animalCode();
+        }
+        if(this.terrain == null){
+            terrain = "N";
+        }
+        else {
+            terrain = this.terrain.terrainCode();
+        }
+        return terrain+animal;
     }
 }

@@ -8,4 +8,9 @@ public class Hare extends Animal implements Entity {
     public Hare() {
         this.energy = 14;
     }
+
+    @Override
+    protected String animalCode() {
+        return "H";
+    }
 }
