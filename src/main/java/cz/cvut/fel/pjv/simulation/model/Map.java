@@ -2,8 +2,6 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.Entity;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 
 public class Map {;
@@ -11,28 +9,37 @@ public class Map {;
     public int sizeOfMap;
 
     /**
-     * the map has a square shape. this means, when
-     * @param size is 10, map ends up beign 10x10
+     * the map has a square shape.
+     * @param size is dimension, map is then Dim(size x size)
      */
     public Map(int size) {
         initMap(size);
     }
 
+    /**
+     * constructor with default dimension x dimension of map
+     */
     public Map() {
         initMap(10);
     }
 
     /**
-     * on initialization of the map I fill it with grass with no animals
-     * @param size
+     * first map gets filled with grass
+     * then bushes are added
+     * then lakes are added
+     * @param size is size of one dimension, map ends up being Dim(size x size)
      */
     private void initMap(int size) {
         this.sizeOfMap = size;
         this.blocks = new Block[size][size];
         initMapFillWithGrass();
         initMapAddBushes();
+        initMapAddLakes();
     }
 
+    /**
+     * fills whole map with grass
+     */
     private void initMapFillWithGrass() {
         for (int i = 0; i < this.sizeOfMap; i++) {
             for (int k = 0; k < this.sizeOfMap; k++) {
@@ -41,6 +48,9 @@ public class Map {;
         }
     }
 
+    /**
+     * adds squares of bushes periodically throughout map
+     */
     private void initMapAddBushes() {
         int bushRow = 0;
         int bushCol = 0;
@@ -56,8 +66,8 @@ public class Map {;
                 }
             }
             bushCol = 0;
-            if (bushRow % 9 == 2) {
-                bushRow += 7;
+            if (bushRow % 10 == 2) {
+                bushRow += 8;
             }
             else {
                 bushRow++;
@@ -65,8 +75,41 @@ public class Map {;
         }
     }
 
+    /**
+     * adds lakes of water to map periodically
+     */
     private void initMapAddLakes() {
+        int row = 6, col = 0;
+        while (row < this.sizeOfMap) {
+            col += 17;
+            if (col / this.sizeOfMap > 1) {
+                col %= sizeOfMap;
+                row += 10;
+            }
+            addLake(row, col);
+        }
+    }
 
+    /**
+     * prints circular lake
+     * using formula: ((x1 - start_X) * (x1 - start_X) + (y1 - start_Y) * (y1 - start_Y)) <= r * r
+     * @param centerRow is row index of where center is of circle
+     * @param centerCol is column idnex of where center of circle is
+     */
+    private void addLake(int centerRow, int centerCol) {
+        int r = 2;
+        for (int i = centerRow - r; i <= centerRow + r; i++) {
+            for (int k = centerCol - r; k <= centerCol + r; k++) {
+                if((i - centerRow) * (i - centerRow) + (k - centerCol) * (k - centerCol) <= r*r) {
+                    try {
+                        this.blocks[i][k].setTerrain(Block.Terrain.WATER);
+                    }
+                    catch (ArrayIndexOutOfBoundsException e) {
+                        continue;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -114,23 +157,17 @@ public class Map {;
         String res = "";
         String part = "";
         for (int i = 0; i < this.sizeOfMap; i++) {
-            res += cmdOneRowOfStraigthLines();
-            res += cmdOneRowOfEmpty();
-            res += cmdOneRowOfEmpty();
             for (int k = 0; k < this.sizeOfMap; k++) {
+                part += " ";
                 part += "|" + this.blocks[i][k];
+                part += "| ";
                 res += part;
-                if(part.length() < 20) {
-                    res += String.join("", Collections.nCopies(20 - part.length(), " "));
-                }
                 part = "";
                 if (k == this.sizeOfMap - 1) {
                     res += "|";
                 }
             }
             res += "\n";
-            res += cmdOneRowOfEmpty();
-            res += cmdOneRowOfEmpty();
             if (i == this.sizeOfMap - 1) {
                 res += cmdOneRowOfStraigthLines();
             }
@@ -145,7 +182,7 @@ public class Map {;
         String res = "";
         for (int j = 0; j < sizeOfMap; j ++) {
             res += "|";
-            res+=String.join("", Collections.nCopies( 19, " "));
+            res+=String.join("", Collections.nCopies( 3, " "));
         }
         return res + "|\n";
     }
@@ -154,6 +191,6 @@ public class Map {;
      * @return String something like "----------" + "\n"
      */
     private String cmdOneRowOfStraigthLines() {
-        return String.join("", Collections.nCopies( 20 * sizeOfMap, ("_"))) + "\n";
+        return String.join("", Collections.nCopies( 4 * sizeOfMap, ("_"))) + "\n";
     }
 }
