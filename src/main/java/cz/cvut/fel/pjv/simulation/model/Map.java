@@ -1,12 +1,29 @@
 package cz.cvut.fel.pjv.simulation.model;
 
-import cz.cvut.fel.pjv.simulation.Entity;
-
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
+import java.util.Scanner;
 
 public class Map {;
     public Block[][] blocks;
+    public List<Animal> animals = new ArrayList<>();
     public int sizeOfMap;
+    int numOfFoxes = 0;
+    int numOfHare = 0;
+    int numOfAnimals = 0;
+    //  G block = Grass block
+    public int numOfGBlocks = 0;
+    //  B block = Bush block
+    public int numOfBBlocks = 0;
+    //  W block = Water block
+    public int numOfWBlocks = 0;
+    //  R lock = Grass with grain block
+    public int numOfRBlocks = 0;
+
+
 
     /**
      * the map has a square shape.
@@ -24,6 +41,171 @@ public class Map {;
     }
 
     /**
+     * create simulation map based on file.map template
+     * @param filename is text file, which contains predefined map in appropriate format
+     */
+    public Map(String filename) {
+        try {
+            // list all
+//            File file = new File(CONF.folderDirectory + "/mapTemplates");
+//            for(String fileNames : file.list()) System.out.println(fileNames);
+
+            File mapFile = new File(filename);
+            Scanner scanner = new Scanner(mapFile);
+
+            String nextLine;
+            //  read metadata
+            while (scanner.hasNextLine()) {
+                nextLine = scanner.nextLine();
+                String[] metaData = nextLine.split(" ");
+                try {
+                    if(metaData[0].equals("size:")) {
+                        this.sizeOfMap = Integer.parseInt(metaData[1]);
+                    }
+                }
+                catch (NumberFormatException e) {
+                    System.out.println("Template is invalid!");
+                }
+                if(nextLine.equals("----------")) {
+                    break;
+                }
+                else if(nextLine.isEmpty()) {
+                    break;
+                }
+            }
+
+            this.blocks = new Block[this.sizeOfMap][this.sizeOfMap];
+
+            //  read and init map
+            for (int i = 0; i < this.sizeOfMap; i++) {
+                nextLine = scanner.nextLine();
+                String[] blocks = nextLine.split(" ");
+                if(blocks.length != this.sizeOfMap) {
+                    System.out.println("Wrong amount of blocks in map template.");
+                    return;
+                }
+                for (int k = 0; k < blocks.length; k++) {
+                    Block.Terrain t;
+                    Animal a;
+                    switch (Character.toString(blocks[k].charAt(0))) {
+                        case "G":
+                            t = Block.Terrain.GRASS;
+                            numOfGBlocks++;
+                            break;
+                        case "B":
+                            t = Block.Terrain.BUSH;
+                            numOfBBlocks++;
+                            break;
+                        case "W":
+                            t = Block.Terrain.WATER;
+                            numOfWBlocks++;
+                            break;
+                        case "R":
+                            t = Block.Terrain.GRASS_WITH_GRAIN;
+                            numOfRBlocks++;
+                            break;
+                        default:
+                            t = null;
+                            break;
+                    }
+
+                    switch (Character.toString(blocks[k].charAt(1))) {
+                        case "N":
+                            a = null;
+                            break;
+                        case "F":
+                            a = new Fox();
+                            numOfFoxes++;
+                            numOfAnimals++;
+                            break;
+                        case "H":
+                            a = new Hare();
+                            numOfHare++;
+                            numOfAnimals++;
+                            break;
+                        default:
+                            a = null;
+                            break;
+                    }
+                    if (a != null) {
+                        a.coordX = i;
+                        a.coordY = k;
+                        if(a instanceof Hare) {
+                            numOfHare++;
+                        }
+                        else if (a instanceof Fox) {
+                            numOfFoxes++;
+                        }
+                        this.animals.add(a);
+                    }
+                    this.blocks[i][k] = new Block(t, a, i, k);
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("map not found");
+        }
+    }
+
+    public void evaluate() {
+        for (int i = 0; i < animals.size(); i++) {
+            Animal a = animals.get(i);
+
+            if (a.didEvaluate) {
+                continue;
+            }
+            else {
+                a.evaluate(this);
+            }
+        }
+        animals.removeIf(a -> a.isDead);
+        Collections.shuffle(animals);
+    }
+
+    public void addNewBorn(Animal a, int coordX, int coordY) {
+        if (blocks[coordX][coordY].animal != null) {
+            return;
+        }
+        a.age = 1;
+        //  more baby attributes
+        blocks[coordX][coordY].animal = a;
+        animals.add(a);
+    }
+
+    public Block[] getSurroundingBlocks (int coordX, int coordY) {
+        Block[] surroundingBlocks = {
+                this.getBlock(coordX - 1, coordY - 1),
+                this.getBlock(coordX - 1, coordY),
+                this.getBlock(coordX - 1, coordY + 1),
+                this.getBlock(coordX, coordY - 1),
+                this.getBlock(coordX, coordY + 1),
+                this.getBlock(coordX + 1, coordY - 1),
+                this.getBlock(coordX + 1, coordY),
+                this.getBlock(coordX + 1, coordY + 1),
+        };
+        return surroundingBlocks;
+    }
+
+    /**
+     * gets specific block based on coordinates on map
+     * @param coordX is row parameter
+     * @param coordY is column parameter
+     * @return block[coordX][coordY]
+     */
+    public Block getBlock (
+            int coordX,
+            int coordY
+    ){
+        try {
+            return blocks[coordX][coordY];
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+//            System.out.println(e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * first map gets filled with grass
      * then bushes are added
      * then lakes are added
@@ -35,6 +217,7 @@ public class Map {;
         initMapFillWithGrass();
         initMapAddBushes();
         initMapAddLakes();
+        initMapAddGrain();
     }
 
     /**
@@ -43,9 +226,10 @@ public class Map {;
     private void initMapFillWithGrass() {
         for (int i = 0; i < this.sizeOfMap; i++) {
             for (int k = 0; k < this.sizeOfMap; k++) {
-                this.blocks[i][k] = new Block(Block.Terrain.GRASS);
+                this.blocks[i][k] = new Block(Block.Terrain.GRASS, i, k);
             }
         }
+        this.numOfGBlocks += this.sizeOfMap * this.sizeOfMap;
     }
 
     /**
@@ -58,6 +242,8 @@ public class Map {;
         while (bushRow < totalSize) {
             while (bushCol < totalSize) {
                 this.blocks[bushRow][bushCol].setTerrain(Block.Terrain.BUSH);
+                this.numOfGBlocks--;
+                this.numOfBBlocks++;
                 if (bushCol % 9 == 2) {
                     bushCol += 7;
                 }
@@ -103,6 +289,8 @@ public class Map {;
                 if((i - centerRow) * (i - centerRow) + (k - centerCol) * (k - centerCol) <= r*r) {
                     try {
                         this.blocks[i][k].setTerrain(Block.Terrain.WATER);
+                        this.numOfGBlocks--;
+                        this.numOfWBlocks++;
                     }
                     catch (ArrayIndexOutOfBoundsException e) {
                         continue;
@@ -112,45 +300,32 @@ public class Map {;
         }
     }
 
-
-    private int getRandomNumber(int min, int max) {
-        return (int) ((Math.random() * (max - min)) + min);
+    /**
+     * every three rows iterates over a diagonal starting at that row and adds grain to grass if block is indeed grass
+     */
+    private void initMapAddGrain() {
+        int dimension = this.sizeOfMap;
+        for (int i = 0; i < dimension; i += 3) {
+            for (int k = 0; k <= i; k += 2) {
+                int j = i - k;
+                if (this.blocks[j][k].getTerrain() == Block.Terrain.GRASS) {
+                    this.blocks[j][k].setTerrain(Block.Terrain.GRASS_WITH_GRAIN);
+                    this.numOfGBlocks--;
+                    this.numOfRBlocks++;
+                }
+            }
+        }
+        for (int i = dimension - 2; i >= 0; i -= 3) {
+            for (int k = 0; k <= i; k += 2) {
+                int j = i - k;
+                if (this.blocks[dimension - k - 1][dimension - j - 1].getTerrain() == Block.Terrain.GRASS) {
+                    this.blocks[dimension - k - 1][dimension - j - 1].setTerrain(Block.Terrain.GRASS_WITH_GRAIN);
+                    this.numOfGBlocks--;
+                    this.numOfRBlocks++;
+                }
+            }
+        }
     }
-
-    public void fillRandomly(Entity fox, int numOfFoxes, Entity hare, int numOfHares, Entity hunter, int numOfHunters) {
-
-    }
-
-    public void fillRandomly() {
-
-    }
-
-    public void animalAtCoordDies(int row, int col) {
-
-    }
-
-    public void animalDies(Animal animal) {
-
-    }
-
-
-//    @Override
-//    public String toString() {
-//        String res = "";
-//        String part = "";
-//        for (int i = 0; i < this.sizeOfMap; i++) {
-//            for (int k = 0; k < this.sizeOfMap; k++) {
-//                part += "|" + this.blocks[i][k];
-//                res += part;
-//                if(part.length() < 20) {
-//                    res += String.join("", Collections.nCopies( 20 - part.length(), " "));
-//                }
-//                part = "";
-//            }
-//            res += "|\n";
-//        }
-//        return res;
-//    }
 
     @Override
     public String toString() {
@@ -163,14 +338,8 @@ public class Map {;
                 part += "| ";
                 res += part;
                 part = "";
-                if (k == this.sizeOfMap - 1) {
-                    res += "|";
-                }
             }
             res += "\n";
-            if (i == this.sizeOfMap - 1) {
-                res += cmdOneRowOfStraigthLines();
-            }
         }
         return res;
     }

@@ -9,7 +9,6 @@ public class Block {
         BUSH,
         WATER;
 
-
         public String terrainCode() {
             String res ="";
             switch (this) {
@@ -32,7 +31,9 @@ public class Block {
     }
 
     private Terrain terrain;
-    private Animal animal;
+    public Animal animal;
+    public int coordX;
+    public int coordY;
 
     /**
      * getters and setters
@@ -53,15 +54,21 @@ public class Block {
         this.animal = animal;
     }
 
-    public Block(Terrain terrain, Animal animal) {
+    /**
+     * in this constructor with only three parameters, animal is automatically set to null
+     * @param terrain is one terrains, GRASS, BUSH, WATER or GRASS_WITH_GRAIN
+     */
+    public Block(Terrain terrain, int coordX, int coordY) {
+        this(terrain, null, coordX, coordY);
+    }
+    public Block(Terrain terrain, Animal animal, int coordX, int coordY) {
         this.terrain = terrain;
         this.animal = animal;
+        this.coordX = coordX;
+        this.coordY = coordY;
     }
 
-    public Block(Terrain terrain) {
-        this.terrain = terrain;
-        this.animal = null;
-    }
+
 
     @Override
     public String toString() {

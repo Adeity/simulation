@@ -1,9 +1,6 @@
 package cz.cvut.fel.pjv.simulation.model;
 
-import cz.cvut.fel.pjv.simulation.Entity;
-import cz.cvut.fel.pjv.simulation.model.Animal;
-
-public class Fox extends Animal implements Entity {
+public class Fox extends Animal {
     public int satiety;
 
     public Fox() {
@@ -15,5 +12,24 @@ public class Fox extends Animal implements Entity {
     @Override
     public String animalCode() {
         return "F";
+    }
+
+    @Override
+    protected void interact(Map map, Animal otherAnimal, Block otherAnimalBlock) {
+//        Block thisAnimalBlock = map.blocks[this.coordX][this.coordY];
+
+        if (otherAnimal instanceof Fox) {
+
+        }
+
+        if (otherAnimal instanceof Hare) {
+            otherAnimal.isDead = true;
+            otherAnimal.didEvaluate = true;
+            otherAnimalBlock.animal = null;
+            map.numOfHare--;
+            this.satiety += 5;
+        }
+
+        this.didEvaluate = true;
     }
 }
