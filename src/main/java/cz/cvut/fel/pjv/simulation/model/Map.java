@@ -2,10 +2,8 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Stream;
 
 public class Map {;
     public Block[][] blocks;
@@ -115,21 +113,16 @@ public class Map {;
                             break;
                         case "F":
                             a = new Fox();
-                            numOfFoxes++;
-                            numOfAnimals++;
                             break;
                         case "H":
                             a = new Hare();
-                            numOfHare++;
-                            numOfAnimals++;
                             break;
                         default:
                             a = null;
                             break;
                     }
+                    this.blocks[i][k] = new Block(t, a, i, k);
                     if (a != null) {
-                        a.coordX = i;
-                        a.coordY = k;
                         if(a instanceof Hare) {
                             numOfHare++;
                         }
@@ -137,8 +130,9 @@ public class Map {;
                             numOfFoxes++;
                         }
                         this.animals.add(a);
+                        numOfAnimals++;
+                        a.block = this.blocks[i][k];
                     }
-                    this.blocks[i][k] = new Block(t, a, i, k);
                 }
             }
         }
@@ -158,7 +152,12 @@ public class Map {;
                 a.evaluate(this);
             }
         }
+        //  get rid of dead animals
         animals.removeIf(a -> a.isDead);
+        // change didEvaluate attribute to false for each animal
+        for (Animal a : animals) {
+            a.didEvaluate = false;
+        }
         Collections.shuffle(animals);
     }
 
@@ -172,8 +171,10 @@ public class Map {;
         animals.add(a);
     }
 
-    public Block[] getSurroundingBlocks (int coordX, int coordY) {
-        Block[] surroundingBlocks = {
+    public Block[] getSurroundingBlocks (Block block) {
+        int coordX = block.coordX;
+        int coordY = block.coordY;
+        return new Block[]{
                 this.getBlock(coordX - 1, coordY - 1),
                 this.getBlock(coordX - 1, coordY),
                 this.getBlock(coordX - 1, coordY + 1),
@@ -183,7 +184,25 @@ public class Map {;
                 this.getBlock(coordX + 1, coordY),
                 this.getBlock(coordX + 1, coordY + 1),
         };
-        return surroundingBlocks;
+    }
+
+    private Block[] concatSurroundingBlocks (Block[] b1, Block[] b2) {
+        return Stream.concat(Arrays.stream(b1), Arrays.stream(b2)).toArray(Block[]::new);
+    }
+
+    public Block findFreeBlockForMating (Animal a1, Animal a2) {
+        Block[] a1Sb = this.getSurroundingBlocks(a1.block);
+        Block[] a2Sb = this.getSurroundingBlocks(a2.block);
+        Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
+        for (Block b : surroundingBlocks) {
+            if (b == null) {
+                continue;
+            }
+            if (b.isBlockFree()) {
+                return b;
+            }
+        }
+        return null;
     }
 
     /**
@@ -342,6 +361,19 @@ public class Map {;
             res += "\n";
         }
         return res;
+    }
+
+    public void printStats() {
+        System.out.println("Size of map: " + this.sizeOfMap);
+        System.out.println("Num of grass blocks: " + numOfGBlocks + " | Num of grass with grains blocks: " + numOfRBlocks + " | Num of grass with water blocks: " + numOfWBlocks + " | Num of bush blocks: " + numOfBBlocks);
+        System.out.println("Number of animals in animals list: " + this.animals.size());
+        System.out.println("Animals in animals list: ");
+        for (Animal a : this.animals) {
+            System.out.println(a);
+        }
+        System.out.println("Num of foxes: " + numOfFoxes);
+        System.out.println("Num of hare: " + numOfHare);
+
     }
 
     /**

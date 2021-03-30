@@ -29,4 +29,11 @@ public class Simulation {
     public void simulateDay(){
         this.map.evaluate();
     }
+
+    public void printStats() {
+        if(isRunning) {
+            System.out.println("Simulation is running");
+            map.printStats();
+        }
+    }
 }

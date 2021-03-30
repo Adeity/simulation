@@ -1,11 +1,13 @@
 package cz.cvut.fel.pjv.simulation.model;
 
+import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
+
 public class Fox extends Animal {
     public int satiety;
 
     public Fox() {
-        super();
-        this.energy = 10;
+        this.age = getRandomNumber(8, 15);
+        this.energy = getRandomNumber(8, 15);
         this.satiety = 10;
     }
 

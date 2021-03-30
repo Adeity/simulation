@@ -5,27 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5b5ee22f-fbcf-48cb-9af6-abadca93ff38" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/App.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/CONF.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/NetworkController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/utils/Utilities.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Direction.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Entity.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/SimulationApplication.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Simulation.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/MapController.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/Controller.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Simulation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/Controller.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/Controller.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Block.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/Entity.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/SimulationApplication.class" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/controller/MapController.class" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Animal.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Animal.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Block$Terrain.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Block$Terrain.class" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Block.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Block.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Fox.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Fox.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Hare.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Hare.class" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Map.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Map.class" afterDir="false" />
@@ -115,6 +104,23 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="simplified toString, added lakes to map on init" />
     <MESSAGE value="added string codes for simple toString of map" />
-    <option name="LAST_COMMIT_MESSAGE" value="added string codes for simple toString of map" />
+    <MESSAGE value="done refactoring, foxes now kill hares, breeding WIP, initializaiton from map template" />
+    <option name="LAST_COMMIT_MESSAGE" value="done refactoring, foxes now kill hares, breeding WIP, initializaiton from map template" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java</url>
+          <line>369</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="Application">
+        <watch expression="((java.util.ArrayList)((Map)this).animals).get(1)" custom="cz.cvut.fel.pjv.simulation.model.Map,java.util.ArrayList" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

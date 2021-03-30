@@ -68,6 +68,12 @@ public class Block {
         this.coordY = coordY;
     }
 
+    public boolean isBlockFree() {
+        if (this.terrain == Terrain.WATER) {
+            return false;
+        }
+        return this.animal == null;
+    }
 
 
     @Override

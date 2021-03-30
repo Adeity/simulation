@@ -1,8 +1,17 @@
 package cz.cvut.fel.pjv.simulation.model;
 
+import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
+
 public class Hare extends Animal {
 
+    public Hare(Block block) {
+        this.block = block;
+        this.age = getRandomNumber(10, 20);
+        this.energy = 14;
+    }
+
     public Hare() {
+        this.age = getRandomNumber(10, 20);
         this.energy = 14;
     }
 
@@ -13,46 +22,28 @@ public class Hare extends Animal {
 
     @Override
     protected void interact(Map map, Animal otherAnimal, Block otherAnimalBlock) {
-        Block thisAnimalBlock = map.blocks[this.coordX][this.coordY];
 
         if (otherAnimal instanceof Fox) {
             this.isDead = true;
             map.numOfHare--;
-            thisAnimalBlock.animal = null;
+            this.block.animal = null;
         }
 
         if (otherAnimal instanceof Hare) {
-            if (
-                    this.age > 10
-                            &&
-                            otherAnimal.age > 10
-            ) {
-                Block blockForNewborn = null;
+            if (this.areReadyForMating(otherAnimal)) {
+                Block freeBlockForMating = map.findFreeBlockForMating(this, otherAnimal);
                 //  first check surrounding of this animal
-                for (Block block : surroundingBlocks) {
-                    if (block.animal == null) {
-                        blockForNewborn = block;
-                        break;
-                    }
+                if (freeBlockForMating == null) {
+                    System.out.println("There is no space for mating.");
+                    return;
                 }
-                //  if surrounding of this animal fails, check surrounding of other animal
-                if (blockForNewborn == null) {
-                    Block[] otherAnimalSurroundingBlocks = map.getSurroundingBlocks(
-                            otherAnimal.coordX,
-                            otherAnimal.coordY
-                    );
-                    for (Block block : otherAnimalSurroundingBlocks) {
-                        if (block.animal == null) {
-                            blockForNewborn = block;
-                            break;
-                        }
-                    }
-                }
-                //  if an empty block was found, addNewBorn to map on found block
-                if(blockForNewborn != null) {
-                    map.addNewBorn(new Hare(), blockForNewborn.coordX, blockForNewborn.coordY);
-                    map.numOfHare++;
-                }
+                Animal newBorn = new Hare(freeBlockForMating);
+                freeBlockForMating.animal = newBorn;
+                newBorn.age = 1;
+                map.animals.add(newBorn);
+                map.numOfHare++;
+                this.energy -= 10;
+
             }
         }
         this.didEvaluate = true;

@@ -45,6 +45,9 @@ public class Controller {
             else if(s.equals("show")) {
                 this.showCurrent();
             }
+            else if(s.equals("stats")) {
+                this.printStats();
+            }
         }
     }
 
@@ -71,6 +74,10 @@ public class Controller {
 
     private void showCurrent() {
         System.out.println(simulation.map);
+    }
+
+    private void printStats() {
+        simulation.printStats();
     }
 
 //    public void changeTerrainAtCoord (Block.Terrain terrain, int row, int col) {
