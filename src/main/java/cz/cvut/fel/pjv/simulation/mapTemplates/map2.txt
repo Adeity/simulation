@@ -1,0 +1,7 @@
+size: 5
+----------
+GN GN GN GN GN
+GN GF GF GN GF
+GN GN GN GN GH
+GN GH GH GN GN
+GN GN GN GN GN

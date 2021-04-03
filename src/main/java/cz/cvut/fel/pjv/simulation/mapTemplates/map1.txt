@@ -1,0 +1,5 @@
+size: 3
+----------
+GF GF GF
+BN GN GN
+GH GH WN

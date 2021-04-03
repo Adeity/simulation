@@ -161,14 +161,11 @@ public class Map {;
         Collections.shuffle(animals);
     }
 
-    public void addNewBorn(Animal a, int coordX, int coordY) {
-        if (blocks[coordX][coordY].animal != null) {
+    public void addNewBorn(Animal a, Block block) {
+        if (this.blocks[block.coordX][block.coordY].animal != null) {
             return;
         }
-        a.age = 1;
-        //  more baby attributes
-        blocks[coordX][coordY].animal = a;
-        animals.add(a);
+        this.blocks[block.coordX][block.coordY].setAnimal(a);
     }
 
     public Block[] getSurroundingBlocks (Block block) {
