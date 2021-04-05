@@ -1,5 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
+import cz.cvut.fel.pjv.simulation.CONF;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -39,16 +41,12 @@ public class Map {;
     }
 
     /**
-     * create simulation map based on file.map template
+     * create simulation map based on maptemplate.txt template
      * @param filename is text file, which contains predefined map in appropriate format
      */
     public Map(String filename) {
         try {
-            // list all
-//            File file = new File(CONF.folderDirectory + "/mapTemplates");
-//            for(String fileNames : file.list()) System.out.println(fileNames);
-
-            File mapFile = new File(filename);
+            File mapFile = new File(CONF.MAP_TEMPLATE_DIRECTORY+filename);
             Scanner scanner = new Scanner(mapFile);
 
             String nextLine;
@@ -106,20 +104,24 @@ public class Map {;
                             t = null;
                             break;
                     }
-
-                    switch (Character.toString(blocks[k].charAt(1))) {
-                        case "N":
-                            a = null;
-                            break;
-                        case "F":
-                            a = new Fox();
-                            break;
-                        case "H":
-                            a = new Hare();
-                            break;
-                        default:
-                            a = null;
-                            break;
+                    if(t == Block.Terrain.WATER) {
+                        a = null;
+                    }
+                    else {
+                        switch (Character.toString(blocks[k].charAt(1))) {
+                            case "N":
+                                a = null;
+                                break;
+                            case "F":
+                                a = new Fox();
+                                break;
+                            case "H":
+                                a = new Hare();
+                                break;
+                            default:
+                                a = null;
+                                break;
+                        }
                     }
                     this.blocks[i][k] = new Block(t, a, i, k);
                     if (a != null) {
@@ -141,6 +143,10 @@ public class Map {;
         }
     }
 
+    /**
+     * Evaluate the state of map for the next day.
+     * Evaluates each animal. It gets rid of dead animals and shuffles the list at the end.
+     */
     public void evaluate() {
         for (int i = 0; i < animals.size(); i++) {
             Animal a = animals.get(i);
@@ -152,19 +158,39 @@ public class Map {;
                 a.evaluate(this);
             }
         }
-        //  get rid of dead animals
-        animals.removeIf(a -> a.isDead);
-        // change didEvaluate attribute to false for each animal
-        for (Animal a : animals) {
+        //  change stats of each animal
+        //  change stats of map also
+        for (Animal a : this.animals) {
+            if (a.isDead) {
+                if(a instanceof Fox) {
+                    numOfFoxes--;
+                }
+                else if (a instanceof Hare) {
+                    numOfHare--;
+                }
+                numOfAnimals--;
+                continue;
+            }
             a.didEvaluate = false;
+            a.nextDayChangeStats();
         }
+        //  get rid of dead animals now that they have been accounted for
+        this.animals.removeIf(a -> a.isDead);
+
         Collections.shuffle(animals);
     }
 
-    public void addNewBorn(Animal a, Block block) {
+    /**
+     * Add a new born animal on the map at block
+     * @param a is newborn animal
+     * @param block is block for newborn animal
+     */
+    public void addNewBornOnBlock(Animal a, Block block) {
         if (this.blocks[block.coordX][block.coordY].animal != null) {
             return;
         }
+        a.age = 0;
+        a.block = this.blocks[block.coordX][block.coordY];
         this.blocks[block.coordX][block.coordY].setAnimal(a);
     }
 
@@ -360,6 +386,51 @@ public class Map {;
         return res;
     }
 
+    /**
+     * Sets animal at coordinations of map
+     * @param a is animal
+     * @param coordX is x coordinate of map
+     * @param coordY is y coordinate of map
+     */
+    public void setAnimalAtCoord (Animal a, int coordX, int coordY) {
+        Block block = blocks[coordX][coordY];
+        if (block.animal != null) {
+            numOfAnimals--;
+            if(block.animal instanceof Hare) {
+                numOfHare--;
+            }
+            else if(block.animal instanceof Fox){
+                numOfFoxes--;
+            }
+        }
+        a.block = block;
+        block.animal = a;
+
+        if(a instanceof  Hare) {
+            numOfHare++;
+        }
+        else if(a instanceof Fox) {
+            numOfFoxes++;
+        }
+        numOfAnimals++;
+    }
+
+    public void deleteAnimalAtBlock(Block block) {
+        if (block.animal != null) {
+            if(block.animal instanceof Hare) {
+            }
+            else if(block.animal instanceof Fox){
+            }
+            this.blocks[block.coordX][block.coordY].animal = null;
+        }
+        else {
+            System.out.println("There is no animal on this block");
+        }
+    }
+
+    /**
+     * Print stats of current state of map
+     */
     public void printStats() {
         System.out.println("Size of map: " + this.sizeOfMap);
         System.out.println("Num of grass blocks: " + numOfGBlocks + " | Num of grass with grains blocks: " + numOfRBlocks + " | Num of grass with water blocks: " + numOfWBlocks + " | Num of bush blocks: " + numOfBBlocks);

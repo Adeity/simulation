@@ -23,7 +23,7 @@ public class Simulation {
 
     public void run(String filename){
         this.isRunning = true;
-        this.map = new Map(CONF.folderDirectory + "/mapTemplates/" + filename);
+        this.map = new Map(filename);
     }
 
     public void simulateDay(){

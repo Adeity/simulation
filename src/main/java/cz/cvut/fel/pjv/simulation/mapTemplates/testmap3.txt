@@ -1,8 +1,8 @@
 size: 3
 numOfFoxes: 3
-numOfHare: 5
-numOfAnimals: 8
+numOfHare: 3
+numOfAnimals: 6
 ----------
 GF GF GF
-BH GH GH
+GH GN GN
 GH GH WN

@@ -1,0 +1,11 @@
+# Plain map
+size: 5
+numOfFoxes: 0
+numOfHare: 0
+numOfAnimals: 0
+----------
+GN GN GN GN GN
+GN GN GN GN GN
+GN GN GN GN GN
+GN GN GN GN GN
+GN GN GN GN GN

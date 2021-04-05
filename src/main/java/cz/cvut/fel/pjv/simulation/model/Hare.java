@@ -28,10 +28,10 @@ public class Hare extends Animal implements Victim {
 
         Animal newBorn = new Hare(freeBlockForNewBorn);
         freeBlockForNewBorn.animal = newBorn;
-        newBorn.age = 1;
+        newBorn.age = 0;
 
         newBorn.block.animal = newBorn;
-//        map.addNewBorn(newBorn, freeBlockForNewBorn);
+        map.addNewBornOnBlock(newBorn, freeBlockForNewBorn);
         map.animals.add(newBorn);
         map.numOfHare++;
         map.numOfAnimals++;
@@ -78,7 +78,6 @@ public class Hare extends Animal implements Victim {
     @Override
     protected void die(Map map) {
         super.die(map);
-        map.numOfHare--;
     }
 
     @Override

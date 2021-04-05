@@ -53,7 +53,6 @@ public class Fox extends Animal implements Killer{
     @Override
     protected void die(Map map) {
         super.die(map);
-        map.numOfFoxes--;
     }
 
     @Override

@@ -15,38 +15,94 @@ public class Controller {
     }
 
     public void command() {
+        boolean validInput = false;
         Scanner sc = new Scanner(System.in);
-        if(!this.simulation.isRunning) {
-            System.out.println("Choose and enter number:");
-            System.out.println("Map from template: 1");
-            System.out.println("Map base on size: 2");
+        int i = 0;
+        while (true) {
+            System.out.println("Initialize simulation: ");
+            System.out.println("1 - from template");
+            System.out.println("2 - generate from size");
             String s = sc.nextLine();
             if(s.equals("1")) {
                 System.out.println("Enter map template filename: ");
                 s = sc.nextLine();
                 this.run(s);
                 System.out.println("Initializing map from teplate: " + s);
+                break;
             }
             else if (s.equals("2")) {
                 System.out.println("Enter size of map: ");
                 s = sc.nextLine();
                 int size = Integer.parseInt(s);
                 this.run(size);
+                break;
+            }
+            i++;
+            if(i == 3) {
+                System.out.println("You entered invalid command 3 times, do you wish to try again? y/n");
+                s = sc.nextLine();
+                if(s.equals("y") || s.equals("Y")) {
+                    i = 0;
+                    continue;
+                }
+                else {
+                    break;
+                }
             }
         }
-        else {
-            String s = sc.nextLine();
-            if(s.equals("next")){
+
+        i = 0;
+        if(simulation.isRunning) {
+            System.out.println("Available commands: next, end, show, stats, help");
+            while (true) {
+                String s = sc.nextLine();
+                if(s.equals("next")){
                     this.simulateDay();
-            }
-            else if(s.equals("end")) {
-                this.endSimulation();
-            }
-            else if(s.equals("show")) {
-                this.showCurrent();
-            }
-            else if(s.equals("stats")) {
-                this.printStats();
+                    i = 0;
+                    continue;
+                }
+                else if(s.equals("end") || s.equals("quit")) {
+                    this.endSimulation();
+                    i=0;
+                    break;
+                }
+                else if(s.equals("show")) {
+                    this.showCurrent();
+                    i = 0;
+                    continue;
+                }
+                else if(s.equals("stats")) {
+                    this.printStats();
+                    i = 0;
+                    continue;
+                }
+                else if(s.equals("help")) {
+                    printHelp();
+                    i = 0;
+                    continue;
+                }
+                else if(s.equals("keepRunning")) {
+                    keepRunning();
+                    i = 0;
+                    continue;
+                }
+                else {
+                    System.out.println("Command: " + s + " not found. Type help to print available commands.");
+                    i++;
+                }
+                if(i == 3) {
+                    System.out.println("You entered invalid command 3 in a row times, do you wish to try again? y/n");
+                    s = sc.nextLine();
+                    if(s.equals("y") || s.equals("Y")) {
+                        i = 0;
+                        System.out.println("Available commands: next, end, show, stats, help");
+                        continue;
+                    }
+                    else {
+                        endSimulation();
+                        break;
+                    }
+                }
             }
         }
     }
@@ -78,6 +134,21 @@ public class Controller {
 
     private void printStats() {
         simulation.printStats();
+    }
+
+    private void keepRunning() {
+        while (true){
+            simulateDay();
+        }
+    }
+
+    private void printHelp() {
+        System.out.println("Available commands: ");
+        System.out.println("next - simulates next day");
+        System.out.println("show - prints graphical representation of current state of simulation in command line");
+        System.out.println("stats - prints stats of current state of simulation");
+        System.out.println("end - end simulation and programme");
+        System.out.println("help - prints this help section");
     }
 
 //    public void changeTerrainAtCoord (Block.Terrain terrain, int row, int col) {

@@ -31,6 +31,7 @@ public abstract class Animal {
             if(this.interact(map, otherAnimal)) {
                 this.didEvaluate = true;
                 otherAnimal.didEvaluate = true;
+                break;
             }
         }
         if(!this.didEvaluate) {
@@ -50,9 +51,8 @@ public abstract class Animal {
         this.energy = -10;
         this.age = -10;
         this.satiety = -10;
-        this.block.animal = null;
-        this.block = null;
-        map.numOfAnimals--;
+        map.deleteAnimalAtBlock(this.block);
+//        this.block = null;
     }
 
     /**
@@ -67,7 +67,6 @@ public abstract class Animal {
      * @return true if both animals meet the requirements for mating
      */
     protected abstract boolean areReadyForMating (Animal otherAnimal);
-
 
     /**
      * Two animals mate with each other
@@ -102,12 +101,50 @@ public abstract class Animal {
      */
     protected abstract void mateChangeStats(Animal otherAnimal);
 
+//    protected abstract Animal findClosestPartner();
+//
+//    protected abstract void move();
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Animal animal = (Animal) o;
+
+        if (energy != animal.energy) return false;
+        if (age != animal.age) return false;
+        if (satiety != animal.satiety) return false;
+        if (isDead != animal.isDead) return false;
+        if (didEvaluate != animal.didEvaluate) return false;
+        return block.equals(animal.block);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = energy;
+        result = 31 * result + age;
+        result = 31 * result + satiety;
+        result = 31 * result + (isDead ? 1 : 0);
+        result = 31 * result + (didEvaluate ? 1 : 0);
+        result = 31 * result + block.hashCode();
+        return result;
+    }
+
     @Override
     public String toString() {
         String res = "";
         String isDead = (this.isDead ? "Dead" : "Alive");
         String didEvaluate = (this.didEvaluate ? "Evaluated" : "notEvaluated");
-        res += getClass().getSimpleName() + " x,y:("+this.block.coordX+", "+this.block.coordY + ") " + isDead + " age: " + age + " satiety: " +  satiety + " energy: " +energy;
+        String block;
+        try {
+            block = " x,y:("+this.block.coordX+", "+this.block.coordY + ") ";
+        }
+        catch (NullPointerException e) {
+            block = " nullBlock ";
+        }
+        res += getClass().getSimpleName() + block + isDead + " age: " + age + " satiety: " +  satiety + " energy: " +energy;
         return res;
     }
 }
