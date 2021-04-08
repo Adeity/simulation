@@ -2,8 +2,10 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.model.Animal;
 
-public class Block {
-    public enum Terrain {
+import java.io.Serializable;
+
+public class Block implements Serializable {
+    public enum Terrain implements Serializable{
         GRASS,
         GRASS_WITH_GRAIN,
         BUSH,

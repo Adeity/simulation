@@ -1,8 +1,16 @@
 package cz.cvut.fel.pjv.simulation;
 
 public class CONF {
-    public static String folderDirectory = "./src/main/java/cz/cvut/fel/pjv/simulation";
-    public static String MAP_TEMPLATE_DIRECTORY = "./src/main/java/cz/cvut/fel/pjv/simulation/mapTemplates/";
+    //  file separator
+    public static final String fS = System.getProperty("file.separator");
+
+    //  user directory
+    private static final String uD = System.getProperty("user.dir");
+
+    public static String simulationDirectory = uD + fS + "src" + fS + "main" + fS + "java" + fS + "cz" + fS + "cvut" + fS + "fel" + fS + "pjv" + fS + "simulation";
+    public static String MAP_TEMPLATE_DIRECTORY = simulationDirectory + fS + "mapTemplates";
+    public static String MAP_SAVES_DIRECTORY = simulationDirectory + fS + "mapSaves";
+
 
     /*------------------Hare----------------*/
     public static int HARE_DAILY_AGE_INCREASE = 1; public static int HARE_DAILY_SATIETY_DECREASE = 0;

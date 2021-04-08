@@ -1,10 +1,13 @@
 package cz.cvut.fel.pjv.simulation.controller;
 
+import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Animal;
 import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.model.Map;
 
+import java.io.File;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Controller {
@@ -15,6 +18,9 @@ public class Controller {
     }
 
     public void command() {
+        File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
+        String[] fileNames = mapTemplateDirectory.list();
+
         boolean validInput = false;
         Scanner sc = new Scanner(System.in);
         int i = 0;
@@ -22,6 +28,9 @@ public class Controller {
             System.out.println("Initialize simulation: ");
             System.out.println("1 - from template");
             System.out.println("2 - generate from size");
+            if (fileNames != null){
+                System.out.println("3 - load save");
+            }
             String s = sc.nextLine();
             if(s.equals("1")) {
                 System.out.println("Enter map template filename: ");
@@ -35,6 +44,10 @@ public class Controller {
                 s = sc.nextLine();
                 int size = Integer.parseInt(s);
                 this.run(size);
+                break;
+            }
+            else if (s.equals("3")) {
+                this.load();
                 break;
             }
             i++;
@@ -83,6 +96,11 @@ public class Controller {
                 }
                 else if(s.equals("keepRunning")) {
                     keepRunning();
+                    i = 0;
+                    continue;
+                }
+                else if(s.equals("save")) {
+                    save();
                     i = 0;
                     continue;
                 }
@@ -149,6 +167,50 @@ public class Controller {
         System.out.println("stats - prints stats of current state of simulation");
         System.out.println("end - end simulation and programme");
         System.out.println("help - prints this help section");
+    }
+
+    private void save() {
+        File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
+        String[] fileNames = mapTemplateDirectory.list();
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter name of new save: ");
+        String name = sc.nextLine();
+
+        this.simulation.serializeWrite(name);
+    }
+
+    private void load() {
+        File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
+        String[] fileNames = mapTemplateDirectory.list();
+
+        if(fileNames == null) {
+            System.out.println("There are no save files.");
+            System.exit(-3);
+        }
+
+        System.out.println("Available saves: ");
+        for (String file : fileNames) {
+            System.out.println(file);
+        }
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("\nEnter name of save to load: ");
+        String name;
+
+        while (true) {
+            name = sc.nextLine();
+            boolean contains = Arrays.asList(fileNames).contains(name);
+            if(!contains) {
+                System.out.println("There is no save with name: " + name);
+            }
+            else {
+                break;
+            }
+        }
+
+        System.out.println("Loading save: " + name);
+        this.simulation.serializeRead(name);
     }
 
 //    public void changeTerrainAtCoord (Block.Terrain terrain, int row, int col) {

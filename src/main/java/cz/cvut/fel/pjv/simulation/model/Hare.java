@@ -3,6 +3,8 @@ package cz.cvut.fel.pjv.simulation.model;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Victim;
 
+import java.io.Serializable;
+
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Hare extends Animal implements Victim {

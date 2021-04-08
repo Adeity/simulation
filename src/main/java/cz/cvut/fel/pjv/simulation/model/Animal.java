@@ -1,6 +1,8 @@
 package cz.cvut.fel.pjv.simulation.model;
 
-public abstract class Animal {
+import java.io.Serializable;
+
+public abstract class Animal implements Serializable {
     public int energy;
     public int age;
     public int satiety;

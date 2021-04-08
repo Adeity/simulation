@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -20,70 +20,87 @@ class MapTest {
         File mapTemplateDirectory = new File(CONF.MAP_TEMPLATE_DIRECTORY);
         File[] templates = mapTemplateDirectory.listFiles();
 
-        int expectedNumOfFoxes = -1;
-        int expectedNumOfHare = -1;
-        int expectedNumOfAnimals = -1;
-
-        Scanner scanner;
-        String nextLine;
+        String line;
 
         if(templates != null) {
             for (File template : templates) {
-                try {
-                    scanner = new Scanner(template);
+                Integer expectedNumOfFoxes = null;
+                Integer expectedNumOfHare = null;
+                Integer expectedNumOfAnimals = null;
+                try (
+                        BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(template), StandardCharsets.UTF_8));
+                        ){
+                    while ((line = br.readLine()) != null) {
+                        String[] metaData = line.split(" ");
+                        try {
+                            if(metaData[0].equals("numOfFoxes:")) {
+                                expectedNumOfFoxes = Integer.parseInt(metaData[1]);
+                            }
+                            if(metaData[0].equals("numOfHare:")) {
+                                expectedNumOfHare = Integer.parseInt(metaData[1]);
+                            }
+                            if(metaData[0].equals("numOfAnimals:")) {
+                                expectedNumOfAnimals = Integer.parseInt(metaData[1]);
+                            }
+                        }
+                        catch (NumberFormatException e) {
+                            System.out.println("Template has invalid number values!");
+                        }
+                        if(line.equals("----------")) {
+                            break;
+                        }
+                        else if(line.isEmpty()) {
+                            break;
+                        }
+                    }
+                    Map map = new Map(template.getName());
+
+                    if (expectedNumOfAnimals != null) {
+                        assertEquals(
+                                expectedNumOfAnimals.intValue(),
+                                map.numOfAnimals,
+                                "Wrong num of animals at map " + template.getName()
+                        );
+                        int animalListSize = map.animals.size();
+                        assertEquals(
+                                expectedNumOfAnimals.intValue(),
+                                animalListSize,
+                                "There are more or less animals in animal list than expected! " + template.getName()
+                        );
+                    }
+                    else {
+                        System.out.println("numOfanimals not defined in: " +template.getName());
+                    }
+                    if(expectedNumOfFoxes != null) {
+                        assertEquals(
+                                expectedNumOfFoxes.intValue(),
+                                map.numOfFoxes,
+                                template.getName()
+                        );
+                    }
+                    else {
+                        System.out.println("numOfFoxes not defined in: " +template.getName());
+                    }
+                    if(expectedNumOfHare != null) {
+                        assertEquals(
+                                expectedNumOfHare.intValue(),
+                                map.numOfHare,
+                                template.getName()
+                        );
+                    }
+                    else {
+                        System.out.println("numOfHare not defined in: " +template.getName());
+                    }
+
+
                 }
                 catch (FileNotFoundException e) {
                     e.printStackTrace();
                     break;
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                while (scanner.hasNextLine()) {
-                    nextLine = scanner.nextLine();
-                    String[] metaData = nextLine.split(" ");
-                    try {
-                        if(metaData[0].equals("numOfFoxes:")) {
-                            expectedNumOfFoxes = Integer.parseInt(metaData[1]);
-                        }
-                        if(metaData[0].equals("numOfHare:")) {
-                            expectedNumOfHare = Integer.parseInt(metaData[1]);
-                        }
-                        if(metaData[0].equals("numOfAnimals:")) {
-                            expectedNumOfAnimals = Integer.parseInt(metaData[1]);
-                        }
-                    }
-                    catch (NumberFormatException e) {
-                        System.out.println("Template has invalid number values!");
-                    }
-                    if(nextLine.equals("----------")) {
-                        break;
-                    }
-                    else if(nextLine.isEmpty()) {
-                        break;
-                    }
-                }
-                Map map = new Map(template.getName());
 
-                assertEquals(
-                        expectedNumOfAnimals,
-                        map.numOfAnimals,
-                        "Wrong num of animals at map " + template.getName()
-                );
-                assertEquals(
-                        expectedNumOfFoxes,
-                        map.numOfFoxes,
-                        template.getName()
-                );
-                assertEquals(
-                        expectedNumOfHare,
-                        map.numOfHare,
-                        template.getName()
-                );
-
-                int animalListSize = map.animals.size();
-                assertEquals(
-                        expectedNumOfAnimals,
-                        animalListSize,
-                        "There are more or less animals in animal list than expected! " + template.getName()
-                );
             }
         }
     }

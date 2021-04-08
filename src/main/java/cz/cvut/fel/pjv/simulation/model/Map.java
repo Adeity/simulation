@@ -2,12 +2,12 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Stream;
 
-public class Map {;
+public class Map implements Serializable{;
     public Block[][] blocks;
     public List<Animal> animals = new ArrayList<>();
     public int sizeOfMap;
@@ -45,15 +45,16 @@ public class Map {;
      * @param filename is text file, which contains predefined map in appropriate format
      */
     public Map(String filename) {
-        try {
-            File mapFile = new File(CONF.MAP_TEMPLATE_DIRECTORY+filename);
-            Scanner scanner = new Scanner(mapFile);
+        System.out.println(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename);
+        try (
+                BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename), StandardCharsets.UTF_8));
+                )
+        {
 
-            String nextLine;
+            String line;
             //  read metadata
-            while (scanner.hasNextLine()) {
-                nextLine = scanner.nextLine();
-                String[] metaData = nextLine.split(" ");
+            while ((line = br.readLine()) != null) {
+                String[] metaData = line.split(" ");
                 try {
                     if(metaData[0].equals("size:")) {
                         this.sizeOfMap = Integer.parseInt(metaData[1]);
@@ -62,10 +63,10 @@ public class Map {;
                 catch (NumberFormatException e) {
                     System.out.println("Template is invalid!");
                 }
-                if(nextLine.equals("----------")) {
+                if(line.equals("----------")) {
                     break;
                 }
-                else if(nextLine.isEmpty()) {
+                else if(line.isEmpty()) {
                     break;
                 }
             }
@@ -74,8 +75,8 @@ public class Map {;
 
             //  read and init map
             for (int i = 0; i < this.sizeOfMap; i++) {
-                nextLine = scanner.nextLine();
-                String[] blocks = nextLine.split(" ");
+                line = br.readLine();
+                String[] blocks = line.split(" ");
                 if(blocks.length != this.sizeOfMap) {
                     System.out.println("Wrong amount of blocks in map template.");
                     return;
@@ -137,9 +138,12 @@ public class Map {;
                     }
                 }
             }
+            br.close();
         }
-        catch (FileNotFoundException e) {
+        catch (FileNotFoundException | UnsupportedEncodingException e) {
             System.out.println("map not found");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -462,4 +466,6 @@ public class Map {;
     private String cmdOneRowOfStraigthLines() {
         return String.join("", Collections.nCopies( 4 * sizeOfMap, ("_"))) + "\n";
     }
+
+
 }
