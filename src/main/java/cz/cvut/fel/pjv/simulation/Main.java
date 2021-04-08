@@ -9,9 +9,6 @@ public class Main {
         App app = new App();
         app.run();
 
-//        File file = new File(CONF.MAP_TEMPLATE_DIRECTORY+"map1.txt");
-//        System.out.println("hovno"+file.getName());
-
         Controller c = app.controller;
 
         c.command();
