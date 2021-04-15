@@ -6,9 +6,10 @@ import cz.cvut.fel.pjv.simulation.model.Hare;
 import cz.cvut.fel.pjv.simulation.model.Map;
 
 import java.io.*;
+import java.util.Observable;
 import java.util.Scanner;
 
-public class Simulation {
+public class Simulation extends Observable {
     public Map map;
     public boolean isRunning;
     private int day = 0;

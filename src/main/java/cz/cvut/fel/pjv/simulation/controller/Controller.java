@@ -2,10 +2,9 @@ package cz.cvut.fel.pjv.simulation.controller;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.model.Animal;
-import cz.cvut.fel.pjv.simulation.model.Block;
-import cz.cvut.fel.pjv.simulation.model.Map;
+import cz.cvut.fel.pjv.simulation.view.View;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
@@ -104,6 +103,11 @@ public class Controller {
                     i = 0;
                     continue;
                 }
+                else if (s.equals("gui")) {
+//                    this.runGUI();
+                    i=0;
+                    continue;
+                }
                 else {
                     System.out.println("Command: " + s + " not found. Type help to print available commands.");
                     i++;
@@ -139,6 +143,7 @@ public class Controller {
 
     public void simulateDay() {
         simulation.simulateDay();
+        simulation.notifyObservers();
     }
 
     public void endSimulation() {

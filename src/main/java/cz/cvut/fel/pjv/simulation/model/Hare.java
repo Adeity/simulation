@@ -3,17 +3,17 @@ package cz.cvut.fel.pjv.simulation.model;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Victim;
 
-import java.io.Serializable;
-
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Hare extends Animal implements Victim {
 
     public Hare(Block block) {
-        this.block = block;
+        this.blocktoMoveTo = block;
         this.age = getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY);
         this.satiety = getRandomNumber(CONF.HARE_INIT_MIN_SATIETY, CONF.HARE_INIT_MAX_SATIETY);
+        this.direction = Direction.randomDirection();
+        this.direction = CONF.HARE_INIT_DIRECTION;
     }
 
     public Hare() {
@@ -32,7 +32,7 @@ public class Hare extends Animal implements Victim {
         freeBlockForNewBorn.animal = newBorn;
         newBorn.age = 0;
 
-        newBorn.block.animal = newBorn;
+        newBorn.blocktoMoveTo.animal = newBorn;
         map.addNewBornOnBlock(newBorn, freeBlockForNewBorn);
         map.animals.add(newBorn);
         map.numOfHare++;

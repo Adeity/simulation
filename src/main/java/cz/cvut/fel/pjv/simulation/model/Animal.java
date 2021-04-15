@@ -1,14 +1,37 @@
 package cz.cvut.fel.pjv.simulation.model;
 
+import cz.cvut.fel.pjv.simulation.CONF;
+
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
 
 public abstract class Animal implements Serializable {
+    public enum Direction {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT;
+
+        private static final List<Direction> DIRECTIONS =
+                Collections.unmodifiableList(Arrays.asList(values()));
+        private static final int SIZE = DIRECTIONS.size();
+        private static final Random RANDOM = new Random();
+
+        public static Direction randomDirection()  {
+            return DIRECTIONS.get(RANDOM.nextInt(SIZE));
+        }
+    };
+
     public int energy;
     public int age;
     public int satiety;
     public boolean isDead;
     public boolean didEvaluate;
-    public Block block;
+    public Block blocktoMoveTo;
+    public Direction direction;
 
     /**
      * If animal looks around and finds another animal to interact with, it does so.
@@ -16,7 +39,7 @@ public abstract class Animal implements Serializable {
      * @param map map of simulation
      */
     public void evaluate(Map map) {
-        Block[] surroundingBlocks = map.getSurroundingBlocks(this.block);
+        Block[] surroundingBlocks = map.getSurroundingBlocks(this.blocktoMoveTo);
 
         for (Block block : surroundingBlocks) {
             if (block == null) {
@@ -38,9 +61,62 @@ public abstract class Animal implements Serializable {
         }
         if(!this.didEvaluate) {
             //  TODO: implement moving
-//            move();
+            if (this instanceof Fox) {
+//                move(map, CONF.FOX_MOVES_PER_ROUND);
+            }
+            else if (this instanceof Hare) {
+//                move(map, CONF.HARE_MOVES_PER_ROUND);
+            }
         }
         nextDayChangeStats();
+    }
+
+    /**
+     * Animals moves across the map
+     */
+    protected void move(Map map, int movesPerRound) {
+
+        while (movesPerRound > 0) {
+            Block currentBlock = this.blocktoMoveTo;
+            Block down;
+            Block right;
+            Block left;
+            Block up;
+            Block blockToMoveTo = null;
+            try {
+                down = map.blocks[this.blocktoMoveTo.coordX + 1][this.blocktoMoveTo.coordY];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                down = null;
+            }
+            try {
+                up = map.blocks[this.blocktoMoveTo.coordX - 1][this.blocktoMoveTo.coordY];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                up = null;
+            }
+            try {
+                right = map.blocks[this.blocktoMoveTo.coordX][this.blocktoMoveTo.coordY + 1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                right = null;
+            }
+            try {
+                left = map.blocks[this.blocktoMoveTo.coordX][this.blocktoMoveTo.coordY - 1];
+            } catch (ArrayIndexOutOfBoundsException e) {
+                left = null;
+            }
+
+            if (this.direction == Direction.DOWN) {
+            }
+            else if (this.direction == Direction.UP) {
+            }
+
+//            if (blockToMoveTo == null || i == 3) {
+//                //  change direction
+//                this.direction = Direction.UP;
+//            } else {
+//                map.moveAnimal(this, blockToMoveTo);
+//                moveChangeStats(currentBlock);
+//            }
+        }
     }
 
     /**
@@ -53,7 +129,7 @@ public abstract class Animal implements Serializable {
         this.energy = -10;
         this.age = -10;
         this.satiety = -10;
-        map.deleteAnimalAtBlock(this.block);
+        map.deleteAnimalAtBlock(this.blocktoMoveTo);
 //        this.block = null;
     }
 
@@ -103,9 +179,36 @@ public abstract class Animal implements Serializable {
      */
     protected abstract void mateChangeStats(Animal otherAnimal);
 
-//    protected abstract Animal findClosestPartner();
-//
-//    protected abstract void move();
+
+
+//    protected void moveDown(Map map, int movesPerRound) {
+//    }
+//    protected void moveUp(Map map) {
+//    }
+//    protected void moveLeft(Map map) {
+//    }
+//    protected void moveRight(Map map) {
+//    }
+
+    protected void moveChangeStats(Block blocktoMoveTo) {
+        Block.Terrain terrain = blocktoMoveTo.getTerrain();
+        if (terrain == Block.Terrain.BUSH) {
+            if (this instanceof Hare) {
+                this.energy -= CONF.HARE_BUSH_ENERGY_DECREASE;
+            }
+            else if (this instanceof Fox) {
+                this.energy -= CONF.FOX_BUSH_ENERGY_DECREASE;
+            }
+        }
+        else {
+            if (this instanceof Hare) {
+                this.energy -= CONF.HARE_GRASS_ENERGY_DECREASE;
+            }
+            else if (this instanceof Fox) {
+                this.energy -= CONF.FOX_GRASS_ENERGY_DECREASE;
+            }
+        }
+    }
 
 
     @Override
@@ -120,7 +223,7 @@ public abstract class Animal implements Serializable {
         if (satiety != animal.satiety) return false;
         if (isDead != animal.isDead) return false;
         if (didEvaluate != animal.didEvaluate) return false;
-        return block.equals(animal.block);
+        return blocktoMoveTo.equals(animal.blocktoMoveTo);
     }
 
     @Override
@@ -130,7 +233,7 @@ public abstract class Animal implements Serializable {
         result = 31 * result + satiety;
         result = 31 * result + (isDead ? 1 : 0);
         result = 31 * result + (didEvaluate ? 1 : 0);
-        result = 31 * result + block.hashCode();
+        result = 31 * result + blocktoMoveTo.hashCode();
         return result;
     }
 
@@ -141,7 +244,7 @@ public abstract class Animal implements Serializable {
         String didEvaluate = (this.didEvaluate ? "Evaluated" : "notEvaluated");
         String block;
         try {
-            block = " x,y:("+this.block.coordX+", "+this.block.coordY + ") ";
+            block = " x,y:("+this.blocktoMoveTo.coordX+", "+this.blocktoMoveTo.coordY + ") ";
         }
         catch (NullPointerException e) {
             block = " nullBlock ";

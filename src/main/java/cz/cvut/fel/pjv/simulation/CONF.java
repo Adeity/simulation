@@ -1,5 +1,7 @@
 package cz.cvut.fel.pjv.simulation;
 
+import cz.cvut.fel.pjv.simulation.model.Animal;
+
 public class CONF {
     //  file separator
     public static final String fS = System.getProperty("file.separator");
@@ -13,7 +15,11 @@ public class CONF {
 
 
     /*------------------Hare----------------*/
+    public static int HARE_MOVES_PER_ROUND = 5;
+    public static Animal.Direction HARE_INIT_DIRECTION = Animal.Direction.randomDirection();
     public static int HARE_DAILY_AGE_INCREASE = 1; public static int HARE_DAILY_SATIETY_DECREASE = 0;
+    public static int HARE_GRASS_ENERGY_DECREASE = 1;  public static int HARE_BUSH_ENERGY_DECREASE = 3;
+
 
     public static int hareMovingFromGrassEnergyConsumption = 1;  public static int hareMovingFromBushesEnergyConsumption = 1;
 
@@ -26,6 +32,8 @@ public class CONF {
 
 
     /*------------------Fox----------------*/
+    public static int FOX_MOVES_PER_ROUND = 6;
+    public static Animal.Direction FOX_INIT_DIRECTION = Animal.Direction.DOWN;
     public static int FOX_DAILY_AGE_INCREASE = 1;  public static int FOX_DAILY_SATIETY_DECREASE = 1;
     public static int FOX_GRASS_ENERGY_DECREASE = 1;  public static int FOX_BUSH_ENERGY_DECREASE = 3;
 

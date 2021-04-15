@@ -13,10 +13,11 @@ public class Fox extends Animal implements Killer{
     }
     
     public Fox(Block block) {
-        this.block = block;
+        this.blocktoMoveTo = block;
         this.age = getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.FOX_INIT_MIN_ENERGY, CONF.FOX_INIT_MAX_ENERGY);
         this.satiety = getRandomNumber(CONF.FOX_INIT_MIN_SATIETY, CONF.FOX_INIT_MAX_SATIETY);
+        this.direction = FOX_INIT_DIRECTION;
     }
 
     @Override
@@ -91,7 +92,7 @@ public class Fox extends Animal implements Killer{
 
         Animal newBorn = new Fox(freeBlockForNewBorn);
         freeBlockForNewBorn.animal = newBorn;
-        newBorn.block.animal = newBorn;
+        newBorn.blocktoMoveTo.animal = newBorn;
         newBorn.age = 1;
 
         map.animals.add(newBorn);

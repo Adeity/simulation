@@ -1,10 +1,7 @@
 size: 5
-numOfFoxes: 1
-numOfHare: 1
-numOfAnimals: 2
 ----------
 GN GN GN GN GN
+GN GN GF GN GN
 GN GN GN GN GN
 GN GN GN GN GN
-GN GH GN GN GN
-GN GF GN GN GN
+GN GN GN GN GN

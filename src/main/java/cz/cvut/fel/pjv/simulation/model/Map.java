@@ -134,7 +134,7 @@ public class Map implements Serializable{;
                         }
                         this.animals.add(a);
                         numOfAnimals++;
-                        a.block = this.blocks[i][k];
+                        a.blocktoMoveTo = this.blocks[i][k];
                     }
                 }
             }
@@ -194,7 +194,7 @@ public class Map implements Serializable{;
             return;
         }
         a.age = 0;
-        a.block = this.blocks[block.coordX][block.coordY];
+        a.blocktoMoveTo = this.blocks[block.coordX][block.coordY];
         this.blocks[block.coordX][block.coordY].setAnimal(a);
     }
 
@@ -218,8 +218,8 @@ public class Map implements Serializable{;
     }
 
     public Block findFreeBlockForMating (Animal a1, Animal a2) {
-        Block[] a1Sb = this.getSurroundingBlocks(a1.block);
-        Block[] a2Sb = this.getSurroundingBlocks(a2.block);
+        Block[] a1Sb = this.getSurroundingBlocks(a1.blocktoMoveTo);
+        Block[] a2Sb = this.getSurroundingBlocks(a2.blocktoMoveTo);
         Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
         for (Block b : surroundingBlocks) {
             if (b == null) {
@@ -326,7 +326,7 @@ public class Map implements Serializable{;
      * prints circular lake
      * using formula: ((x1 - start_X) * (x1 - start_X) + (y1 - start_Y) * (y1 - start_Y)) <= r * r
      * @param centerRow is row index of where center is of circle
-     * @param centerCol is column idnex of where center of circle is
+     * @param centerCol is column index of where center of circle is
      */
     private void addLake(int centerRow, int centerCol) {
         int r = 2;
@@ -407,7 +407,7 @@ public class Map implements Serializable{;
                 numOfFoxes--;
             }
         }
-        a.block = block;
+        a.blocktoMoveTo = block;
         block.animal = a;
 
         if(a instanceof  Hare) {
@@ -430,6 +430,13 @@ public class Map implements Serializable{;
         else {
             System.out.println("There is no animal on this block");
         }
+    }
+
+    public void moveAnimal(Animal animal, Block block) {
+        Block currentBlockOfAnimal = animal.blocktoMoveTo;
+        currentBlockOfAnimal.animal = null;
+        block.animal = animal;
+        animal.blocktoMoveTo = block;
     }
 
     /**

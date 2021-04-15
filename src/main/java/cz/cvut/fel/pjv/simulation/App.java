@@ -18,4 +18,13 @@ public class App {
         System.out.println("Fox and hare simulator");
         System.out.println("____________________________________");
     }
+
+    public Simulation getSimulation() {
+        return simulation;
+    }
+
+    public Controller getController() {
+        return controller;
+    }
+
 }
