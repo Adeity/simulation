@@ -1,10 +1,9 @@
 package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.controller.Controller;
-import cz.cvut.fel.pjv.simulation.view.View;
+import cz.cvut.fel.pjv.simulation.view.JFrameInit;
 
 import javax.swing.*;
-import java.io.File;
 
 public class Main {
     public static void main (String[] args) {
@@ -18,12 +17,10 @@ public class Main {
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
-                View view = new View(app);
-                view.setVisible(true);
+                JFrameInit JFrameInit = new JFrameInit(app);
+                JFrameInit.setVisible(true);
             }
         });
-
-
 
     }
 }

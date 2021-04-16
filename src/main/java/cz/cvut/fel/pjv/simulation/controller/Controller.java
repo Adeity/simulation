@@ -2,9 +2,7 @@ package cz.cvut.fel.pjv.simulation.controller;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.view.View;
 
-import javax.swing.*;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
