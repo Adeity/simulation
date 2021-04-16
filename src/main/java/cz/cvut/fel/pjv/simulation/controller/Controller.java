@@ -44,7 +44,7 @@ public class Controller {
                 break;
             }
             else if (s.equals("3")) {
-                this.load();
+                this.loadCMD();
                 break;
             }
             i++;
@@ -183,7 +183,7 @@ public class Controller {
         this.simulation.serializeWrite(name);
     }
 
-    private void load() {
+    public void loadCMD() {
         File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
         String[] fileNames = mapTemplateDirectory.list();
 
@@ -214,6 +214,10 @@ public class Controller {
 
         System.out.println("Loading save: " + name);
         this.simulation.serializeRead(name);
+    }
+
+    public void load(String saveName) {
+        this.simulation.serializeRead(saveName);
     }
 
 //    public void changeTerrainAtCoord (Block.Terrain terrain, int row, int col) {

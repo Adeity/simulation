@@ -13,16 +13,17 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.Observable;
-import java.util.Observer;
 import java.util.logging.*;
 
-public class JFrameInit extends JFrame implements ActionListener, Observer{
-
-    private Simulation simulation;
+public class JFrameInit extends JFrame implements ActionListener{
 
     private volatile boolean needUpdate;
 
     private static final Logger LOG = Logger.getLogger(JFrameInit.class.getName());
+
+    App app;
+
+    JFrameSimulation jFrameSimulace;
 
     CardLayout cardLayout = new CardLayout(40, 30);
     FlowLayout flowLayout = new FlowLayout();
@@ -123,6 +124,8 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
         btnOkFromTemplatePanel.setActionCommand("TEMPLATE_TO_PARAMS");
         btnOkFromSavePanel.setActionCommand("SAVE_TO_PARAMS");
         btnOkFromSizePanel.setActionCommand("SIZE_TO_PARAMS");
+
+        btnRunFromParams.setActionCommand("Run");
     }
 
     private void resetFromBooleans() {
@@ -131,7 +134,28 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
         this.fromSize = false;
     }
 
+    private void addActionListeners() {
+        btnFromSize.addActionListener(this);
+        btnFromTemplate.addActionListener(this);
+        btnFromSave.addActionListener(this);
+        btnRun.addActionListener(this);
+        btnBackFromTemplatePanel.addActionListener(this);
+        btnBackFromTemplateErrorPanel.addActionListener(this);
+        btnBackFromSavePanel.addActionListener(this);
+        btnBackFromSaveErrorPanel.addActionListener(this);
+        btnBackFromSizePanel.addActionListener(this);
+
+        btnOkFromSavePanel.addActionListener(this);
+        btnOkFromSizePanel.addActionListener(this);
+        btnOkFromTemplatePanel.addActionListener(this);
+        btnRunFromParams.addActionListener(this);
+
+
+        btnBackFromParam.addActionListener(new BackFromParamToSave());
+    }
+
     public JFrameInit(App app) {
+        this.app = app;
         LOG.setUseParentHandlers(false);
         Handler stdout = new StreamHandler(System.out, new SimpleFormatter()) {
             @Override
@@ -144,9 +168,7 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
         stdout.setLevel(Level.FINEST);
 
 
-        this.setTitle("Simulace");
-        this.controller = app.getController();
-        this.simulation = app.getSimulation();
+        this.setTitle("Simulation start");
 
         //  integer formatter
         numberFormatter.setValueClass(Integer.class);
@@ -403,24 +425,6 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
         panelParameters.setLayout(new FlowLayout());
     }
 
-    private void addActionListeners() {
-        btnFromSize.addActionListener(this);
-        btnFromTemplate.addActionListener(this);
-        btnFromSave.addActionListener(this);
-        btnRun.addActionListener(this);
-        btnBackFromTemplatePanel.addActionListener(this);
-        btnBackFromTemplateErrorPanel.addActionListener(this);
-        btnBackFromSavePanel.addActionListener(this);
-        btnBackFromSaveErrorPanel.addActionListener(this);
-        btnBackFromSizePanel.addActionListener(this);
-
-        btnOkFromSavePanel.addActionListener(this);
-        btnOkFromSizePanel.addActionListener(this);
-        btnOkFromTemplatePanel.addActionListener(this);
-
-        btnBackFromParam.addActionListener(new BackFromParamToSave());
-    }
-
     private void changeConfig() {
         CONF.FOX_INIT_MIN_AGE = Integer.parseInt(this.confSpawnMinAgeFox.getText());
         CONF.FOX_INIT_MAX_AGE = Integer.parseInt(this.confSpawnMaxAgeFox.getText());
@@ -445,17 +449,21 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
-            case "Next":
-                this.controller.simulateDay();
-                map.repaint();
-                this.repaint();
-                break;
             case "Run":
+                c.setVisible(false);
+                this.dispose();
+                this.setVisible(false);
                 changeConfig();
-                this.controller.run("map1.txt");
-                this.map = new MapComponent(this.simulation.map);
-                this.remove(jb2);
-                this.add(map, BorderLayout.NORTH);
+                if(this.fromSave) {
+                    jFrameSimulace = new JFrameSimulation(this.app, this.saveName.getText());
+                }
+                else if(this.fromTemplate) {
+                    jFrameSimulace = new JFrameSimulation(this.app, this.templateName.getText(), true);
+                }
+                else if(this.fromSize) {
+                    jFrameSimulace = new JFrameSimulation(this.app, Integer.parseInt(this.sizeField.getText()));
+                }
+                jFrameSimulace.setVisible(true);
                 break;
             case "Reset":
                 break;
@@ -607,11 +615,6 @@ public class JFrameInit extends JFrame implements ActionListener, Observer{
         field.setColumns(10);
         panel.add(field, gridBagConstraints);
         return field;
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-        needUpdate = true;
     }
 
     private class BackFromParamToTemplate implements ActionListener {

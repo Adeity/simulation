@@ -1,7 +1,5 @@
 package cz.cvut.fel.pjv.simulation.view;
 
-import cz.cvut.fel.pjv.simulation.model.Block;
-
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,16 +10,17 @@ public class Tile extends JComponent {
     public int x;
     public int y;
 
-    private int squareSideLen = 20;
+    private int tileWidth;
 
 
 
-    public Tile(Color terrainColor, Color animalColor, int x, int y){
+    public Tile(Color terrainColor, Color animalColor, int x, int y, int tileWidth){
         this.terrainColor = terrainColor;
         this.animalColor = animalColor;
         this.x = x;
         this.y = y;
-        setPreferredSize(new Dimension(squareSideLen, squareSideLen));
+        this.tileWidth = tileWidth;
+        setPreferredSize(new Dimension(tileWidth, tileWidth));
     }
     @Override
     public void paintComponent(Graphics g) {
@@ -29,20 +28,20 @@ public class Tile extends JComponent {
         g.clearRect(0, 0, getWidth(), getHeight());
         int dimension = 100;
 
-        int x = this.y * squareSideLen;
-        int y = this.x * squareSideLen;
+        int x = this.y * tileWidth;
+        int y = this.x * tileWidth;
 
         //  paint terrain
         g.setColor(terrainColor);
-        g.fillRect(x, y, squareSideLen, squareSideLen);
+        g.fillRect(x, y, tileWidth, tileWidth);
 
         //  paint animal
         g.setColor(animalColor);
-        g.fillOval(x, y, squareSideLen, squareSideLen);
+        g.fillOval(x, y, tileWidth, tileWidth);
 
         //  paint square
         g.setColor(new Color(128, 128, 128));
-        g.drawRect(x, y, squareSideLen, squareSideLen);
+        g.drawRect(x, y, tileWidth, tileWidth);
 
     }
 

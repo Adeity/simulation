@@ -11,9 +11,9 @@ public class Map implements Serializable{;
     public Block[][] blocks;
     public List<Animal> animals = new ArrayList<>();
     public int sizeOfMap;
-    int numOfFoxes = 0;
-    int numOfHare = 0;
-    int numOfAnimals = 0;
+    public int numOfFoxes = 0;
+    public int numOfHare = 0;
+    public int numOfAnimals = 0;
     //  G block = Grass block
     public int numOfGBlocks = 0;
     //  B block = Bush block

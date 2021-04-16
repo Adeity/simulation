@@ -26,11 +26,12 @@ public class MapComponent extends JComponent {
 
     public int dimension;
 
+
     private Map map;
 
     private Tile[][] terrainGrid;
 
-    public MapComponent(Map mapIn) {
+    public MapComponent(Map mapIn, int panelWidth) {
         this.map = mapIn;
         this.dimension = map.sizeOfMap;
         this.terrainGrid = new Tile[dimension][dimension];
@@ -61,12 +62,10 @@ public class MapComponent extends JComponent {
                 else if(map.blocks[i][j].getAnimal() instanceof Hare) {
                     animalColor = HARE;
                 }
-                this.terrainGrid[i][j] = new Tile(terrainColor, animalColor, i, j);
+                this.terrainGrid[i][j] = new Tile(terrainColor, animalColor, i, j, panelWidth/dimension);
             }
         }
-        int preferredWidth = 20 * PREFERRED_GRID_SIZE_PIXELS;
-        int preferredHeight = 20 * PREFERRED_GRID_SIZE_PIXELS;
-        setPreferredSize(new Dimension(preferredWidth, preferredHeight));
+        setPreferredSize(new Dimension(panelWidth, panelWidth));
 
         MouseHandler mouseHandler = new MouseHandler();
         this.addMouseListener(mouseHandler);
