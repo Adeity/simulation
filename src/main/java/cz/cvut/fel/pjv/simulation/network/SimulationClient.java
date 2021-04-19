@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
-public class SimulationClient {
+public class SimulationClient implements Runnable{
     private static final Logger LOG = Logger.getLogger(SimulationClient.class.getName());
     Socket socket = null;
     ObjectOutputStream outObject = null;
@@ -17,11 +17,42 @@ public class SimulationClient {
 
     BufferedReader systemIn;
 
+    String host;
+    int port;
+
     Map map;
 
-    public SimulationClient(String ipAddress, int port) {
+    public SimulationClient(String host, int port) {
+        this.host = host;
+        this.port = port;
+    }
+
+    public void sendMapToServer(Map map) {
+        this.map = map;
         try {
-            socket = new Socket(ipAddress, port);
+            outWriter.write("SENDING_MAP");
+            outObject.writeObject(this.map);
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void close() {
+        try{
+            inObject.close();
+            outObject.close();
+            socket.close();
+            systemIn.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+        try {
+            socket = new Socket(host, port);
             outObject = new ObjectOutputStream(socket.getOutputStream()); // get the output stream of client.
             inObject = new ObjectInputStream(socket.getInputStream());
 
@@ -47,31 +78,10 @@ public class SimulationClient {
                     }
                 }
             }
+            this.close();
         } catch (IOException ex) {
             // Nepodarilo se najit (DNS, NIS atp.) hostitele
             System.exit(-1);
-        }
-    }
-
-    public void sendMapToServer(Map map) {
-        this.map = map;
-        try {
-            outWriter.write("SENDING_MAP");
-            outObject.writeObject(this.map);
-        }
-        catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void close() {
-        try{
-            inObject.close();
-            outObject.close();
-            socket.close();
-            systemIn.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 }

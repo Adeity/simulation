@@ -14,8 +14,8 @@ public class ControllerNetwork {
     SimulationClient simulationClient;
     SimulationServer simulationServer;
 
-    boolean isClient = false;
-    boolean isServer = false;
+    boolean isClient;
+    boolean isServer;
 
     public ControllerNetwork(boolean isServer) {
         this.isServer = isServer;
@@ -47,12 +47,8 @@ public class ControllerNetwork {
         if (isServer) {
             return;
         }
-        Thread t = new Thread(){
-            @Override
-            public void run() {
-                simulationClient = new SimulationClient(ipAddress, port);
-            }
-        };
+        simulationClient = new SimulationClient(ipAddress, port);
+        Thread t = new Thread(simulationClient);
         t.start();
     }
 }
