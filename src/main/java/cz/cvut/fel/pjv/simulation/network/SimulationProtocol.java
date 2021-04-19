@@ -1,7 +1,6 @@
 package cz.cvut.fel.pjv.simulation.network;
 
 public class SimulationProtocol {
-    int hovnoCounter = 0;
 
     public SimulationProtocol() {
     }
