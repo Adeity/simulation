@@ -95,9 +95,6 @@ public class Controller {
                 String s = sc.nextLine();
                 if(s.equals("next")){
                     this.simulateDay();
-                    if (controllerNetwork != null) {
-                        controllerNetwork.update(this.simulation.map);
-                    }
                     i = 0;
                     continue;
                 }
@@ -174,7 +171,9 @@ public class Controller {
 
     public void simulateDay() {
         simulation.simulateDay();
-        simulation.notifyObservers();
+        if (controllerNetwork != null) {
+            controllerNetwork.update(this.simulation.map);
+        }
     }
 
     public void endSimulation() {

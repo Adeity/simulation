@@ -9,7 +9,7 @@ import java.io.*;
 import java.util.Observable;
 import java.util.Scanner;
 
-public class Simulation extends Observable {
+public class Simulation {
     public Map map;
     public boolean isRunning;
     public int day = 0;
