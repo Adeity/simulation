@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class Simulation extends Observable {
     public Map map;
     public boolean isRunning;
-    private int day = 0;
+    public int day = 0;
 
     public Simulation() {
     }

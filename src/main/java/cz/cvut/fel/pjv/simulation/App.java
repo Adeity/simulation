@@ -1,17 +1,16 @@
 package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.controller.Controller;
-import cz.cvut.fel.pjv.simulation.controller.NetworkController;
+import cz.cvut.fel.pjv.simulation.controller.ControllerNetwork;
 
 public class App {
     Simulation simulation;
     Controller controller;
-    NetworkController networkController;
+    ControllerNetwork controllerNetwork;
 
     public App() {
         simulation = new Simulation();
         controller = new Controller(simulation);
-        networkController = new NetworkController(simulation);
     }
 
     public void run() {

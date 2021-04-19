@@ -1,5 +1,6 @@
 package cz.cvut.fel.pjv.simulation.view;
 
+import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Map;
 
 import javax.swing.*;
@@ -7,8 +8,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class JFrameStats extends JFrame implements ActionListener {
+public class JFrameStats extends JFrame {
 
+    JLabel day = new JLabel();
     JLabel sizeOfMap = new JLabel();
     JLabel numOfGrassBlocks = new JLabel();
     JLabel numOfBushBlocks = new JLabel();
@@ -17,16 +19,18 @@ public class JFrameStats extends JFrame implements ActionListener {
     JLabel numOfFoxes = new JLabel();
     JLabel numOfHare = new JLabel();
 
-    Map map;
+    Simulation simulation;
 
-    public JFrameStats(Map map) {
-        this.map = map;
+    public JFrameStats(Simulation simulation) {
+        this.simulation = simulation;
+        this.setTitle("Stats");
 
 
         Box verticalBox = Box.createVerticalBox();
 
         updateLabels();
 //        numOfGrassBlocks = new JLabel("")
+        verticalBox.add(day);
         verticalBox.add(sizeOfMap);
         verticalBox.add(numOfGrassBlocks);
         verticalBox.add(numOfBushBlocks);
@@ -36,22 +40,18 @@ public class JFrameStats extends JFrame implements ActionListener {
         verticalBox.add(numOfHare);
 
         this.add(verticalBox);
-        this.setSize(new Dimension(200, 400));
+        this.setSize(new Dimension(200, 500));
         this.setVisible(true);
     }
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        updateLabels();
-    }
-
     public void updateLabels() {
-        this.sizeOfMap.setText("Size of map: " + map.sizeOfMap);
-        this.numOfGrassBlocks.setText("Num of grass blocks: " + map.numOfGBlocks);
-        this.numOfBushBlocks.setText("Num of bush blocks: " + map.numOfBBlocks);
-        this.numOfWaterBlocks.setText("Num of water blocks: " + map.numOfWBlocks);
-        this.numOfAnimals.setText("Num of animals: " + map.numOfAnimals);
-        this.numOfFoxes.setText("Num of foxes: " + map.numOfFoxes);
-        this.numOfHare.setText("Num of hare: " + map.numOfHare);
+        this.day.setText("Day: " + this.simulation.day);
+        this.sizeOfMap.setText("Size of map: " + this.simulation.map.sizeOfMap+"x"+this.simulation.map.sizeOfMap);
+        this.numOfGrassBlocks.setText("Num of grass blocks: " + this.simulation.map.numOfGBlocks);
+        this.numOfBushBlocks.setText("Num of bush blocks: " + this.simulation.map.numOfBBlocks);
+        this.numOfWaterBlocks.setText("Num of water blocks: " + this.simulation.map.numOfWBlocks);
+        this.numOfAnimals.setText("Num of animals: " + this.simulation.map.numOfAnimals);
+        this.numOfFoxes.setText("Num of foxes: " + this.simulation.map.numOfFoxes);
+        this.numOfHare.setText("Num of hare: " + this.simulation.map.numOfHare);
     }
 }

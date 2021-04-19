@@ -92,7 +92,6 @@ public class JFrameSimulation extends JFrame implements ActionListener {
         mapPanel.add(mapComponent);
         System.out.println(mapPanel.getWidth());
 
-
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));
         verticalBox.add(buttons);
@@ -116,9 +115,11 @@ public class JFrameSimulation extends JFrame implements ActionListener {
                 break;
             case "Show stats":
                 LOG.fine("Opening stats");
-                // TODO: open new window with stats
                 if(jFrameStats == null) {
-                    jFrameStats = new JFrameStats(this.simulation.map);
+                    jFrameStats = new JFrameStats(this.simulation);
+                }
+                else{
+                    jFrameStats.setVisible(true);
                 }
                 break;
         }

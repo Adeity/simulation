@@ -1,9 +1,7 @@
 package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.controller.Controller;
-import cz.cvut.fel.pjv.simulation.view.JFrameInit;
-
-import javax.swing.*;
+import cz.cvut.fel.pjv.simulation.controller.ControllerNetwork;
 
 public class Main {
     public static void main (String[] args) {
@@ -11,16 +9,17 @@ public class Main {
         app.run();
 
         Controller c = app.controller;
+        ControllerNetwork nc = app.controllerNetwork;
 
-//        c.command();
+        c.command();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JFrameInit JFrameInit = new JFrameInit(app);
-                JFrameInit.setVisible(true);
-            }
-        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                JFrameInit JFrameInit = new JFrameInit(app);
+//                JFrameInit.setVisible(true);
+//            }
+//        });
 
     }
 }

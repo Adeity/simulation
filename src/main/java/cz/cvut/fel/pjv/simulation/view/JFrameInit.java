@@ -15,6 +15,8 @@ import java.text.NumberFormat;
 import java.util.Observable;
 import java.util.logging.*;
 
+import static java.lang.Character.isDigit;
+
 public class JFrameInit extends JFrame implements ActionListener{
 
     private volatile boolean needUpdate;
@@ -317,6 +319,7 @@ public class JFrameInit extends JFrame implements ActionListener{
         horizontalBox.add(btnOkFromSizePanel);
 
         panelSize.add(headingFromSize);
+        panelSize.add(new JLabel("More than 100 is not recommended"));
         panelSize.add(panel);
         panelSize.add(horizontalBox);
         panelSize.setLayout(new FlowLayout());
@@ -446,6 +449,31 @@ public class JFrameInit extends JFrame implements ActionListener{
         CONF.HARE_MATING_MIN_AGE = Integer.parseInt(this.confOtherMinMatingAgeHare.getText());
     }
 
+    /**
+     * Number formatted text fields can produce texts such as 100,000. These give a NumberFormatException.
+     * This method transforms such texts into a format parasble to integer through Integere.parseInt() method
+     * @return return String in format parsable to integer.
+     */
+    private String getParsableToInt(String numberToTransform) {
+        String res = "";
+        for (int i = 0; i < numberToTransform.length(); i++) {
+            char c = numberToTransform.charAt(i);
+            if (isDigit(c)){
+                res += c;
+            }
+        }
+        return res;
+    }
+
+    /**
+     * Transforms number formatted textfield to integer.
+     * @return integer from textfield
+     */
+    private int getIntegerFromTextField(String textfield) {
+        int res = Integer.parseInt(getParsableToInt(textfield));
+        return res;
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
@@ -461,7 +489,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                     jFrameSimulace = new JFrameSimulation(this.app, this.templateName.getText(), true);
                 }
                 else if(this.fromSize) {
-                    jFrameSimulace = new JFrameSimulation(this.app, Integer.parseInt(this.sizeField.getText()));
+                    jFrameSimulace = new JFrameSimulation(this.app, getIntegerFromTextField(this.sizeField.getText()));
                 }
                 jFrameSimulace.setVisible(true);
                 break;

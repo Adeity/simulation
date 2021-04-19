@@ -2,13 +2,17 @@ package cz.cvut.fel.pjv.simulation.controller;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
+import cz.cvut.fel.pjv.simulation.view.JFrameSimulation;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 public class Controller {
     private final Simulation simulation;
+    ControllerNetwork controllerNetwork;
+    private static final Logger LOG = Logger.getLogger(Controller.class.getName());
 
     public Controller(Simulation simulation) {
         this.simulation = simulation;
@@ -18,22 +22,27 @@ public class Controller {
         File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
         String[] fileNames = mapTemplateDirectory.list();
 
-        boolean validInput = false;
         Scanner sc = new Scanner(System.in);
         int i = 0;
+        boolean isClient = false;
+
         while (true) {
             System.out.println("Initialize simulation: ");
             System.out.println("1 - from template");
             System.out.println("2 - generate from size");
+            if (!isClient) {
+                System.out.println("3 - create server");
+                System.out.println("4 - create client");
+            }
             if (fileNames != null){
-                System.out.println("3 - load save");
+                System.out.println("5 - load save");
             }
             String s = sc.nextLine();
             if(s.equals("1")) {
                 System.out.println("Enter map template filename: ");
                 s = sc.nextLine();
                 this.run(s);
-                System.out.println("Initializing map from teplate: " + s);
+                System.out.println("Initializing map from template: " + s);
                 break;
             }
             else if (s.equals("2")) {
@@ -44,6 +53,24 @@ public class Controller {
                 break;
             }
             else if (s.equals("3")) {
+                System.out.println("Enter port: ");
+                s = sc.nextLine();
+                controllerNetwork = new ControllerNetwork(true);
+                controllerNetwork.startServer(Integer.parseInt(s));
+            }
+            else if (s.equals("4")) {
+                System.out.println("Enter IP address of server: ");
+                s = sc.nextLine();
+                String ipAddress = s;
+                System.out.println("Enter port: ");
+                s = sc.nextLine();
+                String port = s;
+                controllerNetwork = new ControllerNetwork(false);
+                controllerNetwork.createClient(ipAddress, Integer.parseInt(port));
+                isClient = true;
+                continue;
+            }
+            else if (s.equals("5")) {
                 this.loadCMD();
                 break;
             }
@@ -68,6 +95,9 @@ public class Controller {
                 String s = sc.nextLine();
                 if(s.equals("next")){
                     this.simulateDay();
+                    if (controllerNetwork != null) {
+                        controllerNetwork.update(this.simulation.map);
+                    }
                     i = 0;
                     continue;
                 }
@@ -100,6 +130,9 @@ public class Controller {
                     save();
                     i = 0;
                     continue;
+                }
+                else if (s.equals("net")){
+
                 }
                 else if (s.equals("gui")) {
 //                    this.runGUI();
