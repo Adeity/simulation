@@ -20,7 +20,7 @@ public interface Killer {
     void kill(Map map, Animal otherAnimal);
 
     /**
-     * Increase satiety and decrease energy of killer after killing hare
+     * Increase energy of killer after killing prey
      */
     void killHareAddStats();
 //    void findClosestPrey();

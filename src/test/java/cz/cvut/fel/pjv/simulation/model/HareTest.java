@@ -34,8 +34,9 @@ class HareTest {
         Hare hare2 = spy(new Hare());
 
         //  set attributes to verify functional stub
-        hare1.satiety = -100;
-        hare2.satiety = -55;
+        //  TODO: refactor test because satiety got deletd
+//        hare1.satiety = -100;
+//        hare2.satiety = -55;
 
         //  stub
         doReturn(true).when(hare1).areReadyForMating(hare2);
@@ -44,7 +45,7 @@ class HareTest {
 
         map.setAnimalAtCoord(hare1, 2, 1);
         assertEquals(hare1, map.blocks[2][1].animal);
-        assertEquals(hare1.blocktoMoveTo, map.blocks[2][1]);
+        assertEquals(hare1.block, map.blocks[2][1]);
         assertEquals(
                 1,
                 map.numOfHare
@@ -52,7 +53,7 @@ class HareTest {
 
         map.setAnimalAtCoord(hare2, 2, 2);
         assertEquals(hare2, map.blocks[2][2].animal);
-        assertEquals(hare2.blocktoMoveTo, map.blocks[2][2]);
+        assertEquals(hare2.block, map.blocks[2][2]);
         assertEquals(
                 2,
                 map.numOfHare

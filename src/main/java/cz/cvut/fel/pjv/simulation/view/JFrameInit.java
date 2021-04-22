@@ -40,8 +40,6 @@ public class JFrameInit extends JFrame implements ActionListener{
     JFormattedTextField confSpawnMaxAgeFox = new JFormattedTextField(numberFormatter);
     JFormattedTextField confSpawnMinEnergyFox = new JFormattedTextField(numberFormatter);
     JFormattedTextField confSpawnMaxEnergyFox = new JFormattedTextField(numberFormatter);
-    JFormattedTextField confSpawnMinSatietyFox = new JFormattedTextField(numberFormatter);
-    JFormattedTextField confSpawnMaxSatietyFox = new JFormattedTextField(numberFormatter);
 
     JFormattedTextField confOtherMinKillingAgeFox = new JFormattedTextField(numberFormatter);
     JFormattedTextField confOtherMinMatingAgeFox = new JFormattedTextField(numberFormatter);
@@ -50,8 +48,6 @@ public class JFrameInit extends JFrame implements ActionListener{
     JFormattedTextField confSpawnMaxAgeHare = new JFormattedTextField(numberFormatter);
     JFormattedTextField confSpawnMinEnergyHare = new JFormattedTextField(numberFormatter);
     JFormattedTextField confSpawnMaxEnergyHare = new JFormattedTextField(numberFormatter);
-    JFormattedTextField confSpawnMinSatietyHare = new JFormattedTextField(numberFormatter);
-    JFormattedTextField confSpawnMaxSatietyHare = new JFormattedTextField(numberFormatter);
 
     JFormattedTextField confOtherMinMatingAgeHare = new JFormattedTextField(numberFormatter);
 
@@ -353,12 +349,6 @@ public class JFrameInit extends JFrame implements ActionListener{
         JLabel foxMaxEnergy = addMyLabelCell(4, "Max energy: ", bagSpawnFox);
         confSpawnMaxEnergyFox = addMyTextFieldCell(4, "", bagSpawnFox, true);
 
-        JLabel foxMinSatiety = addMyLabelCell(5, "Min satiety: ", bagSpawnFox);
-        confSpawnMinSatietyFox = addMyTextFieldCell(5, "", bagSpawnFox, true);
-
-        JLabel foxMaxSatiety = addMyLabelCell(6, "Max satiety: ", bagSpawnFox);
-        confSpawnMaxSatietyFox = addMyTextFieldCell(6, "", bagSpawnFox, true);
-
         JLabel hareLabel = addMyLabelCell(0, "Hare: ", bagSpawnHare);
 
         JLabel hareMinAge = addMyLabelCell(1, "Min age: ", bagSpawnHare);
@@ -373,25 +363,15 @@ public class JFrameInit extends JFrame implements ActionListener{
         JLabel hareMaxEnergy = addMyLabelCell(4, "Max energy: ", bagSpawnHare);
         confSpawnMaxEnergyHare = addMyTextFieldCell(4, "", bagSpawnHare, true);
 
-        JLabel hareMinSatiety = addMyLabelCell(5, "Min satiety: ", bagSpawnHare);
-        confSpawnMinSatietyHare = addMyTextFieldCell(5, "", bagSpawnHare, true);
-
-        JLabel hareMaxSatiety = addMyLabelCell(6, "Max satiety: ", bagSpawnHare);
-        confSpawnMaxSatietyHare = addMyTextFieldCell(6, "", bagSpawnHare, true);
-
         confSpawnMinAgeFox.setValue(CONF.FOX_INIT_MIN_AGE);
         confSpawnMaxAgeFox.setValue(CONF.FOX_INIT_MAX_AGE);
         confSpawnMinEnergyFox.setValue(CONF.FOX_INIT_MIN_ENERGY);
         confSpawnMaxEnergyFox.setValue(CONF.FOX_INIT_MAX_ENERGY);
-        confSpawnMinSatietyFox.setValue(CONF.FOX_INIT_MIN_SATIETY);
-        confSpawnMaxSatietyFox.setValue(CONF.FOX_INIT_MAX_SATIETY);
 
         confSpawnMinAgeHare.setValue(CONF.HARE_INIT_MIN_AGE);
         confSpawnMaxAgeHare.setValue(CONF.HARE_INIT_MAX_AGE);
         confSpawnMinEnergyHare.setValue(CONF.HARE_INIT_MIN_ENERGY);
         confSpawnMaxEnergyHare.setValue(CONF.HARE_INIT_MAX_ENERGY);
-        confSpawnMinSatietyHare.setValue(CONF.HARE_INIT_MIN_SATIETY);
-        confSpawnMaxSatietyHare.setValue(CONF.HARE_INIT_MAX_SATIETY);
 
 
         JLabel otherFoxLabel = addMyLabelCell(0, "Fox: ", bagOtherFox);
@@ -433,15 +413,11 @@ public class JFrameInit extends JFrame implements ActionListener{
         CONF.FOX_INIT_MAX_AGE = Integer.parseInt(this.confSpawnMaxAgeFox.getText());
         CONF.FOX_INIT_MIN_ENERGY = Integer.parseInt(this.confSpawnMinEnergyFox.getText());
         CONF.FOX_INIT_MAX_ENERGY = Integer.parseInt(this.confSpawnMaxEnergyFox.getText());
-        CONF.FOX_INIT_MIN_SATIETY = Integer.parseInt(this.confSpawnMinSatietyFox.getText());
-        CONF.FOX_INIT_MAX_SATIETY = Integer.parseInt(this.confSpawnMaxSatietyFox.getText());
 
         CONF.HARE_INIT_MIN_AGE = Integer.parseInt(this.confSpawnMinAgeHare.getText());
         CONF.HARE_INIT_MAX_AGE = Integer.parseInt(this.confSpawnMaxAgeHare.getText());
         CONF.HARE_INIT_MIN_ENERGY = Integer.parseInt(this.confSpawnMinEnergyHare.getText());
         CONF.HARE_INIT_MAX_ENERGY = Integer.parseInt(this.confSpawnMaxEnergyHare.getText());
-        CONF.HARE_INIT_MIN_SATIETY = Integer.parseInt(this.confSpawnMinSatietyHare.getText());
-        CONF.HARE_INIT_MAX_SATIETY = Integer.parseInt(this.confSpawnMaxSatietyHare.getText());
 
         CONF.FOX_KILLING_MIN_AGE = Integer.parseInt(this.confOtherMinKillingAgeFox.getText());
         CONF.FOX_MATING_MIN_AGE = Integer.parseInt(this.confOtherMinMatingAgeFox.getText());

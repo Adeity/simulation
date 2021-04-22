@@ -6,6 +6,20 @@
   <component name="ChangeListManager">
     <list default="true" id="5b5ee22f-fbcf-48cb-9af6-abadca93ff38" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/CONF.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/CONF.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/mapTemplates/map0.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/mapTemplates/map0.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/SimulationClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/SimulationClient.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/utils/Utilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/utils/Utilities.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/view/JFrameSimulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/view/JFrameSimulation.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/HareTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/HareTest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Animal.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Animal.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Fox.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Fox.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Hare.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Hare.class" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Map.class" beforeDir="false" afterPath="$PROJECT_DIR$/target/classes/cz/cvut/fel/pjv/simulation/model/Map.class" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,7 +155,13 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="CUSTOM_BOOLEAN_PROPERTIES">
+                <map>
+                  <entry key="Show.Git.Branches" value="false" />
+                </map>
+              </option>
+            </State>
           </value>
         </entry>
       </map>
@@ -162,20 +182,16 @@
     <MESSAGE value="now shows stats" />
     <MESSAGE value="client communication WIP" />
     <MESSAGE value="client communication WIP 2" />
-    <option name="LAST_COMMIT_MESSAGE" value="client communication WIP 2" />
+    <MESSAGE value="client communication WIP 3" />
+    <option name="LAST_COMMIT_MESSAGE" value="client communication WIP 3" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java</url>
-          <line>81</line>
+          <line>85</line>
           <option name="timeStamp" value="9" />
-        </line-breakpoint>
-        <line-breakpoint type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java</url>
-          <line>38</line>
-          <option name="timeStamp" value="19" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/view/JFrameInit.java</url>
@@ -183,9 +199,14 @@
           <option name="timeStamp" value="20" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/SimulationServerThread.java</url>
-          <line>46</line>
-          <option name="timeStamp" value="23" />
+          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java</url>
+          <line>160</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java</url>
+          <line>76</line>
+          <option name="timeStamp" value="25" />
         </line-breakpoint>
         <breakpoint type="java-exception">
           <properties class="java.util.ConcurrentModificationException" package="java.util" />

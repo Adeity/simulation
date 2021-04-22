@@ -2,21 +2,27 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Killer;
+import cz.cvut.fel.pjv.simulation.utils.Utilities;
+
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static cz.cvut.fel.pjv.simulation.CONF.*;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Fox extends Animal implements Killer{
-
+    private static final Logger LOG = Logger.getLogger(Map.class.getName());
     public Fox() {
         this(null);
     }
     
     public Fox(Block block) {
-        this.blocktoMoveTo = block;
+        Utilities.addHandlerToLogger(LOG);
+        LOG.setLevel(Level.FINER);
+
+        this.block = block;
         this.age = getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.FOX_INIT_MIN_ENERGY, CONF.FOX_INIT_MAX_ENERGY);
-        this.satiety = getRandomNumber(CONF.FOX_INIT_MIN_SATIETY, CONF.FOX_INIT_MAX_SATIETY);
         this.direction = FOX_INIT_DIRECTION;
     }
 
@@ -34,7 +40,7 @@ public class Fox extends Animal implements Killer{
 
         else if (
                 otherAnimal instanceof Hare
-                && isReadyToKill()
+                && isReadyToKill() && foxSeesHare(this, otherAnimal)
         ) {
             kill(map, otherAnimal);
         }
@@ -46,9 +52,7 @@ public class Fox extends Animal implements Killer{
 
     @Override
     public boolean isReadyToKill() {
-        return this.energy > FOX_KILLING_MIN_ENERGY
-                &&
-                this.age > FOX_KILLING_MIN_AGE;
+        return true;
     }
 
     @Override
@@ -59,23 +63,9 @@ public class Fox extends Animal implements Killer{
     @Override
     protected boolean areReadyForMating(Animal otherAnimal) {
         if(
-                this.energy < CONF.FOX_MATING_MIN_ENERGY
-                ||
-                        otherAnimal.energy < CONF.FOX_MATING_MIN_ENERGY
-        ){
-            return false;
-        }
-        if(
                 this.age < CONF.FOX_MATING_MIN_AGE
                         ||
                         otherAnimal.age < CONF.FOX_MATING_MIN_AGE
-        ){
-            return false;
-        }
-        if(
-                this.satiety < CONF.FOX_MATING_MIN_SATIETY
-                        ||
-                        otherAnimal.satiety < CONF.FOX_MATING_MIN_SATIETY
         ){
             return false;
         }
@@ -84,16 +74,18 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected boolean mate(Map map, Animal otherAnimal) {
+        LOG.info(this + " is mating with " + otherAnimal);
         Block freeBlockForNewBorn = map.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
-            System.out.println("There is no space for mating.");
+            LOG.info("No space for mating");
             return false;
         }
 
         Animal newBorn = new Fox(freeBlockForNewBorn);
         freeBlockForNewBorn.animal = newBorn;
-        newBorn.blocktoMoveTo.animal = newBorn;
+        newBorn.block.animal = newBorn;
         newBorn.age = 1;
+        newBorn.didEvaluate = true;
 
         map.animals.add(newBorn);
         map.numOfFoxes++;
@@ -121,8 +113,7 @@ public class Fox extends Animal implements Killer{
 
     @Override
     public void killHareAddStats() {
-        this.satiety += CONF.FOX_EATS_HARE_SATIETY_INCREASE;
-        this.energy -= CONF.FOX_KILLING_ENERGY_CONSUMPTION;
+        this.energy += CONF.FOX_KILLING_ENERGY_INCREASE;
     }
 
     @Override
@@ -133,7 +124,7 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected void nextDayChangeStats() {
-        this.satiety -= FOX_DAILY_SATIETY_DECREASE;
+        this.energy -= FOX_DAILY_ENERGY_DECREASE;
         this.age += FOX_DAILY_AGE_INCREASE;
     }
 }

@@ -1,6 +1,6 @@
 size: 4
 ----------
-GF GN GN GN
-GN GF GN GN
-GN GN GF GN
-GN GN GN GF
+GF GF GN GN
+GN GN GN GN
+GN GN GN GN
+GN GN GN GN

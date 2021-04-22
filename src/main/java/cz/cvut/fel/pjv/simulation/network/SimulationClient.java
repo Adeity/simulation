@@ -30,7 +30,7 @@ public class SimulationClient implements Runnable{
     public void sendMapToServer(Map map) {
         this.map = map;
         try {
-            outWriter.write("SENDING_MAP");
+            outWriter.write("SENDING_MAP\n");
             outObject.writeObject(this.map);
         }
         catch (IOException e) {
@@ -40,6 +40,8 @@ public class SimulationClient implements Runnable{
 
     public void close() {
         try{
+            LOG.severe("Closing client connection");
+            System.out.println("Closing client connection");
             inObject.close();
             outObject.close();
             socket.close();

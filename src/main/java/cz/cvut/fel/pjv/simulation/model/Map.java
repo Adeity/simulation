@@ -1,13 +1,17 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-public class Map implements Serializable{;
+public class Map implements Serializable{
+    private static final Logger LOG = Logger.getLogger(Map.class.getName());
     public Block[][] blocks;
     public List<Animal> animals = new ArrayList<>();
     public int sizeOfMap;
@@ -134,7 +138,7 @@ public class Map implements Serializable{;
                         }
                         this.animals.add(a);
                         numOfAnimals++;
-                        a.blocktoMoveTo = this.blocks[i][k];
+                        a.block = this.blocks[i][k];
                     }
                 }
             }
@@ -152,13 +156,17 @@ public class Map implements Serializable{;
      * Evaluates each animal. It gets rid of dead animals and shuffles the list at the end.
      */
     public void evaluate() {
+        Utilities.addHandlerToLogger(LOG);
+        LOG.setLevel(Level.INFO);
         for (int i = 0; i < animals.size(); i++) {
             Animal a = animals.get(i);
-
+            LOG.finest("Checking animal: " + a);
             if (a.didEvaluate) {
+                LOG.finest(a + " already evaluated");
                 continue;
             }
             else {
+                LOG.finest(a + " evaluating");
                 a.evaluate(this);
             }
         }
@@ -166,6 +174,7 @@ public class Map implements Serializable{;
         //  change stats of map also
         for (Animal a : this.animals) {
             if (a.isDead) {
+                LOG.finest("Found dead animal in list: " + a.getClass().getSimpleName() + " at: (" + a.block.coordX + ", " + a.block.coordY + ")");
                 if(a instanceof Fox) {
                     numOfFoxes--;
                 }
@@ -194,7 +203,7 @@ public class Map implements Serializable{;
             return;
         }
         a.age = 0;
-        a.blocktoMoveTo = this.blocks[block.coordX][block.coordY];
+        a.block = this.blocks[block.coordX][block.coordY];
         this.blocks[block.coordX][block.coordY].setAnimal(a);
     }
 
@@ -218,8 +227,8 @@ public class Map implements Serializable{;
     }
 
     public Block findFreeBlockForMating (Animal a1, Animal a2) {
-        Block[] a1Sb = this.getSurroundingBlocks(a1.blocktoMoveTo);
-        Block[] a2Sb = this.getSurroundingBlocks(a2.blocktoMoveTo);
+        Block[] a1Sb = this.getSurroundingBlocks(a1.block);
+        Block[] a2Sb = this.getSurroundingBlocks(a2.block);
         Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
         for (Block b : surroundingBlocks) {
             if (b == null) {
@@ -407,7 +416,7 @@ public class Map implements Serializable{;
                 numOfFoxes--;
             }
         }
-        a.blocktoMoveTo = block;
+        a.block = block;
         block.animal = a;
 
         if(a instanceof  Hare) {
@@ -433,10 +442,10 @@ public class Map implements Serializable{;
     }
 
     public void moveAnimal(Animal animal, Block block) {
-        Block currentBlockOfAnimal = animal.blocktoMoveTo;
+        Block currentBlockOfAnimal = animal.block;
         currentBlockOfAnimal.animal = null;
         block.animal = animal;
-        animal.blocktoMoveTo = block;
+        animal.block = block;
     }
 
     /**

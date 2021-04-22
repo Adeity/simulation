@@ -4,6 +4,7 @@ import cz.cvut.fel.pjv.simulation.App;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.model.Map;
+import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import javax.swing.*;
 import java.awt.*;
@@ -58,16 +59,7 @@ public class JFrameSimulation extends JFrame implements ActionListener {
     }
 
     private void init() {
-        LOG.setUseParentHandlers(false);
-        Handler stdout = new StreamHandler(System.out, new SimpleFormatter()) {
-            @Override
-            public void publish(LogRecord record) {
-                super.publish(record);
-                flush();
-            }
-        };
-        LOG.addHandler(stdout);
-        stdout.setLevel(Level.FINEST);
+        Utilities.addHandlerToLogger(LOG);
 
         Box verticalBox = Box.createVerticalBox();
         Box buttons = Box.createHorizontalBox();

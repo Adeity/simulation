@@ -8,10 +8,9 @@ import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 public class Hare extends Animal implements Victim {
 
     public Hare(Block block) {
-        this.blocktoMoveTo = block;
+        this.block = block;
         this.age = getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY);
-        this.satiety = getRandomNumber(CONF.HARE_INIT_MIN_SATIETY, CONF.HARE_INIT_MAX_SATIETY);
         this.direction = Direction.randomDirection();
         this.direction = CONF.HARE_INIT_DIRECTION;
     }
@@ -31,8 +30,8 @@ public class Hare extends Animal implements Victim {
         Animal newBorn = new Hare(freeBlockForNewBorn);
         freeBlockForNewBorn.animal = newBorn;
         newBorn.age = 0;
-
-        newBorn.blocktoMoveTo.animal = newBorn;
+        newBorn.didEvaluate = true;
+        newBorn.block.animal = newBorn;
         map.addNewBornOnBlock(newBorn, freeBlockForNewBorn);
         map.animals.add(newBorn);
         map.numOfHare++;
@@ -46,11 +45,16 @@ public class Hare extends Animal implements Victim {
     @Override
     protected boolean interact(Map map, Animal otherAnimal) {
 
-        if (otherAnimal instanceof Fox && willAnimalGetKilled(otherAnimal)) {
+        if (
+                otherAnimal instanceof Fox
+                        &&
+                        willAnimalGetKilled(otherAnimal)
+                &&
+                        foxSeesHare(otherAnimal, this)
+        ) {
             die(map);
             ((Fox) otherAnimal).killHareAddStats();
         }
-
         else if (
                 otherAnimal instanceof Hare
                 && areReadyForMating(otherAnimal)
@@ -85,23 +89,9 @@ public class Hare extends Animal implements Victim {
     @Override
     protected boolean areReadyForMating(Animal otherAnimal) {
         if(
-                this.energy < CONF.HARE_MATING_MIN_ENERGY
-                        ||
-                        otherAnimal.energy < CONF.HARE_MATING_MIN_ENERGY
-        ){
-            return false;
-        }
-        if(
                 this.age < CONF.HARE_MATING_MIN_AGE
                         ||
                         otherAnimal.age < CONF.HARE_MATING_MIN_AGE
-        ){
-            return false;
-        }
-        if(
-                this.satiety < CONF.HARE_MATING_MIN_SATIETY
-                        ||
-                        otherAnimal.satiety < CONF.HARE_MATING_MIN_SATIETY
         ){
             return false;
         }
@@ -110,7 +100,7 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected void nextDayChangeStats() {
-        this.satiety -= CONF.HARE_DAILY_SATIETY_DECREASE;
+        this.energy -= CONF.HARE_DAILY_ENERGY_DECREASE;
         this.age += CONF.HARE_DAILY_AGE_INCREASE;
     }
 
