@@ -1,0 +1,9 @@
+# in the test foxes are added manually
+size: 3
+numOfFoxes: 0
+numOfHare: 0
+numOfAnimals: 0
+----------
+GN GN GN
+GN GN GN
+GN GN GN

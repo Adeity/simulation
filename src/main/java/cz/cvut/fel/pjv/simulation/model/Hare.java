@@ -3,12 +3,14 @@ package cz.cvut.fel.pjv.simulation.model;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Victim;
 
+import static cz.cvut.fel.pjv.simulation.CONF.ENERGY_FOR_MATING;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Hare extends Animal implements Victim {
 
     public Hare(Block block) {
         this.block = block;
+        this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
         this.age = getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY);
         this.direction = Direction.randomDirection();
@@ -21,24 +23,18 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected boolean mate(Map map, Animal otherAnimal) {
+        mateChangeStats(otherAnimal);
         Block freeBlockForNewBorn = map.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
             System.out.println("There is no space for mating.");
             return false;
         }
 
-        Animal newBorn = new Hare(freeBlockForNewBorn);
-        freeBlockForNewBorn.animal = newBorn;
-        newBorn.age = 0;
-        newBorn.didEvaluate = true;
-        newBorn.block.animal = newBorn;
-        map.addNewBornOnBlock(newBorn, freeBlockForNewBorn);
+        Hare newBorn = (Hare) createNewBorn(freeBlockForNewBorn);
+
         map.animals.add(newBorn);
         map.numOfHare++;
         map.numOfAnimals++;
-
-        mateChangeStats(otherAnimal);
-
         return true;
     }
 
@@ -92,6 +88,10 @@ public class Hare extends Animal implements Victim {
                 this.age < CONF.HARE_MATING_MIN_AGE
                         ||
                         otherAnimal.age < CONF.HARE_MATING_MIN_AGE
+                ||
+                this.energyForMating < CONF.ENERGY_FOR_MATING
+                ||
+                otherAnimal.energyForMating < CONF.ENERGY_FOR_MATING
         ){
             return false;
         }
@@ -102,6 +102,9 @@ public class Hare extends Animal implements Victim {
     protected void nextDayChangeStats() {
         this.energy -= CONF.HARE_DAILY_ENERGY_DECREASE;
         this.age += CONF.HARE_DAILY_AGE_INCREASE;
+        if(this.energyForMating < ENERGY_FOR_MATING) {
+            this.energyForMating += CONF.ENERGY_FOR_MATING_DAILY_INCREASE;
+        }
     }
 
     /**
@@ -115,7 +118,22 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected void mateChangeStats(Animal otherAnimal) {
-        this.energy -= CONF.HARE_MATING_ENERGY_CONSUMPTION;
-        otherAnimal.energy -= CONF.HARE_MATING_ENERGY_CONSUMPTION;
+        this.energyForMating = 0;
+        otherAnimal.energyForMating = 0;
     }
+
+    @Override
+    protected Animal createNewBorn(Block blockForNewBorn) {
+        Hare newBornHare = new Hare();
+        newBornHare.setAge(0);
+        newBornHare.setEnergyForMating(0);
+        newBornHare.setDidEvaluate(true);
+
+        newBornHare.setBlock(blockForNewBorn);
+        blockForNewBorn.setAnimal(newBornHare);
+
+        return newBornHare;
+    }
+
+
 }

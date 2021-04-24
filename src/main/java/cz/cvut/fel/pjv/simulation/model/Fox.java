@@ -18,8 +18,7 @@ public class Fox extends Animal implements Killer{
     
     public Fox(Block block) {
         Utilities.addHandlerToLogger(LOG);
-        LOG.setLevel(Level.FINER);
-
+        this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
         this.block = block;
         this.age = getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.FOX_INIT_MIN_ENERGY, CONF.FOX_INIT_MAX_ENERGY);
@@ -66,6 +65,10 @@ public class Fox extends Animal implements Killer{
                 this.age < CONF.FOX_MATING_MIN_AGE
                         ||
                         otherAnimal.age < CONF.FOX_MATING_MIN_AGE
+                ||
+                        this.energyForMating < CONF.ENERGY_FOR_MATING
+                ||
+                        otherAnimal.energyForMating < CONF.ENERGY_FOR_MATING
         ){
             return false;
         }
@@ -74,25 +77,22 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected boolean mate(Map map, Animal otherAnimal) {
-        LOG.info(this + " is mating with " + otherAnimal);
+        mateChangeStats(otherAnimal);
+//        LOG.info(this + " is mating with " + otherAnimal);
+        System.out.println(this + " is mating with " + otherAnimal);
         Block freeBlockForNewBorn = map.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
             LOG.info("No space for mating");
             return false;
         }
 
-        Animal newBorn = new Fox(freeBlockForNewBorn);
-        freeBlockForNewBorn.animal = newBorn;
-        newBorn.block.animal = newBorn;
-        newBorn.age = 1;
-        newBorn.didEvaluate = true;
+        Fox newBorn = (Fox) createNewBorn(freeBlockForNewBorn);
 
         map.animals.add(newBorn);
         map.numOfFoxes++;
         map.numOfAnimals++;
 
         mateChangeStats(otherAnimal);
-
         return true;
     }
 
@@ -117,14 +117,30 @@ public class Fox extends Animal implements Killer{
     }
 
     @Override
-    protected void mateChangeStats (Animal otherAnimal) {
-        this.energy -= CONF.FOX_MATING_ENERGY_CONSUMPTION;
-        otherAnimal.energy -= CONF.FOX_MATING_ENERGY_CONSUMPTION;
-    }
-
-    @Override
     protected void nextDayChangeStats() {
         this.energy -= FOX_DAILY_ENERGY_DECREASE;
         this.age += FOX_DAILY_AGE_INCREASE;
+        if(this.energyForMating < ENERGY_FOR_MATING) {
+            this.energyForMating += CONF.ENERGY_FOR_MATING_DAILY_INCREASE;
+        }
+    }
+
+    @Override
+    protected Animal createNewBorn(Block blockForNewBorn) {
+        Fox newBornFox = new Fox();
+        newBornFox.setAge(0);
+        newBornFox.setEnergyForMating(0);
+        newBornFox.setDidEvaluate(true);
+
+        newBornFox.setBlock(blockForNewBorn);
+        blockForNewBorn.setAnimal(newBornFox);
+
+        return newBornFox;
+    }
+
+    @Override
+    protected void mateChangeStats (Animal otherAnimal) {
+        this.energyForMating = 0;
+        otherAnimal.energyForMating = 0;
     }
 }

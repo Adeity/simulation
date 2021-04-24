@@ -376,11 +376,8 @@ public class JFrameInit extends JFrame implements ActionListener{
 
         JLabel otherFoxLabel = addMyLabelCell(0, "Fox: ", bagOtherFox);
 
-        JLabel otherFoxMinAgeKilling = addMyLabelCell(1, "Min killing age: ", bagOtherFox);
-        confOtherMinKillingAgeFox = addMyTextFieldCell(1, "", bagOtherFox, true);
-
-        JLabel otherFoxMinAgeMating = addMyLabelCell(2, "Min mating age: ", bagOtherFox);
-        confOtherMinMatingAgeFox = addMyTextFieldCell(2, "", bagOtherFox, true);
+        JLabel otherFoxMinAgeMating = addMyLabelCell(1, "Min mating age: ", bagOtherFox);
+        confOtherMinMatingAgeFox = addMyTextFieldCell(1, "", bagOtherFox, true);
 
 
         JLabel otherHareLabel = addMyLabelCell(0, "Hare: ", bagOtherHare);
@@ -388,7 +385,6 @@ public class JFrameInit extends JFrame implements ActionListener{
         JLabel otherHareMinAgeMating = addMyLabelCell(1, "Min mating age: ", bagOtherHare);
         confOtherMinMatingAgeHare = addMyTextFieldCell(1, "", bagOtherHare, true);
 
-        confOtherMinKillingAgeFox.setValue(CONF.FOX_KILLING_MIN_AGE);
         confOtherMinMatingAgeFox.setValue(CONF.FOX_MATING_MIN_AGE);
 
         confOtherMinMatingAgeHare.setValue(CONF.HARE_MATING_MIN_AGE);
@@ -419,7 +415,7 @@ public class JFrameInit extends JFrame implements ActionListener{
         CONF.HARE_INIT_MIN_ENERGY = Integer.parseInt(this.confSpawnMinEnergyHare.getText());
         CONF.HARE_INIT_MAX_ENERGY = Integer.parseInt(this.confSpawnMaxEnergyHare.getText());
 
-        CONF.FOX_KILLING_MIN_AGE = Integer.parseInt(this.confOtherMinKillingAgeFox.getText());
+
         CONF.FOX_MATING_MIN_AGE = Integer.parseInt(this.confOtherMinMatingAgeFox.getText());
 
         CONF.HARE_MATING_MIN_AGE = Integer.parseInt(this.confOtherMinMatingAgeHare.getText());

@@ -14,27 +14,28 @@ public class CONF {
     public static String MAP_SAVES_DIRECTORY = simulationDirectory + fS + "mapSaves";
 
     public static int MOVES_PER_ROUND = 5;
+    public static int ENERGY_FOR_MATING = 20;
+    public static int ENERGY_FOR_MATING_MIN = 3;
+    public static int ENERGY_FOR_MATING_MAX = 10;
+    public static int ENERGY_FOR_MATING_DAILY_INCREASE = 1;
 
     /*------------------Hare----------------*/
-
     public static Animal.Direction HARE_INIT_DIRECTION = Animal.Direction.randomDirection();
     public static int HARE_DAILY_AGE_INCREASE = 1; public static int HARE_DAILY_ENERGY_DECREASE = 0;
 
     public static int HARE_INIT_MIN_ENERGY = 20;  public static int HARE_INIT_MAX_ENERGY = 50;
     public static int HARE_INIT_MIN_AGE = 20;      public static int HARE_INIT_MAX_AGE = 50;
 
-    public static int HARE_MATING_MIN_AGE = 10;   public static int HARE_MATING_ENERGY_CONSUMPTION = 5;
-
-
+    public static int HARE_MATING_MIN_AGE = 10;
 
     /*------------------Fox----------------*/
-    public static Animal.Direction FOX_INIT_DIRECTION = Animal.Direction.DOWN;
+    public static Animal.Direction FOX_INIT_DIRECTION = Animal.Direction.randomDirection();
     public static int FOX_DAILY_AGE_INCREASE = 1;  public static int FOX_DAILY_ENERGY_DECREASE = 1;
 
     public static int FOX_INIT_MIN_ENERGY = 40;  public static int FOX_INIT_MAX_ENERGY = 50;
     public static int FOX_INIT_MIN_AGE = 20;      public static int FOX_INIT_MAX_AGE = 25;
 
-    public static int FOX_MATING_MIN_AGE = 20;   public static int FOX_MATING_ENERGY_CONSUMPTION = 5;
-    public static int FOX_KILLING_MIN_AGE = 5;   public static int FOX_KILLING_ENERGY_INCREASE = 5;
+    public static int FOX_MATING_MIN_AGE = 20;
+    public static int FOX_KILLING_ENERGY_INCREASE = 5;
 
 }

@@ -28,6 +28,7 @@ public abstract class Animal implements Serializable {
     };
 
     public int energy;
+    public int energyForMating;
     public int age;
     public boolean isDead;
     public boolean didEvaluate;
@@ -65,7 +66,6 @@ public abstract class Animal implements Serializable {
             move(map, CONF.MOVES_PER_ROUND);
             this.didEvaluate = true;
         }
-        nextDayChangeStats();
     }
 
     /**
@@ -142,6 +142,13 @@ public abstract class Animal implements Serializable {
      * @return true if there is a newborn animal on the map, false if there isn't
      */
     protected abstract boolean mate(Map map, Animal otherAnimal);
+
+    /**
+     * Create an animal with parameters of a newborn.
+     * @param blockForNewBorn is block on which newborn is born
+     * @return
+     */
+    protected abstract Animal createNewBorn(Block blockForNewBorn);
 
     /**
      * One letter code of animal
@@ -249,5 +256,61 @@ public abstract class Animal implements Serializable {
         }
         res += getClass().getSimpleName() + block + isDead + " age: " + age + " " +didEvaluate;
         return res;
+    }
+
+    public int getEnergy() {
+        return energy;
+    }
+
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
+    public int getEnergyForMating() {
+        return energyForMating;
+    }
+
+    public void setEnergyForMating(int energyForMating) {
+        this.energyForMating = energyForMating;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public boolean isDead() {
+        return isDead;
+    }
+
+    public void setDead(boolean dead) {
+        isDead = dead;
+    }
+
+    public boolean isDidEvaluate() {
+        return didEvaluate;
+    }
+
+    public void setDidEvaluate(boolean didEvaluate) {
+        this.didEvaluate = didEvaluate;
+    }
+
+    public Block getBlock() {
+        return block;
+    }
+
+    public void setBlock(Block block) {
+        this.block = block;
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 }

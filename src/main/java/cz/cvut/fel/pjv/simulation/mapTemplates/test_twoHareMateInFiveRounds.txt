@@ -1,0 +1,7 @@
+size: 2
+numOfFoxes: 0
+numOfHare: 2
+numOfAnimals: 2
+----------
+GH GH
+GN GN

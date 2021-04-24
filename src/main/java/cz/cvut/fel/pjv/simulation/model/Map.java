@@ -169,6 +169,11 @@ public class Map implements Serializable{
                 LOG.finest(a + " evaluating");
                 a.evaluate(this);
             }
+            a.nextDayChangeStats();
+            if (a.energy <= 0 && !a.isDead) {
+                a.isDead = true;
+                this.deleteAnimalAtBlock(a.getBlock());
+            }
         }
         //  change stats of each animal
         //  change stats of map also
@@ -185,7 +190,6 @@ public class Map implements Serializable{
                 continue;
             }
             a.didEvaluate = false;
-            a.nextDayChangeStats();
         }
         //  get rid of dead animals now that they have been accounted for
         this.animals.removeIf(a -> a.isDead);
@@ -408,13 +412,7 @@ public class Map implements Serializable{
     public void setAnimalAtCoord (Animal a, int coordX, int coordY) {
         Block block = blocks[coordX][coordY];
         if (block.animal != null) {
-            numOfAnimals--;
-            if(block.animal instanceof Hare) {
-                numOfHare--;
-            }
-            else if(block.animal instanceof Fox){
-                numOfFoxes--;
-            }
+            deleteAnimalAtBlock(this.blocks[coordX][coordY]);
         }
         a.block = block;
         block.animal = a;
@@ -425,15 +423,20 @@ public class Map implements Serializable{
         else if(a instanceof Fox) {
             numOfFoxes++;
         }
+        this.animals.add(a);
         numOfAnimals++;
     }
 
     public void deleteAnimalAtBlock(Block block) {
         if (block.animal != null) {
+            this.animals.remove(block.animal);
             if(block.animal instanceof Hare) {
+                numOfHare--;
             }
             else if(block.animal instanceof Fox){
+                numOfFoxes--;
             }
+            numOfAnimals--;
             this.blocks[block.coordX][block.coordY].animal = null;
         }
         else {

@@ -31,6 +31,6 @@ public class Utilities {
             }
         };
         LOG.addHandler(stdout);
-        stdout.setLevel(Level.FINEST);
+        stdout.setLevel(Level.ALL);
     }
 }

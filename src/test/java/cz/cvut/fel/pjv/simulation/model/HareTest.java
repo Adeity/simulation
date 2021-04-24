@@ -2,6 +2,9 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mockito;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -9,34 +12,29 @@ import static org.mockito.Mockito.*;
 class HareTest {
 
     @Test
-    void mateChangeStats_twoHareMate_CurrentEnergyMinusCONFEnergyConsumption() {
+    void test_mateChangeStats() {
         Hare hare1 = new Hare();
         Hare hare2 = new Hare();
 
-        int hare1ExpectedNewEnergy = hare1.energy - CONF.HARE_MATING_ENERGY_CONSUMPTION;
-        int hare2ExpectedNewEnergy = hare2.energy - CONF.HARE_MATING_ENERGY_CONSUMPTION;
+        int hare1ExpectedNewEnergy = 0;
+        int hare2ExpectedNewEnergy = 0;
 
         hare1.mateChangeStats(hare2);
 
         assertEquals(
                 hare1ExpectedNewEnergy,
-                hare1.energy
+                hare1.energyForMating
         );
         assertEquals(
                 hare2ExpectedNewEnergy,
-                hare2.energy
+                hare2.energyForMating
         );
     }
 
     @Test
-    void Mating_stubbingASpyOfHare_newAnimalOnMap() {
+    void test_hareMate() {
         Hare hare1 = spy(new Hare());
         Hare hare2 = spy(new Hare());
-
-        //  set attributes to verify functional stub
-        //  TODO: refactor test because satiety got deletd
-//        hare1.satiety = -100;
-//        hare2.satiety = -55;
 
         //  stub
         doReturn(true).when(hare1).areReadyForMating(hare2);
@@ -96,5 +94,221 @@ class HareTest {
 
         verify(hare1, times(1)).mate(map, hare2);
         verify(hare1, times(1)).mateChangeStats(hare2);
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+            "3",
+            "5",
+            "10"
+    })
+    void test_testTemplateMap_twoHareMateInFiveRounds(int numOfRounds) {
+        Map map = new Map("test_twoHareMateInFiveRounds.txt");
+        Animal hare1 = map.blocks[0][0].getAnimal();
+        Animal hare2 = map.blocks[0][1].getAnimal();
+
+        //  set energy for mating needed
+        CONF.ENERGY_FOR_MATING = 100;
+
+        int hare1CurrEnergyForMating = CONF.ENERGY_FOR_MATING - numOfRounds;
+        hare1.setEnergyForMating(hare1CurrEnergyForMating);
+
+        assertEquals(
+                hare1CurrEnergyForMating,
+                hare1.getEnergyForMating()
+        );
+
+        int hare2CurrEnergyForMating = CONF.ENERGY_FOR_MATING - numOfRounds;
+        hare2.setEnergyForMating(hare2CurrEnergyForMating);
+
+        assertEquals(
+                hare2CurrEnergyForMating,
+                hare2.getEnergyForMating()
+        );
+
+        //  make sure hare wont die
+        hare1.setEnergy(hare1CurrEnergyForMating + 100);
+        assertEquals(
+                hare1CurrEnergyForMating + 100,
+                hare1.getEnergy()
+        );
+
+        hare2.setEnergy(hare2CurrEnergyForMating + 100);
+        assertEquals(
+                hare2CurrEnergyForMating + 100,
+                hare2.getEnergy()
+        );
+
+
+        System.out.println("-------------numofrounds: " + numOfRounds + " --------------------");
+        for (int i = 0; i < numOfRounds; i++) {
+
+            System.out.println("iteration: " + i + " | hare1 energy: " + hare1.getEnergyForMating());
+            System.out.println("iteration: " + i + " | hare2 energy: " + hare2.getEnergyForMating());
+            map.evaluate();
+            assertEquals(
+                    2,
+                    map.numOfAnimals
+            );
+        }
+
+        //  when they have enough energy for mating finally a new hare is born
+
+        System.out.println("Hare1 energy before last eval: " + hare1.getEnergyForMating());
+        System.out.println("Hare2 energy before last eval: " + hare2.getEnergyForMating());
+        map.evaluate();
+
+
+        System.out.println("Hare1 energy after last eval: " + hare1.getEnergyForMating());
+        System.out.println("Hare2 energy after last eval: " + hare2.getEnergyForMating());
+        assertEquals(
+                3,
+                map.numOfAnimals
+        );
+    }
+
+    @Test
+    void test_spawnHareHasAttributesInInterval() {
+        Hare hare1 = new Hare();
+
+        int minimumEnergy = CONF.HARE_INIT_MIN_ENERGY;
+        int maximumEnergy = CONF.HARE_INIT_MAX_ENERGY;
+
+        int minimumAge = CONF.HARE_INIT_MIN_AGE;
+        int maximumAge = CONF.HARE_INIT_MAX_AGE;
+
+        int minimumEnergyForMating = CONF.ENERGY_FOR_MATING_MIN;
+        int maximumEnergyForMating = CONF.ENERGY_FOR_MATING_MAX;
+
+        assertTrue(
+                hare1.getEnergy() <= maximumEnergy
+                        &&
+                        hare1.getEnergy() >= minimumEnergy
+        );
+
+        assertTrue(
+                hare1.getAge() <= maximumAge
+                        &&
+                        hare1.getAge() >= minimumAge
+        );
+
+        System.out.println("Min energy for mating: " + minimumEnergyForMating + " | Max energy for mating: " + maximumEnergyForMating);
+        System.out.println("Hare energy for mating on spawn: " + hare1.getEnergyForMating());
+        assertTrue(
+                hare1.getEnergyForMating() <= maximumEnergyForMating
+                        &&
+                        hare1.getEnergyForMating() >= minimumEnergyForMating
+        );
+    }
+
+    @Test
+    void test_createNewBorn() {
+        Hare hare = new Hare();
+        Block b1 = new Block(
+                Block.Terrain.BUSH,
+                0,
+                0
+        );
+        Hare newBorn = (Hare) hare.createNewBorn(b1);
+
+        int expectedAge = 0;
+        int expecteEnergyForMating = 0;
+        boolean expectedDidEvaluate = true;
+        Block expectedBlock = b1;
+        Animal expectedAnimalOnBlock = newBorn;
+
+        assertEquals(
+                expectedAge,
+                newBorn.getAge()
+        );
+        assertEquals(
+                expecteEnergyForMating,
+                newBorn.getEnergyForMating()
+        );
+        assertEquals(
+                expectedDidEvaluate,
+                newBorn.didEvaluate
+        );
+        assertEquals(
+                expectedBlock,
+                newBorn.getBlock()
+        );
+        assertEquals(
+                expectedAnimalOnBlock,
+                b1.getAnimal()
+        );
+    }
+
+    @Test
+    void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
+        //  make sure newborns arent ready for mating
+        CONF.FOX_MATING_MIN_AGE = 100;
+
+        Map map = new Map("test_mockito_twoHareMateSevenTimesInARow_blankmap.txt");
+
+        Hare hare1 = spy(new Hare());
+        Hare hare2 = spy(new Hare());
+
+        hare1.setAge(CONF.FOX_MATING_MIN_AGE + 10);
+        hare2.setAge(CONF.FOX_MATING_MIN_AGE + 10);
+
+        map.setAnimalAtCoord(hare1, 1, 0);
+        map.setAnimalAtCoord(hare2, 1, 1);
+
+        assertEquals(
+                hare1,
+                map.blocks[1][0].getAnimal()
+        );
+        assertEquals(
+                hare2,
+                map.blocks[1][1].getAnimal()
+        );
+
+        Mockito.doReturn(true).when(hare1).areReadyForMating(hare2);
+        Mockito.doReturn(true).when(hare2).areReadyForMating(hare1);
+
+        System.out.println(map.animals.size());
+
+        map.evaluate();
+        assertEquals(
+                3,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                4,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                5,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                6,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                7,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                8,
+                map.animals.size()
+        );
+
+        map.evaluate();
+        assertEquals(
+                9,
+                map.animals.size()
+        );
     }
 }

@@ -1,0 +1,9 @@
+#  in the test the fox gets added manually in the middle
+size: 3
+numOfFoxes: 0
+numOfHare: 8
+numOfAnimals: 8
+----------
+GH GH GH
+GH GN GH
+GH GH GH

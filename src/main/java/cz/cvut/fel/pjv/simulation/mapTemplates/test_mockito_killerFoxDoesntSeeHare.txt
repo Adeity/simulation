@@ -1,0 +1,9 @@
+#  in the test spy of fox and hare are added manually
+#  hare gets placed on bush block
+size: 2
+numOfFoxes: 0
+numOfHare: 0
+numOfAnimals: 0
+----------
+GN GN
+BN GN

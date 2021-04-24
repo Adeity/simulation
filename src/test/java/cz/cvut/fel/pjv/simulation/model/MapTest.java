@@ -16,7 +16,7 @@ import static org.mockito.Mockito.*;
 class MapTest {
 
     @Test
-    void constructorMap_metaDataInTemplate_CorrectNumOfAnimals() {
+    void test_corretNumOfAnimalsInTemplate() {
         File mapTemplateDirectory = new File(CONF.MAP_TEMPLATE_DIRECTORY);
         File[] templates = mapTemplateDirectory.listFiles();
 
@@ -112,7 +112,7 @@ class MapTest {
                     "100 , 10000",
                     "1000, 1000000"
             })
-    void constructorMap_testMapSize_sizeSquared(int mapSizeParam, int expectedNumOfBlocks) {
+    void test_sizeMapConstructor(int mapSizeParam, int expectedNumOfBlocks) {
         Map map = new Map(mapSizeParam);
 
         int actualNumOfBlocks = 0;
@@ -127,7 +127,7 @@ class MapTest {
     }
 
     @Test
-    void evaluate_predefinedState_TwoHareDie() {
+    void test_TwoHareDie() {
         Map map = new Map("testmap3.txt");
         Map mapSpy = spy(map);
         Animal animalMock = mock(Animal.class);
@@ -167,7 +167,7 @@ class MapTest {
 
         mapSpy.evaluate();
 
-        verify(mapSpy, times(2)).deleteAnimalAtBlock(any(Block.class));
+        verify(mapSpy, times(1)).deleteAnimalAtBlock(any(Block.class));
 
     }
 }
