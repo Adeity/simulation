@@ -11,11 +11,7 @@ public class App {
     public App() {
         simulation = new Simulation();
         controller = new Controller(simulation);
-    }
-
-    public void run() {
-        System.out.println("Fox and hare simulator");
-        System.out.println("____________________________________");
+        this.controllerNetwork = new ControllerNetwork(simulation);
     }
 
     public Simulation getSimulation() {

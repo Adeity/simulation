@@ -9,19 +9,20 @@ import javax.swing.*;
 public class Main {
     public static void main (String[] args) {
         App app = new App();
-        app.run();
 
         Controller c = app.controller;
         ControllerNetwork nc = app.controllerNetwork;
 
+        nc.createClient("localhost", 8888);
+
 //        c.command();
 
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                JFrameInit JFrameInit = new JFrameInit(app);
-                JFrameInit.setVisible(true);
-            }
-        });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                JFrameInit JFrameInit = new JFrameInit(app);
+//                JFrameInit.setVisible(true);
+//            }
+//        });
     }
 }

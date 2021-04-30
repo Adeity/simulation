@@ -4,6 +4,7 @@ import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.model.Fox;
 import cz.cvut.fel.pjv.simulation.model.Hare;
 import cz.cvut.fel.pjv.simulation.model.Map;
+import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 
 import java.io.*;
 import java.util.Observable;
@@ -14,6 +15,16 @@ public class Simulation {
     public boolean isRunning;
     public int day = 0;
 
+    public SimulationClient simulationClient;
+
+    public SimulationClient getSimulationClient() {
+        return simulationClient;
+    }
+
+    public void setSimulationClient(SimulationClient simulationClient) {
+        this.simulationClient = simulationClient;
+    }
+
     public Simulation() {
     }
 
@@ -23,6 +34,7 @@ public class Simulation {
      */
     public void run(int size) {
         this.isRunning = true;
+        System.out.println("init new map");
         this.map = new Map(size);
     }
 

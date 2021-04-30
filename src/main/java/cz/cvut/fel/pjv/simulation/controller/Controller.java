@@ -52,12 +52,12 @@ public class Controller {
                 this.run(size);
                 break;
             }
-            else if (s.equals("3")) {
-                System.out.println("Enter port: ");
-                s = sc.nextLine();
-                controllerNetwork = new ControllerNetwork(true);
-                controllerNetwork.startServer(Integer.parseInt(s));
-            }
+//            else if (s.equals("3")) {
+//                System.out.println("Enter port: ");
+//                s = sc.nextLine();
+//                controllerNetwork = new ControllerNetwork(simulation);
+//                controllerNetwork.startServer(Integer.parseInt(s));
+//            }
             else if (s.equals("4")) {
                 System.out.println("Enter IP address of server: ");
                 s = sc.nextLine();
@@ -65,7 +65,7 @@ public class Controller {
                 System.out.println("Enter port: ");
                 s = sc.nextLine();
                 String port = s;
-                controllerNetwork = new ControllerNetwork(false);
+                controllerNetwork = new ControllerNetwork(simulation);
                 controllerNetwork.createClient(ipAddress, Integer.parseInt(port));
                 isClient = true;
                 continue;
@@ -171,9 +171,6 @@ public class Controller {
 
     public void simulateDay() {
         simulation.simulateDay();
-        if (controllerNetwork != null) {
-            controllerNetwork.update(this.simulation.map);
-        }
     }
 
     public void endSimulation() {
