@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -17,7 +18,9 @@ class FoxTest {
             "10"
     })
     void test_testTemplateMap_twoFoxesMateInFiveRounds(int numOfRounds) {
-        Map map = new Map("test_twoFoxesMateInFiveRounds.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_twoFoxesMateInFiveRounds.txt", simulation);
+        simulation.setMap(map);
         Animal fox1 = map.blocks[0][0].getAnimal();
         Animal fox2 = map.blocks[0][1].getAnimal();
 
@@ -127,8 +130,9 @@ class FoxTest {
     void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
         //  make sure newborns arent ready for mating
         CONF.FOX_MATING_MIN_AGE = 100;
-
-        Map map = new Map("test_mockito_twoFoxesMateSevenTimesInARow_blankmap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_mockito_twoFoxesMateSevenTimesInARow_blankmap.txt", simulation);
+        simulation.setMap(map);
 
         Fox fox1 = spy(new Fox());
         Fox fox2 = spy(new Fox());
@@ -236,7 +240,9 @@ class FoxTest {
 
     @Test
     void test_foxDiesOfHunger() {
-        Map map = new Map("test_foxDiesOfHunger.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_foxDiesOfHunger.txt", simulation);
+        simulation.setMap(map);
 
         Animal fox = map.blocks[0][0].getAnimal();
 

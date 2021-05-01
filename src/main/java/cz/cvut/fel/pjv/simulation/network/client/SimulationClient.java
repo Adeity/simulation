@@ -26,7 +26,6 @@ public class SimulationClient implements Runnable{
     String host;
     int port;
 
-    Map map;
 
     public SimulationClient(String host, int port, Simulation simulation) {
         this.host = host;
@@ -67,22 +66,27 @@ public class SimulationClient implements Runnable{
             String out;
 
             while ((in = inReader.readLine()) != null) {
-                System.out.println(in);
+                System.out.println("S->C " + in);
                 String[] columns = in.split(" ");
                 String messageType = columns[0];
 
                 if (messageType.equals("GO")) {
-                    outWriter.write("STATE GO");
+
+                    outWriter.println("STATE GO");
+                    System.out.println("C->S " + "STATE GO");
+
                     this.simulation.simulateDay();
-                    outWriter.write("STATE READY");
+
+                    outWriter.println(NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
+                    System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
                 }
 
                 else if (messageType.equals("MAP")) {
                     int sizeOfMap = Integer.parseInt(columns[1]);
 
                     this.simulation.run(sizeOfMap);
-                    outWriter.write("STATE READY");
-                    System.out.println("WROTE STATE READY");
+                    outWriter.println(NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
+                    System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
                 }
 
                 else if (messageType.equals("BLOCK")) {
@@ -104,7 +108,7 @@ public class SimulationClient implements Runnable{
                     int y = Integer.parseInt(columns[3]);
 
                     Block block = this.simulation.map.getBlock(x, y);
-                    outWriter.write(NetworkProtocol.buildBlockMessage(messageUUID, block));
+                    outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, block));
                 }
             }
             this.close();
@@ -120,7 +124,8 @@ public class SimulationClient implements Runnable{
                 NetworkProtocol.buildGetBlockMessage(x, y, uuid),
                 uuid
         );
-        outWriter.write(currentRequest.getRequest());
+        outWriter.println(currentRequest.getRequest());
+        System.out.println("C->S " + currentRequest.getRequest());
 
         try {
             currentRequest.wait(1000);
@@ -131,6 +136,9 @@ public class SimulationClient implements Runnable{
             currentRequest = null;
             return null;
         }
+
+        System.out.println("C->S " + currentRequest.getResponse());
+
         String[] response = currentRequest.response.split(" ");
         Block block;
         try {

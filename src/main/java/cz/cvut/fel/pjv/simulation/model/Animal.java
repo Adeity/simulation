@@ -1,7 +1,9 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -40,8 +42,8 @@ public abstract class Animal implements Serializable {
      * Otherwise the animal moves.
      * @param map map of simulation
      */
-    public void evaluate(Map map) {
-        Block[] surroundingBlocks = map.getSurroundingBlocks(this.block);
+    public void evaluate(Map map, Simulation simulation) {
+        Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
 
         for (Block block : surroundingBlocks) {
             if (block == null) {
@@ -63,7 +65,7 @@ public abstract class Animal implements Serializable {
         }
         if(!this.didEvaluate) {
             //  TODO: implement moving
-            move(map, CONF.MOVES_PER_ROUND);
+            move(simulation);
             this.didEvaluate = true;
         }
     }
@@ -71,42 +73,74 @@ public abstract class Animal implements Serializable {
     /**
      * Animals moves across the map
      */
-    protected void move(Map map, int movesPerRound) {
-
-        while (movesPerRound > 0) {
-            Block currentBlock = this.block;
-            Block down;
-            Block right;
-            Block left;
-            Block up;
-            Block blockToMoveTo = null;
-            try {
-                down = map.blocks[this.block.coordX + 1][this.block.coordY];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                down = null;
+    protected void move(Simulation simulation) {
+        int changeDirectionCounter = 3;
+        while (changeDirectionCounter != 0) {
+            Block block = null;
+            if (this.getDirection() == Direction.RIGHT) {
+                block = simulation.getBlock(this.block.coordX, this.block.coordY + 1);
+                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
             }
-            try {
-                up = map.blocks[this.block.coordX - 1][this.block.coordY];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                up = null;
+            else if (this.getDirection() == Direction.DOWN) {
+                block = simulation.getBlock(this.block.coordX + 1, this.block.coordY);
+                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
             }
-            try {
-                right = map.blocks[this.block.coordX][this.block.coordY + 1];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                right = null;
+            else if (this.getDirection() == Direction.LEFT) {
+                block = simulation.getBlock(this.block.coordX, this.block.coordY - 1);
+                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
             }
-            try {
-                left = map.blocks[this.block.coordX][this.block.coordY - 1];
-            } catch (ArrayIndexOutOfBoundsException e) {
-                left = null;
+            else if (this.getDirection() == Direction.UP) {
+                block = simulation.getBlock(this.block.coordX - 1, this.block.coordY);
+                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
             }
-
-            if (this.direction == Direction.DOWN) {
-            }
-            else if (this.direction == Direction.UP) {
-            }
-            movesPerRound--;
         }
+    }
+
+    protected int actualMove(int changeDirectionCounter, Simulation simulation, Block block) {
+        if (canMoveToBlock(block)) {
+            if (simulation.isOnMyMap(block.coordX, block.coordY)) {
+                simulation.map.setAnimalAtCoord(this, block.coordX, block.coordY);
+            }
+            else {
+                if (simulation.simulationClient != null) {
+                    Block blockCopy = null;
+                    try {
+                        blockCopy = (Block) block.clone();
+                        blockCopy.setAnimal(this);
+                        if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                            this.block.setAnimal(null);
+                            changeDirectionCounter = 0;
+                        }
+                    } catch (CloneNotSupportedException e) {
+                        e.printStackTrace();
+                    }
+                }
+                else {
+                    changeDirection();
+                    changeDirectionCounter--;
+                }
+            }
+        }
+        return changeDirectionCounter;
+    }
+
+    protected void changeDirection() {
+        if (this.getDirection() == Direction.RIGHT) {
+            setDirection(Direction.DOWN);
+        }
+        else if (this.getDirection() == Direction.DOWN) {
+            setDirection(Direction.LEFT);
+        }
+        else if (this.getDirection() == Direction.LEFT) {
+            setDirection(Direction.UP);
+        }
+        else if (this.getDirection() == Direction.UP) {
+            setDirection(Direction.RIGHT);
+        }
+    }
+
+    private boolean canMoveToBlock(Block block) {
+        return block != null && block.getTerrain() != Block.Terrain.WATER && block.getAnimal() == null;
     }
 
     /**

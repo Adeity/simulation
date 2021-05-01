@@ -1,11 +1,12 @@
 package cz.cvut.fel.pjv.simulation.network.server;
 
+import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.model.Map;
 
 public class TableItem {
     SimulationServerThread connection;
     String status;
-    Map map;
+    Block[][] blocks;
     int minX;
     int maxX;
     int minY;
@@ -110,11 +111,12 @@ public class TableItem {
         this.status = status;
     }
 
-    public Map getMap() {
-        return map;
+
+    public Block[][] getBlocks() {
+        return blocks;
     }
 
-    public void setMap(Map map) {
-        this.map = map;
+    public void setBlocks(Block[][] blocks) {
+        this.blocks = blocks;
     }
 }

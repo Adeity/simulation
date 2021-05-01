@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -53,7 +54,9 @@ class MapTest {
                             break;
                         }
                     }
-                    Map map = new Map(template.getName());
+                    Simulation simulation = new Simulation();
+                    Map map = new Map(template.getName(), simulation);
+                    simulation.setMap(map);
 
                     if (expectedNumOfAnimals != null) {
                         assertEquals(
@@ -113,7 +116,8 @@ class MapTest {
                     "1000, 1000000"
             })
     void test_sizeMapConstructor(int mapSizeParam, int expectedNumOfBlocks) {
-        Map map = new Map(mapSizeParam);
+        Simulation simulation = new Simulation();
+        Map map = new Map(mapSizeParam, simulation);
 
         int actualNumOfBlocks = 0;
         for (Block[] blocks : map.blocks) {
@@ -128,7 +132,9 @@ class MapTest {
 
     @Test
     void test_TwoHareDie() {
-        Map map = new Map("testmap3.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("testmap3.txt", simulation);
+        simulation.setMap(map);
         Map mapSpy = spy(map);
         Animal animalMock = mock(Animal.class);
 

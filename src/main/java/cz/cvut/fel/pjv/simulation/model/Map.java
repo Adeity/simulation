@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import java.io.*;
@@ -27,20 +28,24 @@ public class Map implements Serializable{
     //  R lock = Grass with grain block
     public int numOfRBlocks = 0;
 
+    Simulation simulation;
+
 
 
     /**
      * the map has a square shape.
      * @param size is dimension, map is then Dim(size x size)
      */
-    public Map(int size) {
+    public Map(int size, Simulation simulation) {
+        this.simulation = simulation;
         initMap(size);
     }
 
     /**
      * constructor with default dimension x dimension of map
      */
-    public Map() {
+    public Map(Simulation simulation) {
+        this.simulation = simulation;
         initMap(10);
     }
 
@@ -48,7 +53,8 @@ public class Map implements Serializable{
      * create simulation map based on maptemplate.txt template
      * @param filename is text file, which contains predefined map in appropriate format
      */
-    public Map(String filename) {
+    public Map(String filename, Simulation simulation) {
+        this.simulation = simulation;
         System.out.println(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename);
         try (
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename), StandardCharsets.UTF_8));
@@ -167,7 +173,7 @@ public class Map implements Serializable{
             }
             else {
                 LOG.finest(a + " evaluating");
-                a.evaluate(this);
+                a.evaluate(this, simulation);
             }
             a.nextDayChangeStats();
             if (a.energy <= 0 && !a.isDead) {
@@ -197,6 +203,18 @@ public class Map implements Serializable{
         Collections.shuffle(animals);
     }
 
+    public boolean setBlock(int x, int y, Block newBlock) {
+        Block currentBlock = blocks[x][y];
+
+        if (currentBlock.getAnimal().didEvaluate) {
+            return false;
+        }
+        else {
+            blocks[x][y] = newBlock;
+            return true;
+        }
+    }
+
     /**
      * Add a new born animal on the map at block
      * @param a is newborn animal
@@ -211,28 +229,14 @@ public class Map implements Serializable{
         this.blocks[block.coordX][block.coordY].setAnimal(a);
     }
 
-    public Block[] getSurroundingBlocks (Block block) {
-        int coordX = block.coordX;
-        int coordY = block.coordY;
-        return new Block[]{
-                this.getBlock(coordX - 1, coordY - 1),
-                this.getBlock(coordX - 1, coordY),
-                this.getBlock(coordX - 1, coordY + 1),
-                this.getBlock(coordX, coordY - 1),
-                this.getBlock(coordX, coordY + 1),
-                this.getBlock(coordX + 1, coordY - 1),
-                this.getBlock(coordX + 1, coordY),
-                this.getBlock(coordX + 1, coordY + 1),
-        };
-    }
 
     private Block[] concatSurroundingBlocks (Block[] b1, Block[] b2) {
         return Stream.concat(Arrays.stream(b1), Arrays.stream(b2)).toArray(Block[]::new);
     }
 
     public Block findFreeBlockForMating (Animal a1, Animal a2) {
-        Block[] a1Sb = this.getSurroundingBlocks(a1.block);
-        Block[] a2Sb = this.getSurroundingBlocks(a2.block);
+        Block[] a1Sb = simulation.getSurroundingBlocks(a1.block);
+        Block[] a2Sb = simulation.getSurroundingBlocks(a2.block);
         Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
         for (Block b : surroundingBlocks) {
             if (b == null) {

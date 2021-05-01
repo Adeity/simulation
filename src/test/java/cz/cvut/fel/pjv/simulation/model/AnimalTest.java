@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -11,7 +12,9 @@ import static org.mockito.Mockito.spy;
 class AnimalTest {
     @Test
     void test_setAnimalAtCoord_animalAlreadyOnMap() {
-        Map map = new Map("test_setAnimalAtCoord_animalAlreadyOnMap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_setAnimalAtCoord_animalAlreadyOnMap.txt", simulation);
+        simulation.setMap(map);
 
         int expectedNumOfAnimals;
         int currentNumOfAnimalsAttribute;
@@ -51,8 +54,9 @@ class AnimalTest {
 
     @Test
     void test_setAnimalAtCoord_blankmap() {
-
-        Map map = new Map("test_setAnimalAtCoord_blankmap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_setAnimalAtCoord_blankmap.txt", simulation);
+        simulation.setMap(map);
 
         int expectedNumOfAnimals;
         int currentNumOfAnimalsAttribute;
@@ -92,7 +96,9 @@ class AnimalTest {
 
     @Test
     void test_deleteAnimalAtCoord_blankmap() {
-        Map map = new Map("test_deleteAnimalAtCoord_blankmap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_deleteAnimalAtCoord_blankmap.txt", simulation);
+        simulation.setMap(map);
 
         int expectedNumOfAnimals;
         int currentNumOfAnimalsAttribute;
@@ -130,7 +136,9 @@ class AnimalTest {
 
     @Test
     void test_deleteAnimalAtCoord_animalOnMap() {
-        Map map = new Map("test_deleteAnimalAtCoord_animalOnMap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_deleteAnimalAtCoord_animalOnMap.txt", simulation);
+        simulation.setMap(map);
 
         int expectedNumOfAnimals;
         int currentNumOfAnimalsAttribute;
@@ -167,7 +175,9 @@ class AnimalTest {
 
     @Test
     void test_mockito_killerFoxDoesntSeeHare() {
-        Map map = new Map("test_mockito_killerFoxDoesntSeeHare.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_mockito_killerFoxDoesntSeeHare.txt", simulation);
+        simulation.setMap(map);
 
         Fox fox = spy(new Fox());
         Hare hare = spy(new Hare());
@@ -198,7 +208,9 @@ class AnimalTest {
 
     @Test
     void test_mockito_killerFoxKillsFiveHare() {
-        Map map = new Map("test_mockito_killerFoxKillsEigthHare.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_mockito_killerFoxKillsEigthHare.txt", simulation);
+        simulation.setMap(map);
 
         //  make sure hare dont die
         CONF.HARE_DAILY_ENERGY_DECREASE = 0;

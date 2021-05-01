@@ -4,7 +4,7 @@ import cz.cvut.fel.pjv.simulation.model.Animal;
 
 import java.io.Serializable;
 
-public class Block implements Serializable {
+public class Block implements Serializable, Cloneable {
     public enum Terrain implements Serializable{
         GRASS,
         GRASS_WITH_GRAIN,
@@ -29,6 +29,12 @@ public class Block implements Serializable {
             }
             return res;
         }
+    }
+
+
+    public Object clone() throws CloneNotSupportedException
+    {
+        return super.clone();
     }
 
     private Terrain terrain;

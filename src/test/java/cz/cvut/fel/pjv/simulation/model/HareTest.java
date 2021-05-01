@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -38,8 +39,9 @@ class HareTest {
 
         //  stub
         doReturn(true).when(hare1).areReadyForMating(hare2);
-
-        Map map = new Map("testmap1.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("testmap1.txt", simulation);
+        simulation.setMap(map);
 
         map.setAnimalAtCoord(hare1, 2, 1);
         assertEquals(hare1, map.blocks[2][1].animal);
@@ -103,7 +105,9 @@ class HareTest {
             "10"
     })
     void test_testTemplateMap_twoHareMateInFiveRounds(int numOfRounds) {
-        Map map = new Map("test_twoHareMateInFiveRounds.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_twoHareMateInFiveRounds.txt", simulation);
+        simulation.setMap(map);
         Animal hare1 = map.blocks[0][0].getAnimal();
         Animal hare2 = map.blocks[0][1].getAnimal();
 
@@ -243,8 +247,9 @@ class HareTest {
     void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
         //  make sure newborns arent ready for mating
         CONF.FOX_MATING_MIN_AGE = 100;
-
-        Map map = new Map("test_mockito_twoHareMateSevenTimesInARow_blankmap.txt");
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_mockito_twoHareMateSevenTimesInARow_blankmap.txt", simulation);
+        simulation.setMap(map);
 
         Hare hare1 = spy(new Hare());
         Hare hare2 = spy(new Hare());

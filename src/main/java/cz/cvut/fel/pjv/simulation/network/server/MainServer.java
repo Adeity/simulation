@@ -8,5 +8,26 @@ public class MainServer {
         simulationServer.setMapSize(50);
         simulationServer.listen();
 
+
+        Thread t2 = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        simulationServer.listen();
+                    }
+                }
+        );
+
+        Thread t1 = new Thread(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        simulationServer.stopInitStartSimulating();
+                    }
+                }
+        );
+
+        t2.start();
+        t1.start();
     }
 }

@@ -1,7 +1,6 @@
 package cz.cvut.fel.pjv.simulation.network.server;
 
 import cz.cvut.fel.pjv.simulation.model.Block;
-import cz.cvut.fel.pjv.simulation.model.Map;
 import cz.cvut.fel.pjv.simulation.network.NetworkProtocol;
 import cz.cvut.fel.pjv.simulation.network.SerializationUtils;
 import cz.cvut.fel.pjv.simulation.network.client.Request;
@@ -10,7 +9,6 @@ import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class SimulationServerThread implements Runnable {
     public Socket clientSocket;
@@ -40,20 +38,77 @@ public class SimulationServerThread implements Runnable {
 
             //  Initiate conversation with client
             outWriter.println("MAP " + simulationServer.mapSize);
-            System.out.println("MAP " + simulationServer.mapSize);
+            System.out.println("S->C" + Thread.currentThread().getId() + " MAP " + simulationServer.mapSize);
 
             SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
             while ((message = inReader.readLine()) != null) {
-                System.out.println(message);
-                System.out.println("dostanu se sem vubec?");
+                System.out.println("C"+Thread.currentThread().getName()+"->S " + message);
                 String[] columns = message.split(" ");
 
                 String messageType = columns[0];
 
+                if (messageType.equals("SET_BLOCK_RESULT")) {
+                    String uuid = columns[1];
+
+                    if (currentRequests.isEmpty()) {
+                        continue;
+                    }
+
+                    for (Request request : currentRequests) {
+                        if (request.getUuid().equals(uuid)) {
+                            request.setResponse(message);
+                            request.notify();
+                        }
+                    }
+                }
+
+                if (messageType.equals("SET_BLOCK")) {
+                    String uuid = columns[1];
+                    int messageX = Integer.parseInt(columns[2]);
+                    int messageY = Integer.parseInt(columns[3]);
+                    Block block = null;
+                    try {
+                        block = (Block) SerializationUtils.fromString(columns[4]);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    SimulationServerThread connection = this.simulationServer.getConnectionForCoordinates(this, messageX, messageY);
+
+                    String response;
+                    boolean result;
+
+                    if (connection == null) {
+                        result = false;
+                        response = NetworkProtocol.buildSetBlockResultMessage(uuid, result);
+                        outWriter.write(response);
+                    }
+
+                    int[] coords = this.simulationServer.getGlobalCoordinates(connection);
+
+                    int targetX = coords[0] + messageX;
+                    int targetY = coords[1] + messageY;
+
+                    result = connection.setBlock(uuid, targetX, targetY, block);
+
+                    response = NetworkProtocol.buildSetBlockResultMessage(uuid, result);
+                    outWriter.write(response);
+
+                }
+
                 if (messageType.equals("STATE")) {
                     String state = columns[1];
                     this.simulationServer.setStateOfConnection(this, state);
+
+                    if (state.equals("READY")) {
+                        try {
+                            Block[][] blocks = (Block[][]) SerializationUtils.fromString(columns[2]);
+                            this.simulationServer.setBlocksOfConnection(this, blocks);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
 
                 if (messageType.equals("BLOCK")) {
@@ -92,7 +147,8 @@ public class SimulationServerThread implements Runnable {
 
                     String response = NetworkProtocol.buildBlockMessage(uuid, block);
 
-                    outWriter.write(response);
+                    outWriter.println(response);
+                    System.out.println("S->C" + Thread.currentThread().getId() + " " + response);
 
                 }
             }
@@ -106,7 +162,8 @@ public class SimulationServerThread implements Runnable {
                 NetworkProtocol.buildGetBlockMessage(targetX, targetY, uuid),
                 uuid
         );
-        outWriter.write(currentRequest.getRequest());
+        outWriter.println(currentRequest.getRequest());
+        System.out.println("S->C" + Thread.currentThread().getId() + " " + currentRequest.getRequest());
         try{
             currentRequest.wait(1000);
         } catch (InterruptedException e) {
@@ -115,6 +172,7 @@ public class SimulationServerThread implements Runnable {
 
         if (currentRequest.getResponse() == null) {
             currentRequest = null;
+            currentRequests.remove(currentRequest);
             return null;
         }
 
@@ -130,8 +188,39 @@ public class SimulationServerThread implements Runnable {
         return block;
     }
 
+    public boolean setBlock(String uuid, int x, int y, Block block) {
+        Request currentRequest = new Request(
+                NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
+                uuid
+        );
+        currentRequests.add(currentRequest);
+        outWriter.write(currentRequest.getRequest());
+
+        try{
+            currentRequest.wait(1000);
+        } catch (InterruptedException e) {
+        }
+
+        if (currentRequest.getResponse() == null) {
+            currentRequest = null;
+            currentRequests.remove(currentRequest);
+            return false;
+        }
+
+        String[] columns = currentRequest.getResponse().split(" ");
+
+        boolean response = Boolean.parseBoolean(columns[2]);
+
+        currentRequest = null;
+        currentRequests.remove(currentRequest);
+
+        return response;
+
+
+    }
+
     public void go() {
-        System.out.println("wrote go");
-        outWriter.write("GO");
+        System.out.println("S->C" + Thread.currentThread().getId() + " GO");
+        outWriter.println("GO");
     }
 }

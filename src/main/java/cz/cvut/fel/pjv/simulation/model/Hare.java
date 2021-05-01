@@ -13,7 +13,6 @@ public class Hare extends Animal implements Victim {
         this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
         this.age = getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE);
         this.energy = getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY);
-        this.direction = Direction.randomDirection();
         this.direction = CONF.HARE_INIT_DIRECTION;
     }
 
