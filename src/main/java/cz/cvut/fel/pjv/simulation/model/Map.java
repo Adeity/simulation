@@ -280,7 +280,7 @@ public class Map implements Serializable{
         initMapFillWithGrass();
         initMapAddBushes();
         initMapAddLakes();
-        initMapAddGrain();
+        initMapAddAnimals();
     }
 
     /**
@@ -366,25 +366,37 @@ public class Map implements Serializable{
     /**
      * every three rows iterates over a diagonal starting at that row and adds grain to grass if block is indeed grass
      */
-    private void initMapAddGrain() {
+    private void initMapAddAnimals() {
         int dimension = this.sizeOfMap;
+        boolean kunda = true;
         for (int i = 0; i < dimension; i += 3) {
             for (int k = 0; k <= i; k += 2) {
                 int j = i - k;
-                if (this.blocks[j][k].getTerrain() == Block.Terrain.GRASS) {
+                if (this.blocks[j][k].getTerrain() != Block.Terrain.WATER) {
                     this.blocks[j][k].setTerrain(Block.Terrain.GRASS_WITH_GRAIN);
-                    this.numOfGBlocks--;
-                    this.numOfRBlocks++;
+                    if(kunda) {
+                        setAnimalAtCoord(new Fox(this.blocks[j][k]) ,j, k);
+                        kunda = false;
+                    }
+                    else {
+                        setAnimalAtCoord(new Hare(this.blocks[j][k]) ,j, k);
+                        kunda = true;
+                    }
                 }
             }
         }
         for (int i = dimension - 2; i >= 0; i -= 3) {
             for (int k = 0; k <= i; k += 2) {
                 int j = i - k;
-                if (this.blocks[dimension - k - 1][dimension - j - 1].getTerrain() == Block.Terrain.GRASS) {
-                    this.blocks[dimension - k - 1][dimension - j - 1].setTerrain(Block.Terrain.GRASS_WITH_GRAIN);
-                    this.numOfGBlocks--;
-                    this.numOfRBlocks++;
+                if (this.blocks[dimension - k - 1][dimension - j - 1].getTerrain() != Block.Terrain.WATER) {
+                    if(kunda) {
+                        setAnimalAtCoord(new Fox(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
+                        kunda = false;
+                    }
+                    else {
+                        setAnimalAtCoord(new Hare(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
+                        kunda = true;
+                    }
                 }
             }
         }

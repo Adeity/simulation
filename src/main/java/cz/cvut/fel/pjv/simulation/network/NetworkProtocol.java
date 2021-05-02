@@ -19,11 +19,35 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildBlockMessage (String uuid, Block block) {
+    public static String buildGetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, String uuid) {
         String out = "";
+        out = "GET_BLOCK";
+        out += " ";
         out += uuid;
         out += " ";
+        out += x;
+        out += " ";
+        out += y;
+        out += " ";
+        out += globalX;
+        out += " ";
+        out += globalY;
+        return out;
+    }
+
+    public static String buildBlockMessage (String uuid, int x, int y, int globalX, int globalY, Block block) {
+        String out = "";
         out = "BLOCK";
+        out += " ";
+        out += uuid;
+        out += " ";
+        out += x;
+        out += " ";
+        out += y;
+        out += " ";
+        out += globalX;
+        out += " ";
+        out += globalY;
         out += " ";
         try {
             out += SerializationUtils.toString(block);
@@ -33,11 +57,18 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildSetBlockMessage (int x, int y, String uuid, Block block) {
+    public static String buildSetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, String uuid, Block block) {
         String out = "";
         out += "SET_BLOCK";
         out += " ";
         out += uuid;
+        out += x;
+        out += " ";
+        out += y;
+        out += " ";
+        out += globalX;
+        out += " ";
+        out += globalY;
         out += " ";
         try {
             out += SerializationUtils.toString(block);
@@ -48,11 +79,37 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildSetBlockResultMessage (String uuid, boolean result) {
+    public static String buildSetBlockMessage(int x, int y, String uuid, Block block) {
+        String out = "";
+        out += "SET_BLOCK";
+        out += " ";
+        out += uuid;
+        out += x;
+        out += " ";
+        out += y;
+        out += " ";
+        try {
+            out += SerializationUtils.toString(block);
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Trouble with serializing block in set Block");
+        }
+        return out;
+    }
+
+    public static String buildSetBlockResultMessage (String uuid, int x, int y, int globalX, int globalY, String result) {
         String out = "";
         out += "SET_BLOCK_RESULT";
         out += " ";
         out += uuid;
+        out += " ";
+        out += x;
+        out += " ";
+        out += y;
+        out += " ";
+        out += globalX;
+        out += " ";
+        out += globalY;
         out += " ";
         out += result;
         return out;

@@ -13,6 +13,8 @@ public class Main {
         Controller c = app.controller;
         ControllerNetwork nc = app.controllerNetwork;
 
+//        c.run(40);
+
         nc.createClient("127.0.0.1", 8888);
 
 //        c.command();

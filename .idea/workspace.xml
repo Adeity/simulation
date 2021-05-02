@@ -14,8 +14,6 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Main.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Simulation.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/Simulation.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Animal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Block.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Block.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Map.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/NetworkProtocol.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/NetworkProtocol.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/client/SimulationClient.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/client/SimulationClient.java" afterDir="false" />
@@ -23,10 +21,6 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/SimulationServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/SimulationServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/SimulationServerThread.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/SimulationServerThread.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/TableItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/TableItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/AnimalTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/AnimalTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/FoxTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/FoxTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/HareTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/HareTest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/MapTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/MapTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,10 +63,10 @@
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrary" value="JUnit5" />
     <property name="com.intellij.testIntegration.createTest.CreateTestDialog.defaultLibrarySuperClass.JUnit5" value="" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/out/artifacts/simulation_jar/simulation.jar" />
-    <property name="project.structure.last.edited" value="Artifacts" />
+    <property name="project.structure.last.edited" value="Problems" />
     <property name="project.structure.proportion" value="0.15" />
     <property name="project.structure.side.proportion" value="0.2" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.appearance" />
+    <property name="settings.editor.selected.configurable" value="project.propDebugger" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
@@ -85,8 +79,8 @@
       <recent name="cz.cvut.fel.pjv.simulation.model" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.MainServer">
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Application.Main">
+    <configuration name="Main" type="Application" factoryName="Application" singleton="false" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="cz.cvut.fel.pjv.simulation.Main" />
       <module name="simulation" />
       <extension name="coverage">
@@ -177,8 +171,8 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.MainServer" />
         <item itemvalue="Application.Main" />
+        <item itemvalue="Application.MainServer" />
         <item itemvalue="JUnit.MapTest" />
         <item itemvalue="JUnit.HareTest" />
         <item itemvalue="JUnit.FoxTest" />
@@ -223,7 +217,8 @@
     <MESSAGE value="simplified model, deleted satiety parameter" />
     <MESSAGE value="new tests" />
     <MESSAGE value="new networking model init" />
-    <option name="LAST_COMMIT_MESSAGE" value="new networking model init" />
+    <MESSAGE value="networking WIP" />
+    <option name="LAST_COMMIT_MESSAGE" value="networking WIP" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -233,30 +228,35 @@
           <line>80</line>
           <option name="timeStamp" value="9" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/view/JFrameInit.java</url>
           <line>444</line>
           <option name="timeStamp" value="20" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Hare.java</url>
           <line>51</line>
           <option name="timeStamp" value="27" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/test/java/cz/cvut/fel/pjv/simulation/model/FoxTest.java</url>
           <line>85</line>
           <option name="timeStamp" value="28" />
         </line-breakpoint>
-        <line-breakpoint enabled="true" type="java-line">
+        <line-breakpoint type="java-line">
           <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/Controller.java</url>
           <line>249</line>
           <option name="timeStamp" value="30" />
         </line-breakpoint>
+        <line-breakpoint type="java-line">
+          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/controller/Controller.java</url>
+          <line>172</line>
+          <option name="timeStamp" value="34" />
+        </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/network/server/SimulationServer.java</url>
-          <line>65</line>
-          <option name="timeStamp" value="33" />
+          <url>file://$PROJECT_DIR$/src/main/java/cz/cvut/fel/pjv/simulation/model/Fox.java</url>
+          <line>35</line>
+          <option name="timeStamp" value="40" />
         </line-breakpoint>
         <breakpoint type="java-exception">
           <properties class="java.util.ConcurrentModificationException" package="java.util" />

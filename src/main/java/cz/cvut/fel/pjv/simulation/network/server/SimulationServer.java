@@ -1,14 +1,11 @@
 package cz.cvut.fel.pjv.simulation.network.server;
 
 import cz.cvut.fel.pjv.simulation.model.Block;
-import cz.cvut.fel.pjv.simulation.model.Map;
-import cz.cvut.fel.pjv.simulation.network.SimulationServerMap;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
@@ -16,14 +13,14 @@ import static java.lang.Thread.sleep;
 public class SimulationServer {
     private static final Logger LOG = Logger.getLogger(SimulationServer.class.getName());
 
-    int mapSize;
+    int localMapSize;
 
-    public void setMapSize(int mapSize) {
-        this.mapSize = mapSize;
+    public void setLocalMapSize(int localMapSize) {
+        this.localMapSize = localMapSize;
     }
 
-    public int getMapSize() {
-        return mapSize;
+    public int getLocalMapSize() {
+        return localMapSize;
     }
 
     ArrayList<TableItem> table = new ArrayList<>();
@@ -61,26 +58,12 @@ public class SimulationServer {
                 Thread t = new Thread(sst);
                 t.setName(String.valueOf(connectionNum));
                 t.start();
-                int a = this.mapSize;
-
-                table.add(
-                        TableItem.getInstance(connectionNum, getMapSize(), sst,  null)
-                );
 
                 connectionNum++;
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public SimulationServerThread getConnectionForCoordinates(SimulationServerThread clientConnection, int x, int y) {
-        int[] coords = getGlobalCoordinates(clientConnection);
-
-        int targetX = coords[0] + x;
-        int targetY = coords[1] + y;
-
-        return findConnectionByGlobalCoordinates(targetX, targetY);
     }
 
     /**
@@ -105,8 +88,8 @@ public class SimulationServer {
         SimulationServerThread connection = null;
         for (TableItem tableItem : table) {
             if (
-                    tableItem.minX <= targetX && tableItem.maxX >= targetX
-                    && tableItem.minY <= targetY && tableItem.maxY >= targetY
+                    tableItem.minX <= targetX && tableItem.maxX > targetX
+                    && tableItem.minY <= targetY && tableItem.maxY > targetY
             ) {
                 connection = tableItem.connection;
                 break;
@@ -153,6 +136,12 @@ public class SimulationServer {
         }
     }
 
+    public boolean isInMapBounds(int x, int y) {
+        boolean boolX = x >= 0 && x < localMapSize;
+        boolean boolY = y >= 0 && y < localMapSize;
+        return boolX && boolY;
+    }
+
     public void stopInitStartSimulating() {
 //        simulating = true;
         while (true) {
@@ -163,5 +152,49 @@ public class SimulationServer {
             }
             go();
         }
+    }
+
+    public void addConnectionToTableIfThereIsntAlready(SimulationServerThread sst, String status) {
+        this.table.add(
+                TableItem.getInstance(localMapSize, sst, status)
+        );
+    }
+
+    int[] translateRelativeCoordinatesToGlobal (SimulationServerThread connection, int relativeX, int relativeY) {
+        int[] globalCoordinates = new int[2];
+
+        Integer globalMinX = null;
+        Integer globalMinY = null;
+
+        for (TableItem tableItem : table) {
+            if (tableItem.connection == connection) {
+                globalMinX = tableItem.minX;
+                globalMinY = tableItem.minY;
+            }
+        }
+
+        if (globalMinX == null || globalMinY == null) {
+            return null;
+        }
+
+        int globalX = globalMinX + relativeX;
+        int globalY = globalMinY +  relativeY;
+
+        globalCoordinates[0] = globalX;
+        globalCoordinates[1] = globalY;
+
+        return globalCoordinates;
+    }
+
+    int[] translateGlobalCoordinatesToTargetRelative (int globalX, int globalY) {
+        int[] relativeToTargetCoords = new int[2];
+
+        int relativeToTargetX = globalX % localMapSize;
+        int relativeToTargetY = globalY % localMapSize;
+
+        relativeToTargetCoords[0] = relativeToTargetX;
+        relativeToTargetCoords[1] = relativeToTargetY;
+
+        return relativeToTargetCoords;
     }
 }

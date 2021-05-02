@@ -43,6 +43,7 @@ public abstract class Animal implements Serializable {
      * @param map map of simulation
      */
     public void evaluate(Map map, Simulation simulation) {
+        System.out.println("Zvire " + this.toString());
         Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
 
         for (Block block : surroundingBlocks) {
@@ -64,7 +65,6 @@ public abstract class Animal implements Serializable {
             }
         }
         if(!this.didEvaluate) {
-            //  TODO: implement moving
             move(simulation);
             this.didEvaluate = true;
         }
@@ -152,7 +152,6 @@ public abstract class Animal implements Serializable {
         this.isDead = true;
         this.energy = -10;
         this.age = -10;
-        map.deleteAnimalAtBlock(this.block);
 //        this.block = null;
     }
 

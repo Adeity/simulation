@@ -5,6 +5,7 @@ import cz.cvut.fel.pjv.simulation.model.Map;
 
 public class TableItem {
     SimulationServerThread connection;
+    static int numberOfItems = 0;
     String status;
     Block[][] blocks;
     int minX;
@@ -17,16 +18,16 @@ public class TableItem {
         this.status = status;
     }
 
-    public static TableItem getInstance(int connectionNum, int sizeOfMap, SimulationServerThread connection, String status) {
+    public static TableItem getInstance(int sizeOfMap, SimulationServerThread connection, String status) {
         TableItem tableItem = new TableItem(connection, status);
-
-        if (connectionNum == 0) {
+        System.out.println("Adding new table item with num: " + numberOfItems);
+        if (numberOfItems == 0) {
             tableItem.setMinX(0);
             tableItem.setMaxX(sizeOfMap - 1);
             tableItem.setMinY(0);
             tableItem.setMaxY(sizeOfMap - 1);
         }
-        else if (connectionNum == 1) {
+        else if (numberOfItems == 1) {
             tableItem.setMinX(0);
             tableItem.setMaxX(
                     sizeOfMap - 1
@@ -38,7 +39,7 @@ public class TableItem {
                     (2 * sizeOfMap) - 1
             );
         }
-        else if (connectionNum == 2) {
+        else if (numberOfItems == 2) {
             tableItem.setMinX(
                     sizeOfMap
             );
@@ -50,7 +51,7 @@ public class TableItem {
                     sizeOfMap - 1
             );
         }
-        else if (connectionNum == 3) {
+        else if (numberOfItems == 3) {
             tableItem.setMinX(
                     sizeOfMap
             );
@@ -64,6 +65,7 @@ public class TableItem {
                     (2 * sizeOfMap) - 1
             );
         }
+        numberOfItems++;
         return tableItem;
     }
 

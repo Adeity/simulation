@@ -16,7 +16,7 @@ public class Simulation implements Serializable{
     public boolean isRunning;
     public int day = 0;
 
-    public SimulationClient simulationClient;
+    public SimulationClient simulationClient = null;
 
     public SimulationClient getSimulationClient() {
         return simulationClient;
@@ -46,10 +46,12 @@ public class Simulation implements Serializable{
     public void run(String filename){
         this.isRunning = true;
         this.map = new Map(filename, this);
+        simulationClient.sendStateReady(map.blocks);
     }
 
     public void simulateDay(){
         this.map.evaluate();
+        simulationClient.sendStateReady(map.blocks);
         day++;
     }
 
@@ -147,6 +149,4 @@ public class Simulation implements Serializable{
             return false;
         }
     }
-
-
 }

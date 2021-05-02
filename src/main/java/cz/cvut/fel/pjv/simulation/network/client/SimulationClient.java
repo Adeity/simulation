@@ -2,14 +2,11 @@ package cz.cvut.fel.pjv.simulation.network.client;
 
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Block;
-import cz.cvut.fel.pjv.simulation.model.Map;
 import cz.cvut.fel.pjv.simulation.network.NetworkProtocol;
 import cz.cvut.fel.pjv.simulation.network.SerializationUtils;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.UnknownHostException;
-import java.util.Base64;
 import java.util.UUID;
 import java.util.logging.Logger;
 
@@ -45,7 +42,6 @@ public class SimulationClient implements Runnable{
         catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public void close() {
@@ -75,18 +71,32 @@ public class SimulationClient implements Runnable{
                     outWriter.println("STATE GO");
                     System.out.println("C->S " + "STATE GO");
 
-                    this.simulation.simulateDay();
+                    Thread t = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            simulation.simulateDay();
+                        }
+                    });
+                    t.start();
+//                    this.simulation.simulateDay();
+                }
 
-                    outWriter.println(NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
-                    System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
+                else if (messageType.equals("SET_BLOCK_RESULT")) {
+                    String messageUUID = columns[1];
+                    if (currentRequest == null) {
+                        //  there is no active response, continue
+                        continue;
+                    }
+                    if (currentRequest.uuid.equals(messageUUID)) {
+                        this.currentRequest.setResponse(in);
+                        currentRequest.notify();
+                    }
                 }
 
                 else if (messageType.equals("MAP")) {
                     int sizeOfMap = Integer.parseInt(columns[1]);
-
-                    this.simulation.run(sizeOfMap);
-                    outWriter.println(NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
-                    System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
+                    simulation.run(sizeOfMap);
+                    sendStateReady(simulation.map.blocks);
                 }
 
                 else if (messageType.equals("BLOCK")) {
@@ -98,17 +108,49 @@ public class SimulationClient implements Runnable{
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
                         this.currentRequest.setResponse(in);
-                        currentRequest.notify();
+                        synchronized (currentRequest) {
+                            currentRequest.notify();
+                        }
+//                        currentRequest.notify();
                     }
                 }
                 else if (messageType.equals("GET_BLOCK")) {
                     String messageUUID = columns[1];
 
-                    int x = Integer.parseInt(columns[2]);
-                    int y = Integer.parseInt(columns[3]);
+                    int coordX = Integer.parseInt(columns[2]);
+                    int coordY = Integer.parseInt(columns[3]);
 
-                    Block block = this.simulation.map.getBlock(x, y);
-                    outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, block));
+                    int globalX = Integer.parseInt(columns[4]);
+                    int globalY = Integer.parseInt(columns[5]);
+
+                    Block block = this.simulation.map.getBlock(coordX, coordY);
+                    outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, block));
+                    System.out.println("C->S " + NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, block));
+                }
+
+                else if (messageType.equals("SET_BLOCK")) {
+                    String uuid = columns[1];
+
+                    int coordX = Integer.parseInt(columns[2]);
+                    int coordY = Integer.parseInt(columns[3]);
+
+                    int globalX = Integer.parseInt(columns[4]);
+                    int globalY = Integer.parseInt(columns[5]);
+
+                    try {
+                        Block block = (Block) SerializationUtils.fromString(columns[6]);
+
+                        boolean result = simulation.serverAsksToSetBlock(coordX, coordY, block);
+
+                        String resultStr = (result) ? "TRUE" : "FALSE";
+
+                        String response = NetworkProtocol.buildSetBlockResultMessage(uuid, coordX, coordY, globalX, globalY, resultStr);
+
+                        outWriter.println(response);
+                        System.out.println("C->S " + response);
+                    } catch (ClassNotFoundException | IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
             this.close();
@@ -121,33 +163,100 @@ public class SimulationClient implements Runnable{
     public Block getBlock(int x, int y) {
         String uuid = UUID.randomUUID().toString();
         currentRequest = new Request(
-                NetworkProtocol.buildGetBlockMessage(x, y, uuid),
+                NetworkProtocol.buildGetBlockMessage(x, y, uuid), // GET_BLOCK uuid x y
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
         System.out.println("C->S " + currentRequest.getRequest());
 
-        try {
-            currentRequest.wait(1000);
-        }
-        catch (InterruptedException e) {
-        }
-        if(currentRequest.response == null) {
-            currentRequest = null;
-            return null;
-        }
 
-        System.out.println("C->S " + currentRequest.getResponse());
+
+        synchronized(currentRequest){
+            boolean finished = false;
+            while (!finished){
+                try {
+                    currentRequest.wait();
+                    if(currentRequest.response == null) {
+//                        finished = true;
+//                        continue;
+                    }
+                    else finished = true;
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+//
+//        synchronized (currentRequest) {
+//            try {
+//                currentRequest.wait(1000);
+//            }
+//            catch (InterruptedException e) {
+//            }
+//            if(currentRequest.response == null) {
+//                currentRequest = null;
+//                return null;
+//            }
+//        }
+
+        System.out.println("S->C " + currentRequest.getResponse());
 
         String[] response = currentRequest.response.split(" ");
         Block block;
         try {
-            block = (Block) SerializationUtils.fromString(response[3]);
+            block = (Block) SerializationUtils.fromString(response[6]);
         } catch (IOException  | ClassNotFoundException e) {
             System.out.println("Deserialization on client failed");
             return null;
         }
         currentRequest = null;
         return block;
+    }
+
+    public boolean setBlock(int x, int y, Block block) {
+
+        String uuid = UUID.randomUUID().toString();
+        currentRequest = new Request(
+                NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
+                uuid
+        );
+        outWriter.write(currentRequest.request);
+        System.out.println("C->S " + currentRequest.getRequest());
+
+        synchronized(currentRequest){
+            while (true){
+                try {
+                    currentRequest.wait();
+                } catch (InterruptedException e) {
+                    break;
+                }
+            }
+        }
+//        synchronized (currentRequest) {
+//            try{
+//
+//                currentRequest.wait(1000);
+//            } catch (InterruptedException e) {
+//
+//            }
+//        }
+        if(currentRequest.response == null) {
+            currentRequest = null;
+            return false;
+        }
+
+        System.out.println("S->C " + currentRequest.getResponse());
+        String[] columns = currentRequest.response.split(" ");
+
+        boolean booleanResponse = Boolean.parseBoolean(columns[6]);
+
+        currentRequest = null;
+
+        return booleanResponse;
+    }
+
+    public void sendStateReady(Block[][] blocks) {
+        outWriter.println(NetworkProtocol.buildStateReadyMessage(blocks));
+        System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
     }
 }
