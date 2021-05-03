@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Victim;
 
 import static cz.cvut.fel.pjv.simulation.CONF.ENERGY_FOR_MATING;
@@ -21,9 +22,9 @@ public class Hare extends Animal implements Victim {
     }
 
     @Override
-    protected boolean mate(Map map, Animal otherAnimal) {
+    protected boolean mate(Simulation simulation, Animal otherAnimal) {
         mateChangeStats(otherAnimal);
-        Block freeBlockForNewBorn = map.findFreeBlockForMating(this, otherAnimal);
+        Block freeBlockForNewBorn = simulation.map.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
             System.out.println("There is no space for mating.");
             return false;
@@ -31,14 +32,14 @@ public class Hare extends Animal implements Victim {
 
         Hare newBorn = (Hare) createNewBorn(freeBlockForNewBorn);
 
-        map.animals.add(newBorn);
-        map.numOfHare++;
-        map.numOfAnimals++;
+        simulation.map.animals.add(newBorn);
+        simulation.map.numOfHare++;
+        simulation.map.numOfAnimals++;
         return true;
     }
 
     @Override
-    protected boolean interact(Map map, Animal otherAnimal) {
+    protected boolean interact(Simulation simulation, Animal otherAnimal) {
 
         if (
                 otherAnimal instanceof Fox
@@ -47,14 +48,14 @@ public class Hare extends Animal implements Victim {
                 &&
                         foxSeesHare(otherAnimal, this)
         ) {
-            die(map);
+            die(simulation);
             ((Fox) otherAnimal).killHareAddStats();
         }
         else if (
                 otherAnimal instanceof Hare
                 && areReadyForMating(otherAnimal)
         ) {
-            mate(map, otherAnimal);
+            mate(simulation, otherAnimal);
         }
         else {
             return false;
@@ -77,8 +78,8 @@ public class Hare extends Animal implements Victim {
     }
 
     @Override
-    protected void die(Map map) {
-        super.die(map);
+    protected boolean die(Simulation simulation) {
+        return super.die(simulation);
     }
 
     @Override

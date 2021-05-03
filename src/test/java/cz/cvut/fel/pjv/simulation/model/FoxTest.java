@@ -18,6 +18,8 @@ class FoxTest {
             "10"
     })
     void test_testTemplateMap_twoFoxesMateInFiveRounds(int numOfRounds) {
+        CONF.HARE_INIT_DIRECTION = null;
+        CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoFoxesMateInFiveRounds.txt", simulation);
         simulation.setMap(map);

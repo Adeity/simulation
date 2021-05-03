@@ -20,7 +20,7 @@ public class CONF {
     public static int ENERGY_FOR_MATING_DAILY_INCREASE = 1;
 
     /*------------------Hare----------------*/
-    public static Animal.Direction HARE_INIT_DIRECTION = Animal.Direction.randomDirection();
+    public static Animal.Direction HARE_INIT_DIRECTION = Animal.Direction.RIGHT;
     public static int HARE_DAILY_AGE_INCREASE = 1; public static int HARE_DAILY_ENERGY_DECREASE = 0;
 
     public static int HARE_INIT_MIN_ENERGY = 20;  public static int HARE_INIT_MAX_ENERGY = 50;
@@ -29,7 +29,7 @@ public class CONF {
     public static int HARE_MATING_MIN_AGE = 10;
 
     /*------------------Fox----------------*/
-    public static Animal.Direction FOX_INIT_DIRECTION = Animal.Direction.randomDirection();
+    public static Animal.Direction FOX_INIT_DIRECTION = Animal.Direction.RIGHT;
     public static int FOX_DAILY_AGE_INCREASE = 1;  public static int FOX_DAILY_ENERGY_DECREASE = 1;
 
     public static int FOX_INIT_MIN_ENERGY = 40;  public static int FOX_INIT_MAX_ENERGY = 50;

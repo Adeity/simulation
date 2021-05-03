@@ -59,7 +59,7 @@ class HareTest {
                 map.numOfHare
         );
 
-        hare1.interact(map, hare2);
+        hare1.interact(simulation, hare2);
 
         assertEquals(
                 3,
@@ -94,7 +94,7 @@ class HareTest {
                 1
         );
 
-        verify(hare1, times(1)).mate(map, hare2);
+        verify(hare1, times(1)).mate(simulation, hare2);
         verify(hare1, times(1)).mateChangeStats(hare2);
     }
 
@@ -105,6 +105,8 @@ class HareTest {
             "10"
     })
     void test_testTemplateMap_twoHareMateInFiveRounds(int numOfRounds) {
+        CONF.HARE_INIT_DIRECTION = null;
+        CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoHareMateInFiveRounds.txt", simulation);
         simulation.setMap(map);

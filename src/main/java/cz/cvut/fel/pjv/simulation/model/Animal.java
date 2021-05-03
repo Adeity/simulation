@@ -43,7 +43,7 @@ public abstract class Animal implements Serializable {
      * @param map map of simulation
      */
     public void evaluate(Map map, Simulation simulation) {
-        System.out.println("Zvire " + this.toString());
+        System.out.println("Evaluating now: " + this.toString());
         Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
 
         for (Block block : surroundingBlocks) {
@@ -58,13 +58,15 @@ public abstract class Animal implements Serializable {
             if (otherAnimal.didEvaluate) {
                 continue;
             }
-            if(this.interact(map, otherAnimal)) {
+            if(this.interact(simulation, otherAnimal)) {
+                System.out.println(this + " interact with " + otherAnimal);
                 this.didEvaluate = true;
                 otherAnimal.didEvaluate = true;
                 break;
             }
         }
         if(!this.didEvaluate) {
+            System.out.println("Animals moves");
             move(simulation);
             this.didEvaluate = true;
         }
@@ -75,30 +77,29 @@ public abstract class Animal implements Serializable {
      */
     protected void move(Simulation simulation) {
         int changeDirectionCounter = 3;
-        while (changeDirectionCounter != 0) {
-            Block block = null;
-            if (this.getDirection() == Direction.RIGHT) {
-                block = simulation.getBlock(this.block.coordX, this.block.coordY + 1);
-                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
-            }
-            else if (this.getDirection() == Direction.DOWN) {
-                block = simulation.getBlock(this.block.coordX + 1, this.block.coordY);
-                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
-            }
-            else if (this.getDirection() == Direction.LEFT) {
-                block = simulation.getBlock(this.block.coordX, this.block.coordY - 1);
-                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
-            }
-            else if (this.getDirection() == Direction.UP) {
-                block = simulation.getBlock(this.block.coordX - 1, this.block.coordY);
-                changeDirectionCounter = actualMove(changeDirectionCounter, simulation, block);
-            }
+        Block block = null;
+        if (this.getDirection() == Direction.RIGHT) {
+            block = simulation.getBlock(this.block.coordX, this.block.coordY + 1);
+            actualMove(simulation, block);
+        }
+        else if (this.getDirection() == Direction.DOWN) {
+            block = simulation.getBlock(this.block.coordX + 1, this.block.coordY);
+            actualMove(simulation, block);
+        }
+        else if (this.getDirection() == Direction.LEFT) {
+            block = simulation.getBlock(this.block.coordX, this.block.coordY - 1);
+            actualMove(simulation, block);
+        }
+        else if (this.getDirection() == Direction.UP) {
+            block = simulation.getBlock(this.block.coordX - 1, this.block.coordY);
+            actualMove(simulation, block);
         }
     }
 
-    protected int actualMove(int changeDirectionCounter, Simulation simulation, Block block) {
+    protected void actualMove(Simulation simulation, Block block) {
         if (canMoveToBlock(block)) {
             if (simulation.isOnMyMap(block.coordX, block.coordY)) {
+                simulation.map.deleteAnimalAtBlock(this.block);
                 simulation.map.setAnimalAtCoord(this, block.coordX, block.coordY);
             }
             else {
@@ -109,7 +110,6 @@ public abstract class Animal implements Serializable {
                         blockCopy.setAnimal(this);
                         if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
                             this.block.setAnimal(null);
-                            changeDirectionCounter = 0;
                         }
                     } catch (CloneNotSupportedException e) {
                         e.printStackTrace();
@@ -117,11 +117,12 @@ public abstract class Animal implements Serializable {
                 }
                 else {
                     changeDirection();
-                    changeDirectionCounter--;
                 }
             }
         }
-        return changeDirectionCounter;
+        else {
+            changeDirection();
+        }
     }
 
     protected void changeDirection() {
@@ -146,13 +147,13 @@ public abstract class Animal implements Serializable {
     /**
      * Animal dies.
      * Its parameters get set to negative values. And it gets deleted from map
-     * @param map map of simulation
+     * @param simulation simulation
      */
-    protected void die(Map map) {
+    protected boolean die(Simulation simulation) {
         this.isDead = true;
         this.energy = -10;
         this.age = -10;
-//        this.block = null;
+        return simulation.deleteAnimalAtBlock(this.block);
     }
 
     /**
@@ -170,11 +171,11 @@ public abstract class Animal implements Serializable {
 
     /**
      * Two animals mate with each other
-     * @param map is map of simulation
+     * @param simulation simulation
      * @param otherAnimal is animal animal is mating with
      * @return true if there is a newborn animal on the map, false if there isn't
      */
-    protected abstract boolean mate(Map map, Animal otherAnimal);
+    protected abstract boolean mate(Simulation simulation, Animal otherAnimal);
 
     /**
      * Create an animal with parameters of a newborn.
@@ -191,11 +192,11 @@ public abstract class Animal implements Serializable {
 
     /**
      * Animal interacts with another animal on the map
-     * @param map is map of simulation
+     * @param simulation
      * @param otherAnimal is animal animal is interacting with
      * @return true if animals were able to interact with each other, false otherwise
      */
-    protected abstract boolean interact(Map map, Animal otherAnimal);
+    protected abstract boolean interact(Simulation simulation, Animal otherAnimal);
 
     /**
      * After each day set new attribute values for an animal.

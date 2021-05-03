@@ -1,6 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
+import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Killer;
 import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
@@ -31,17 +32,17 @@ public class Fox extends Animal implements Killer{
     }
 
     @Override
-    protected boolean interact(Map map, Animal otherAnimal) {
+    protected boolean interact(Simulation simulation, Animal otherAnimal) {
 
         if (otherAnimal instanceof Fox && areReadyForMating(otherAnimal)) {
-            mate(map, otherAnimal);
+            mate(simulation, otherAnimal);
         }
 
         else if (
                 otherAnimal instanceof Hare
                 && isReadyToKill() && foxSeesHare(this, otherAnimal)
         ) {
-            kill(map, otherAnimal);
+            kill(simulation, otherAnimal);
         }
         else {
             return false;
@@ -55,8 +56,8 @@ public class Fox extends Animal implements Killer{
     }
 
     @Override
-    protected void die(Map map) {
-        super.die(map);
+    protected boolean die(Simulation simulation) {
+        return super.die(simulation);
     }
 
     @Override
@@ -76,11 +77,11 @@ public class Fox extends Animal implements Killer{
     }
 
     @Override
-    protected boolean mate(Map map, Animal otherAnimal) {
+    protected boolean mate(Simulation simulation, Animal otherAnimal) {
         mateChangeStats(otherAnimal);
 //        LOG.info(this + " is mating with " + otherAnimal);
         System.out.println(this + " is mating with " + otherAnimal);
-        Block freeBlockForNewBorn = map.findFreeBlockForMating(this, otherAnimal);
+        Block freeBlockForNewBorn = simulation.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
             LOG.info("No space for mating");
             return false;
@@ -88,27 +89,28 @@ public class Fox extends Animal implements Killer{
 
         Fox newBorn = (Fox) createNewBorn(freeBlockForNewBorn);
 
-        map.animals.add(newBorn);
-        map.numOfFoxes++;
-        map.numOfAnimals++;
+        simulation.map.animals.add(newBorn);
+        simulation.map.numOfFoxes++;
+        simulation.map.numOfAnimals++;
 
         mateChangeStats(otherAnimal);
         return true;
     }
 
     @Override
-    public boolean willKill(Map map, Animal otherAnimal) {
+    public boolean willKill(Simulation simulation, Animal otherAnimal) {
         if (this.isReadyToKill()) {
-            kill(map, otherAnimal);
+            kill(simulation, otherAnimal);
             return true;
         }
         return false;
     }
 
     @Override
-    public void kill(Map map, Animal otherAnimal) {
-        otherAnimal.die(map);
-        killHareAddStats();
+    public void kill(Simulation simulation, Animal otherAnimal) {
+        if (otherAnimal.die(simulation)) {
+            killHareAddStats();
+        }
     }
 
     @Override

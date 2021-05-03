@@ -199,6 +199,7 @@ public class Map implements Serializable{
         }
         //  get rid of dead animals now that they have been accounted for
         this.animals.removeIf(a -> a.isDead);
+        System.out.println("Done evaluating");
 
         Collections.shuffle(animals);
     }
@@ -206,8 +207,8 @@ public class Map implements Serializable{
     public boolean setBlock(int x, int y, Block newBlock) {
         Block currentBlock = blocks[x][y];
 
-        if (currentBlock.getAnimal().didEvaluate) {
-            return false;
+        if (currentBlock.getAnimal() != null) {
+            return !currentBlock.getAnimal().didEvaluate;
         }
         else {
             blocks[x][y] = newBlock;
@@ -368,19 +369,18 @@ public class Map implements Serializable{
      */
     private void initMapAddAnimals() {
         int dimension = this.sizeOfMap;
-        boolean kunda = true;
+        boolean odd = true;
         for (int i = 0; i < dimension; i += 3) {
             for (int k = 0; k <= i; k += 2) {
                 int j = i - k;
                 if (this.blocks[j][k].getTerrain() != Block.Terrain.WATER) {
-                    this.blocks[j][k].setTerrain(Block.Terrain.GRASS_WITH_GRAIN);
-                    if(kunda) {
+                    if(odd) {
                         setAnimalAtCoord(new Fox(this.blocks[j][k]) ,j, k);
-                        kunda = false;
+                        odd = false;
                     }
                     else {
                         setAnimalAtCoord(new Hare(this.blocks[j][k]) ,j, k);
-                        kunda = true;
+                        odd = true;
                     }
                 }
             }
@@ -389,13 +389,13 @@ public class Map implements Serializable{
             for (int k = 0; k <= i; k += 2) {
                 int j = i - k;
                 if (this.blocks[dimension - k - 1][dimension - j - 1].getTerrain() != Block.Terrain.WATER) {
-                    if(kunda) {
+                    if(odd) {
                         setAnimalAtCoord(new Fox(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
-                        kunda = false;
+                        odd = false;
                     }
                     else {
                         setAnimalAtCoord(new Hare(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
-                        kunda = true;
+                        odd = true;
                     }
                 }
             }

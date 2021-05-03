@@ -4,6 +4,7 @@ import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.network.NetworkProtocol;
 import cz.cvut.fel.pjv.simulation.network.SerializationUtils;
 import cz.cvut.fel.pjv.simulation.network.client.Request;
+import javafx.scene.control.Tab;
 
 import java.io.*;
 import java.net.Socket;
@@ -48,72 +49,7 @@ public class SimulationServerThread implements Runnable {
 
                 String messageType = columns[0];
 
-                if (messageType.equals("SET_BLOCK_RESULT")) {
-                    String uuid = columns[1];
-                    int relativeX = Integer.parseInt(columns[2]);
-                    int relativeY = Integer.parseInt(columns[3]);
-
-                    String result = columns[4];
-
-                    int[] globaCoords = simulationServer.translateRelativeCoordinatesToGlobal(this, relativeX, relativeY);
-
-                    int globalX = globaCoords[0];
-                    int globalY = globaCoords[1];
-
-                    SimulationServerThread connection = this.simulationServer.findConnectionByGlobalCoordinates(globalX, globalY);
-
-                    int[] crTT = simulationServer.translateGlobalCoordinatesToTargetRelative(globalX, globalY);
-
-                    if (connection == null) {
-                        connection.setBlockResult(uuid, crTT[0], crTT[1], globalX, globalY,"FALSE");
-                        continue;
-                    }
-                    connection.setBlockResult(uuid, crTT[0], crTT[1], globalX, globalY, result);
-                }
-
-                else if (messageType.equals("SET_BLOCK")) { // SET_BLOCK [UUID2] 12 12 [SERIALIZED_BLOCK]
-                    String uuid = columns[1];
-                    int relativeX = Integer.parseInt(columns[2]);
-                    int relativeY = Integer.parseInt(columns[3]);
-                    Block block = null;
-                    try {
-                        block = (Block) SerializationUtils.fromString(columns[4]);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                    int[] globaCoords = simulationServer.translateRelativeCoordinatesToGlobal(this, relativeX, relativeY);
-
-                    int globalX = globaCoords[0];
-                    int globalY = globaCoords[1];
-
-                    SimulationServerThread connection = this.simulationServer.findConnectionByGlobalCoordinates(globalX, globalY);
-
-
-
-                    String response;
-                    boolean result;
-
-                    if (connection == null) {
-                        result = false;
-                        response = NetworkProtocol.buildSetBlockResultMessage(uuid, relativeX, relativeY, globalX, globalY, "FALSE");
-                        outWriter.println(response);
-                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
-                        continue;
-                    }
-
-                    //  coords relative to target
-                    int[] crTT = simulationServer.translateGlobalCoordinatesToTargetRelative(globalX, globalY);
-
-                    if (block != null) {
-                        block.coordX = crTT[0];
-                        block.coordY = crTT[1];
-                    }
-
-                    connection.setBlock(uuid, crTT[0], crTT[1], globalX, globalY, block);
-                }
-
-                else if (messageType.equals("STATE")) {
+                 if (messageType.equals("STATE")) {
                     String state = columns[1];
                     this.simulationServer.setStateOfConnection(this, state);
 
@@ -132,40 +68,6 @@ public class SimulationServerThread implements Runnable {
                         this.simulationServer.setStateOfConnection(this, "GO");
                     }
                 }
-
-                else if (messageType.equals("BLOCK")) {
-                    //  BLOCK UUID [SERIALIZED_BLOCK]
-                    String uuid = columns[1];
-                    int relativeX = Integer.parseInt(columns[2]);
-                    int relativeY = Integer.parseInt(columns[3]);
-
-                    int globalX = Integer.parseInt(columns[4]);
-                    int globalY = Integer.parseInt(columns[5]);
-
-                    Block block = null;
-
-                    try{
-                        block = (Block) SerializationUtils.fromString(columns[6]);
-                    } catch (ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
-                    SimulationServerThread connection = this.simulationServer.findConnectionByGlobalCoordinates(globalX, globalY);
-
-                    int[] crTT = simulationServer.translateGlobalCoordinatesToTargetRelative(globalX, globalY);
-
-                    if (block != null) {
-                        block.coordX = crTT[0];
-                        block.coordY = crTT[1];
-                    }
-
-                    if (connection == null) {
-                        connection.block(uuid, crTT[0], crTT[1], globalX, globalY,null);
-                        continue;
-                    }
-                    connection.block(uuid, crTT[0], crTT[1], globalX, globalY, block);
-                }
-
                 else if (messageType.equals("GET_BLOCK")) {
                     //  GET_BLOCK UUID -1 -1
                     String uuid = columns[1];
@@ -177,19 +79,121 @@ public class SimulationServerThread implements Runnable {
                     int globalX = globaCoords[0];
                     int globalY = globaCoords[1];
 
-                    SimulationServerThread connection = this.simulationServer.findConnectionByGlobalCoordinates(globalX, globalY);
+                    TableItem thisConnection = this.simulationServer.findTableItemByConnection(this);
 
-
-                    //  coords relative to target
-                    int[] crTT = simulationServer.translateGlobalCoordinatesToTargetRelative(globalX, globalY);
-
-                    if (connection == null) {
-                        String response = NetworkProtocol.buildBlockMessage(uuid, crTT[0], crTT[1], globalX, globalY,null);
+                    TableItem targetConnection = this.simulationServer.findTableItemWithConnectionByGlobalCoordinates(globalX, globalY);
+                    if (targetConnection == null) {
+                        String response = NetworkProtocol.buildBlockMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY,null);
                         outWriter.println(response);
                         System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
-                    connection.getBlock(uuid, crTT[0], crTT[1], globalX, globalY);
+                    SimulationServerThread connection = targetConnection.getConnection();
+                    //  coords relative to target
+                     int[] crTT = simulationServer.findCoordinatesRelativeToTarget(targetConnection.minX, targetConnection.minY, globalX, globalY);
+
+
+                    connection.getBlock(uuid, crTT[0], crTT[1], globalX, globalY, thisConnection.minX, thisConnection.minY);
+                }
+
+                else if (messageType.equals("SET_BLOCK")) { // SET_BLOCK [UUID2] 12 12 [SERIALIZED_BLOCK]
+                    String uuid = columns[1];
+                    int relativeX = Integer.parseInt(columns[2]);
+                    int relativeY = Integer.parseInt(columns[3]);
+                    Block block = null;
+                    try {
+                        block = (Block) SerializationUtils.fromString(columns[4]);
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    int[] globaCoords = simulationServer.translateRelativeCoordinatesToGlobal(this, relativeX, relativeY);
+
+                    int globalX = globaCoords[0];
+                    int globalY = globaCoords[1];
+
+                    TableItem thisConnection = this.simulationServer.findTableItemByConnection(this);
+
+                    TableItem targetConnection = this.simulationServer.findTableItemWithConnectionByGlobalCoordinates(globalX, globalY);
+
+
+                    String response;
+                    boolean result;
+
+                    if (targetConnection == null) {
+                        result = false;
+                        response = NetworkProtocol.buildSetBlockResultMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY, "FALSE");
+                        outWriter.println(response);
+                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+                        continue;
+                    }
+                     SimulationServerThread connection = targetConnection.getConnection();
+                    //  coords relative to target
+                    int[] crTT = simulationServer.findCoordinatesRelativeToTarget(targetConnection.minX, targetConnection.minY, globalX, globalY);
+
+                    if (block != null) {
+                        block.coordX = crTT[0];
+                        block.coordY = crTT[1];
+                    }
+                    connection.setBlock(uuid, crTT[0], crTT[1], globalX, globalY, thisConnection.minX, thisConnection.minY, block);
+                }
+
+                 else if (messageType.equals("BLOCK")) {
+                     //  BLOCK UUID [SERIALIZED_BLOCK]
+                     String uuid = columns[1];
+                     int relativeX = Integer.parseInt(columns[2]);
+                     int relativeY = Integer.parseInt(columns[3]);
+
+                     int globalX = Integer.parseInt(columns[4]);
+                     int globalY = Integer.parseInt(columns[5]);
+
+                     int requestorMinX = Integer.parseInt(columns[6]);
+                     int requestorMinY = Integer.parseInt(columns[7]);
+
+
+                     Block block = null;
+
+                     try{
+                         block = (Block) SerializationUtils.fromString(columns[8]);
+                     } catch (ClassNotFoundException e) {
+                         e.printStackTrace();
+                     }
+
+                     SimulationServerThread targetConnection = this.simulationServer.findConnectionByMinimumCoordinateValues(requestorMinX, requestorMinY);
+
+                     int[] crTT = simulationServer.findCoordinatesRelativeToTarget(requestorMinX, requestorMinY, globalX, globalY);
+
+                     if (block != null) {
+                         block.coordX = crTT[0];
+                         block.coordY = crTT[1];
+                     }
+
+                     if (targetConnection == null) {
+                         continue;
+                     }
+                     targetConnection.block(uuid, crTT[0], crTT[1], globalX, globalY, requestorMinX, requestorMinY, block);
+                 }
+
+                else if (messageType.equals("SET_BLOCK_RESULT")) {
+                     String uuid = columns[1];
+                     int relativeX = Integer.parseInt(columns[2]);
+                     int relativeY = Integer.parseInt(columns[3]);
+
+                     int globalX = Integer.parseInt(columns[4]);
+                     int globalY = Integer.parseInt(columns[5]);
+
+                     int requestorMinX = Integer.parseInt(columns[6]);
+                     int requestorMinY = Integer.parseInt(columns[7]);
+                     String result = columns[8];
+
+                     SimulationServerThread targetConnection = this.simulationServer.findConnectionByMinimumCoordinateValues(requestorMinX, requestorMinY);
+
+                     int[] crTT = simulationServer.findCoordinatesRelativeToTarget(requestorMinX, requestorMinY, globalX, globalY);
+
+                     if (targetConnection == null) {
+                         continue;
+                     }
+                     targetConnection.setBlockResult(uuid, crTT[0], crTT[1], globalX, globalY, requestorMinX, requestorMinY, result);
                 }
             }
         } catch (IOException e) {
@@ -197,40 +201,40 @@ public class SimulationServerThread implements Runnable {
         }
     }
 
-    public void getBlock(String uuid, int targetX, int targetY, int globalX, int globalY) {
+    synchronized public void getBlock(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY) {
         Request currentRequest = new Request(
-                NetworkProtocol.buildGetBlockMessageFromServerToClient(targetX, targetY, globalX, globalY,uuid),
+                NetworkProtocol.buildGetBlockMessageFromServerToClient(targetX, targetY, globalX, globalY, minX, minY,uuid),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
         System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
-    public void setBlock(String uuid, int x, int y, int globalX, int globalY, Block block) {
+    synchronized public void setBlock(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
         Request currentRequest = new Request(
-                NetworkProtocol.buildSetBlockMessageFromServerToClient(x, y, globalX, globalY, uuid, block),
+                NetworkProtocol.buildSetBlockMessageFromServerToClient(x, y, globalX, globalY, minX, minY, uuid, block),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
         System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
-    public void go() {
+    synchronized public void go() {
         System.out.println("S->C" + Thread.currentThread().getName() + " GO");
         outWriter.println("GO");
     }
 
-    public void block(String uuid, int x, int y, int globalX, int globalY, Block block) {
+    synchronized public void block(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
         Request currentRequest = new Request(
-                NetworkProtocol.buildBlockMessage(uuid, x, y, globalX, globalY, block),
+                NetworkProtocol.buildBlockMessage(uuid, x, y, globalX, globalY, minX, minY, block),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
         System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
-    public void setBlockResult(String uuid, int x, int y, int globalX, int globalY, String result) {
-        String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, x, y, globalX, globalY, result);
+    synchronized public void setBlockResult(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, String result) {
+        String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, x, y, globalX, globalY, minX, minY, result);
         outWriter.println(answerToClient);
         System.out.println("S->C" + Thread.currentThread().getName() + " " + answerToClient);
     }

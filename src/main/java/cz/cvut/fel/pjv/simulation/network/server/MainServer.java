@@ -3,7 +3,7 @@ package cz.cvut.fel.pjv.simulation.network.server;
 public class MainServer {
     public static void main(String[] args) {
         SimulationServer simulationServer = new SimulationServer(8888);
-        simulationServer.setLocalMapSize(10);
+        simulationServer.setLocalMapSize(4);
         simulationServer.listen();
 
 

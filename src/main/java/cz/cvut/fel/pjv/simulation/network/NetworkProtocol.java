@@ -19,7 +19,7 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildGetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, String uuid) {
+    public static String buildGetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, int minX, int minY, String uuid) {
         String out = "";
         out = "GET_BLOCK";
         out += " ";
@@ -32,10 +32,14 @@ public class NetworkProtocol {
         out += globalX;
         out += " ";
         out += globalY;
+        out += " ";
+        out += minX;
+        out += " ";
+        out += minY;
         return out;
     }
 
-    public static String buildBlockMessage (String uuid, int x, int y, int globalX, int globalY, Block block) {
+    public static String buildBlockMessage (String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
         String out = "";
         out = "BLOCK";
         out += " ";
@@ -49,6 +53,10 @@ public class NetworkProtocol {
         out += " ";
         out += globalY;
         out += " ";
+        out += minX;
+        out += " ";
+        out += minY;
+        out += " ";
         try {
             out += SerializationUtils.toString(block);
         } catch (IOException e) {
@@ -57,11 +65,12 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildSetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, String uuid, Block block) {
+    public static String buildSetBlockMessageFromServerToClient(int x, int y, int globalX, int globalY, int minX, int minY, String uuid, Block block) {
         String out = "";
         out += "SET_BLOCK";
         out += " ";
         out += uuid;
+        out += " ";
         out += x;
         out += " ";
         out += y;
@@ -69,6 +78,10 @@ public class NetworkProtocol {
         out += globalX;
         out += " ";
         out += globalY;
+        out += " ";
+        out += minX;
+        out += " ";
+        out += minY;
         out += " ";
         try {
             out += SerializationUtils.toString(block);
@@ -84,6 +97,7 @@ public class NetworkProtocol {
         out += "SET_BLOCK";
         out += " ";
         out += uuid;
+        out += " ";
         out += x;
         out += " ";
         out += y;
@@ -97,7 +111,7 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildSetBlockResultMessage (String uuid, int x, int y, int globalX, int globalY, String result) {
+    public static String buildSetBlockResultMessage (String uuid, int x, int y, int globalX, int globalY, int minX, int minY, String result) {
         String out = "";
         out += "SET_BLOCK_RESULT";
         out += " ";
@@ -110,6 +124,10 @@ public class NetworkProtocol {
         out += globalX;
         out += " ";
         out += globalY;
+        out += " ";
+        out += minX;
+        out += " ";
+        out += minY;
         out += " ";
         out += result;
         return out;

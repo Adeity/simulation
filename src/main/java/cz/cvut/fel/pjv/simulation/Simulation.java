@@ -1,15 +1,14 @@
 package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.controller.Controller;
-import cz.cvut.fel.pjv.simulation.model.Block;
-import cz.cvut.fel.pjv.simulation.model.Fox;
-import cz.cvut.fel.pjv.simulation.model.Hare;
-import cz.cvut.fel.pjv.simulation.model.Map;
+import cz.cvut.fel.pjv.simulation.model.*;
 import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Observable;
 import java.util.Scanner;
+import java.util.stream.Stream;
 
 public class Simulation implements Serializable{
     public Map map;
@@ -46,12 +45,16 @@ public class Simulation implements Serializable{
     public void run(String filename){
         this.isRunning = true;
         this.map = new Map(filename, this);
-        simulationClient.sendStateReady(map.blocks);
+        if (simulationClient != null) {
+            simulationClient.sendStateReady(map.blocks);
+        }
     }
 
     public void simulateDay(){
         this.map.evaluate();
-        simulationClient.sendStateReady(map.blocks);
+        if (simulationClient != null) {
+            simulationClient.sendStateReady(map.blocks);
+        }
         day++;
     }
 
@@ -112,6 +115,11 @@ public class Simulation implements Serializable{
         }
         else {
             if (simulationClient != null) {
+                Block block = simulationClient.getBlock(coordX, coordY);
+                if (block == null) {
+                    System.out.println("This is simulation speaking, thank you for the block: null " + coordX + " " + coordY);
+                }
+                System.out.println("This is simulation speaking, thank you for the block: " + block+ " " +  coordX + " " + coordY);
                 return simulationClient.getBlock(coordX, coordY);
             }
             else {
@@ -138,6 +146,44 @@ public class Simulation implements Serializable{
                 return false;
             }
         }
+    }
+
+    public Block findFreeBlockForMating(Animal a1, Animal a2) {
+        Block[] a1Sb = getSurroundingBlocks(a1.block);
+        Block[] a2Sb = getSurroundingBlocks(a2.block);
+        Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
+        for (Block b : surroundingBlocks) {
+            if (b == null) {
+                continue;
+            }
+            if (b.isBlockFree()) {
+                return b;
+            }
+        }
+        return null;
+    }
+
+    public boolean deleteAnimalAtBlock(Block block) {
+        int blockX = block.coordX;
+        int blockY = block.coordY;
+
+        if (isOnMyMap(blockX, blockY)) {
+            map.deleteAnimalAtBlock(block);
+            return true;
+        }
+        else {
+            if (simulationClient != null) {
+                block.setAnimal(null);
+                return simulationClient.setBlock(blockX, blockY, block);
+            }
+            else {
+                return false;
+            }
+        }
+    }
+
+    private Block[] concatSurroundingBlocks (Block[] b1, Block[] b2) {
+        return Stream.concat(Arrays.stream(b1), Arrays.stream(b2)).toArray(Block[]::new);
     }
 
     public boolean serverAsksToSetBlock (int x, int y, Block newBlock) {

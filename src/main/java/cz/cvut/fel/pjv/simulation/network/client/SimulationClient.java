@@ -89,7 +89,9 @@ public class SimulationClient implements Runnable{
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
                         this.currentRequest.setResponse(in);
-                        currentRequest.notify();
+                        synchronized (currentRequest) {
+                            currentRequest.notify();
+                        }
                     }
                 }
 
@@ -123,9 +125,12 @@ public class SimulationClient implements Runnable{
                     int globalX = Integer.parseInt(columns[4]);
                     int globalY = Integer.parseInt(columns[5]);
 
+                    int requestorMinX = Integer.parseInt(columns[6]);
+                    int requestorMinY = Integer.parseInt(columns[7]);
+
                     Block block = this.simulation.map.getBlock(coordX, coordY);
-                    outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, block));
-                    System.out.println("C->S " + NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, block));
+                    outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, block));
+                    System.out.println("C->S " + NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, block));
                 }
 
                 else if (messageType.equals("SET_BLOCK")) {
@@ -137,14 +142,17 @@ public class SimulationClient implements Runnable{
                     int globalX = Integer.parseInt(columns[4]);
                     int globalY = Integer.parseInt(columns[5]);
 
+                    int requestorMinX = Integer.parseInt(columns[6]);
+                    int requestorMinY = Integer.parseInt(columns[7]);
+
                     try {
-                        Block block = (Block) SerializationUtils.fromString(columns[6]);
+                        Block block = (Block) SerializationUtils.fromString(columns[8]);
 
                         boolean result = simulation.serverAsksToSetBlock(coordX, coordY, block);
 
                         String resultStr = (result) ? "TRUE" : "FALSE";
 
-                        String response = NetworkProtocol.buildSetBlockResultMessage(uuid, coordX, coordY, globalX, globalY, resultStr);
+                        String response = NetworkProtocol.buildSetBlockResultMessage(uuid, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, resultStr);
 
                         outWriter.println(response);
                         System.out.println("C->S " + response);
@@ -178,7 +186,7 @@ public class SimulationClient implements Runnable{
                     currentRequest.wait();
                     if(currentRequest.response == null) {
 //                        finished = true;
-//                        continue;
+                        continue;
                     }
                     else finished = true;
                 } catch (InterruptedException e) {
@@ -204,12 +212,19 @@ public class SimulationClient implements Runnable{
         String[] response = currentRequest.response.split(" ");
         Block block;
         try {
-            block = (Block) SerializationUtils.fromString(response[6]);
+            block = (Block) SerializationUtils.fromString(response[8]);
         } catch (IOException  | ClassNotFoundException e) {
             System.out.println("Deserialization on client failed");
             return null;
         }
         currentRequest = null;
+        if (block == null) {
+            System.out.println("Networking received block: null and returning it to simulation");
+        }
+        else {
+            System.out.println("Networking received block: " + block.toString() + " and returning it to simulation");
+        }
+
         return block;
     }
 
@@ -220,13 +235,19 @@ public class SimulationClient implements Runnable{
                 NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
                 uuid
         );
-        outWriter.write(currentRequest.request);
+        outWriter.println(currentRequest.request);
         System.out.println("C->S " + currentRequest.getRequest());
 
         synchronized(currentRequest){
-            while (true){
+            boolean finished = false;
+            while (!finished){
                 try {
                     currentRequest.wait();
+                    if(currentRequest.response == null) {
+//                        finished = true;
+                        continue;
+                    }
+                    else finished = true;
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -248,7 +269,9 @@ public class SimulationClient implements Runnable{
         System.out.println("S->C " + currentRequest.getResponse());
         String[] columns = currentRequest.response.split(" ");
 
-        boolean booleanResponse = Boolean.parseBoolean(columns[6]);
+        String booleanResponseStr = columns[8];
+
+        boolean booleanResponse = booleanResponseStr.equals("TRUE") || booleanResponseStr.equals("true") || booleanResponseStr.equals("True");
 
         currentRequest = null;
 

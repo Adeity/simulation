@@ -132,6 +132,8 @@ class MapTest {
 
     @Test
     void test_TwoHareDie() {
+        CONF.HARE_INIT_DIRECTION = null;
+        CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("testmap3.txt", simulation);
         simulation.setMap(map);
