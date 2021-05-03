@@ -16,6 +16,8 @@ public class SimulationClient implements Runnable{
     PrintWriter outWriter = null;
     BufferedReader inReader = null;
 
+    final Object lock = new Object();
+
     Simulation simulation;
 
     Request currentRequest;
@@ -88,9 +90,11 @@ public class SimulationClient implements Runnable{
                         continue;
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
-                        this.currentRequest.setResponse(in);
-                        synchronized (currentRequest) {
-                            currentRequest.notify();
+                        System.out.println("UUID from set_block_result matches");
+                        synchronized (lock) {
+                            System.out.println("Setting response to my SET_BLOCK request and notifying");
+                            this.currentRequest.setResponse(in);
+                            lock.notify();
                         }
                     }
                 }
@@ -109,9 +113,11 @@ public class SimulationClient implements Runnable{
                         continue;
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
-                        this.currentRequest.setResponse(in);
-                        synchronized (currentRequest) {
-                            currentRequest.notify();
+                        System.out.println("UUID from block matches");
+                        synchronized (lock) {
+                            System.out.println("Setting response to my GET_BLOCK request and notifying");
+                            this.currentRequest.setResponse(in);
+                            lock.notify();
                         }
 //                        currentRequest.notify();
                     }
@@ -169,29 +175,23 @@ public class SimulationClient implements Runnable{
     }
 
     public Block getBlock(int x, int y) {
+
         String uuid = UUID.randomUUID().toString();
+        boolean finished = false;
         currentRequest = new Request(
                 NetworkProtocol.buildGetBlockMessage(x, y, uuid), // GET_BLOCK uuid x y
                 uuid
         );
-        outWriter.println(currentRequest.getRequest());
-        System.out.println("C->S " + currentRequest.getRequest());
 
+        synchronized(lock){
+            outWriter.println(currentRequest.getRequest());
+            System.out.println("C->S " + currentRequest.getRequest());
 
-
-        synchronized(currentRequest){
-            boolean finished = false;
-            while (!finished){
-                try {
-                    currentRequest.wait();
-                    if(currentRequest.response == null) {
-//                        finished = true;
-                        continue;
-                    }
-                    else finished = true;
-                } catch (InterruptedException e) {
-                    break;
-                }
+            try {
+                System.out.println("Calling wait in getBlock method");
+                lock.wait();
+            } catch (InterruptedException e) {
+                System.out.println("getBlock wait was interrupted");
             }
         }
 //
@@ -214,15 +214,15 @@ public class SimulationClient implements Runnable{
         try {
             block = (Block) SerializationUtils.fromString(response[8]);
         } catch (IOException  | ClassNotFoundException e) {
-            System.out.println("Deserialization on client failed");
+            System.out.println("Deserialization of block failed");
             return null;
         }
         currentRequest = null;
         if (block == null) {
-            System.out.println("Networking received block: null and returning it to simulation");
+            System.out.println("Networking received block: null and returning it to simulation " + x + " " + y);
         }
         else {
-            System.out.println("Networking received block: " + block.toString() + " and returning it to simulation");
+            System.out.println("Networking received block: " + block.toString() + " and returning it to simulation " + x + " " + y);
         }
 
         return block;
@@ -235,22 +235,17 @@ public class SimulationClient implements Runnable{
                 NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
                 uuid
         );
-        outWriter.println(currentRequest.request);
-        System.out.println("C->S " + currentRequest.getRequest());
 
-        synchronized(currentRequest){
+
+        synchronized(lock){
+            outWriter.println(currentRequest.request);
+            System.out.println("C->S " + currentRequest.getRequest());
             boolean finished = false;
-            while (!finished){
-                try {
-                    currentRequest.wait();
-                    if(currentRequest.response == null) {
-//                        finished = true;
-                        continue;
-                    }
-                    else finished = true;
-                } catch (InterruptedException e) {
-                    break;
-                }
+            try {
+                System.out.println("Calling wait in setBlock method");
+                lock.wait();
+            } catch (InterruptedException e) {
+                System.out.println("setBlock wait was interrupted");
             }
         }
 //        synchronized (currentRequest) {
@@ -272,6 +267,8 @@ public class SimulationClient implements Runnable{
         String booleanResponseStr = columns[8];
 
         boolean booleanResponse = booleanResponseStr.equals("TRUE") || booleanResponseStr.equals("true") || booleanResponseStr.equals("True");
+
+        System.out.println("Received set block result: " + booleanResponse);
 
         currentRequest = null;
 

@@ -58,9 +58,10 @@ public class SimulationServer {
                 SimulationServerThread sst = new SimulationServerThread(this, clientSocket);
                 Thread t = new Thread(sst);
                 t.setName(String.valueOf(connectionNum));
+                connectionNum++;
                 t.start();
 
-                connectionNum++;
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -89,8 +90,10 @@ public class SimulationServer {
         TableItem connectionTarget = null;
         for (TableItem tableItem : table) {
             if (
-                    tableItem.minX <= globalX && tableItem.maxX > globalX
-                            && tableItem.minY <= globalY && tableItem.maxY > globalY
+                            globalX >= tableItem.minX
+                            && globalX < tableItem.maxX
+                            && globalY >= tableItem.minY
+                            && globalY < tableItem.maxY
             ) {
                 connectionTarget = tableItem;
                 break;
@@ -207,7 +210,7 @@ public class SimulationServer {
 //        simulating = true;
         while (true) {
             try {
-                sleep(1000);
+                sleep(10000);
             } catch (InterruptedException e) {
 
             }

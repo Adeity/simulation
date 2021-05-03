@@ -119,8 +119,11 @@ public class Simulation implements Serializable{
                 if (block == null) {
                     System.out.println("This is simulation speaking, thank you for the block: null " + coordX + " " + coordY);
                 }
-                System.out.println("This is simulation speaking, thank you for the block: " + block+ " " +  coordX + " " + coordY);
-                return simulationClient.getBlock(coordX, coordY);
+                else {
+                    System.out.println("This is simulation speaking, thank you for the block: " + block.toString()+ " " +  coordX + " " + coordY);
+                }
+
+                return block;
             }
             else {
                 return null;
