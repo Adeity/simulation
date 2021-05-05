@@ -5,6 +5,9 @@ import cz.cvut.fel.pjv.simulation.model.Animal;
 import java.io.Serializable;
 
 public class Block implements Serializable, Cloneable {
+    /**
+     * enumaration of possible terrains of a block
+     */
     public enum Terrain implements Serializable{
         GRASS,
         GRASS_WITH_GRAIN,
@@ -75,6 +78,10 @@ public class Block implements Serializable, Cloneable {
         this.coordY = coordY;
     }
 
+    /**
+     * check wheter block is movable to. or if a newborn can be born here. there must be no water and no animal
+     * @return true if block is free, false otherwise
+     */
     public boolean isBlockFree() {
         if (this.terrain == Terrain.WATER) {
             return false;

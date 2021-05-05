@@ -14,6 +14,9 @@ import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
 
+/**
+ * SimulationServer. keeps record of all connected clients and calculates responses.
+ */
 public class SimulationServer {
     private static final Logger LOG = Logger.getLogger(SimulationServer.class.getName());
 
@@ -98,15 +101,19 @@ public class SimulationServer {
         }
     }
 
+    /**
+     * listen for client connections until simulationserver gives command to clients to go.
+     * or as long as there are less than maximum allowed clients connected
+     */
     public void listen() {
         try {
             while (true) {
                 if (running) {
 
-                    System.out.println("Running is true so I stop listening");
+                    LOG.info("Running is true so I stop listening");
                     break;
                 }
-                System.out.println("Connection num is: " + connectionNum);
+                LOG.info("Connection num is: " + connectionNum);
                 Socket clientSocket = serverSocket.accept();
                 if (running) {
                     LOG.info("Simulation is running so server stops listening for client connections");
@@ -133,25 +140,12 @@ public class SimulationServer {
         }
     }
 
+
     /**
-     * Returns where on what coordinates does connection start
-     * @param clientConnection is client connection
-     * @return x and y
+     * add new connection to table if it isnt there already
+     * @param sst client connection
+     * @param status status of connection
      */
-    public int[] getGlobalCoordinates(SimulationServerThread clientConnection) {
-        int[] coords = null;
-        for (TableItem tableItem : table) {
-            if (tableItem.getConnection().equals(clientConnection)) {
-                coords = new int[2];
-                coords[0] = tableItem.minX;
-                coords[1] = tableItem.maxY;
-                break;
-            }
-        }
-        return coords;
-    }
-
-
     public void addNewItemToTable(SimulationServerThread sst, String status) {
         boolean contains = false;
         for (TableItem tableItem : table) {
@@ -161,7 +155,6 @@ public class SimulationServer {
                 return;
             }
         }
-
         boolean upLeft = false;
         boolean upRight = false;
         boolean downLeft = false;
@@ -202,6 +195,10 @@ public class SimulationServer {
         }
     }
 
+    /**
+     * get list of blocks of each client
+     * @return list of blocks of each client
+     */
     synchronized public ArrayList<Block[][]> getBlocks() {
         this.table.sort(new TableItemComparator());
         ArrayList<Block[][]> blocks = new ArrayList<>();
@@ -212,6 +209,10 @@ public class SimulationServer {
         return blocks;
     }
 
+    /**
+     * delete connection from table when connection was interrupted before simulation started
+     * @param sst
+     */
     public void deleteConnectionFromTable(SimulationServerThread sst) {
         TableItem tableItemToRemove = null;
         for (TableItem tableItem : table) {
@@ -243,6 +244,12 @@ public class SimulationServer {
 //        }
 //    }
 
+    /**
+     * this finds connection whose global coordinates belong to
+     * @param globalX is global X coordinate
+     * @param globalY is global Y coordinate
+     * @return the connection
+     */
     public TableItem findTableItemWithConnectionByGlobalCoordinates (int globalX, int globalY) {
         LOG.info("Finding connection by global coordinates: " + globalX + ", " + globalY);
         TableItem connectionTarget = null;
@@ -262,7 +269,11 @@ public class SimulationServer {
         return connectionTarget;
     }
 
-
+    /**
+     * find table entry by connection
+     * @param sst is connection by which this finds table entry
+     * @return table entry with connection sst
+     */
     public TableItem findTableItemByConnection (SimulationServerThread sst) {
         TableItem connectionTarget = null;
         for (TableItem tableItem : table) {
@@ -270,20 +281,6 @@ public class SimulationServer {
                     tableItem.getConnection() == sst
             ) {
                 connectionTarget = tableItem;
-                break;
-            }
-        }
-        return connectionTarget;
-    }
-
-    public SimulationServerThread findConnectionByGlobalCoordinates(int globalX, int globalY) {
-        SimulationServerThread connectionTarget = null;
-        for (TableItem tableItem : table) {
-            if (
-                    tableItem.minX <= globalX && tableItem.maxX > globalX
-                    && tableItem.minY <= globalY && tableItem.maxY > globalY
-            ) {
-                connectionTarget = tableItem.connection;
                 break;
             }
         }
@@ -311,6 +308,12 @@ public class SimulationServer {
         return relativeCoords;
     }
 
+    /**
+     * in table, connection is identified by minX and minY parameters. this iterates through table and finds fitting connection
+     * @param minX is minX coordinate of connection
+     * @param minY is minY coordinate of connection
+     * @return the connection
+     */
     public SimulationServerThread findConnectionByMinimumCoordinateValues (int minX, int minY) {
         SimulationServerThread connection = null;
         for (TableItem tableItem : table) {
@@ -324,6 +327,11 @@ public class SimulationServer {
         return connection;
     }
 
+    /**
+     * set new state of connection
+     * @param connection is the connection
+     * @param state is the state
+     */
     public void setStateOfConnection(SimulationServerThread connection, String state) {
         for (TableItem tableItem : table) {
             if (tableItem.connection == connection) {
@@ -332,6 +340,11 @@ public class SimulationServer {
         }
     }
 
+    /**
+     * update blocks of connection so view can paint it
+     * @param connection is the connection whose blocks belong to
+     * @param blocks are the blocks to be set
+     */
     public void setBlocksOfConnection(SimulationServerThread connection, Block[][] blocks) {
         for (TableItem tableItem : table) {
             if (tableItem.connection == connection) {
@@ -362,6 +375,9 @@ public class SimulationServer {
         return everyConnectionSet;
     }
 
+    /**
+     * if every connection is in state ready, send STATE SET to every connection, so that server receives update blocks back
+     */
     public void set() {
         if (everyConnectionIsReady()) {
             for (TableItem tableItem : table) {
@@ -370,6 +386,9 @@ public class SimulationServer {
         }
     }
 
+    /**
+     * if every connection is in STATE SET, send GO command to every connection
+     */
     public void go() {
         if (everyConnectionIsSet()) {
             view.repaintJFrameSingleClientSimulation();
@@ -383,8 +402,10 @@ public class SimulationServer {
         }
     }
 
+    /**
+     * starts periodically trying to send go command to clients
+     */
     public void stopInitStartSimulating() {
-//        simulating = true;
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -401,12 +422,13 @@ public class SimulationServer {
         t.start();
     }
 
-    public boolean isInMapBounds(int x, int y) {
-        boolean boolX = x >= 0 && x < localMapSize;
-        boolean boolY = y >= 0 && y < localMapSize;
-        return boolX && boolY;
-    }
-
+    /**
+     * this translates relative coordinates of a specific connection to global coordinates
+     * @param connection who sends relative coordinates
+     * @param relativeX the relative x coordinate
+     * @param relativeY the relative y coordinate
+     * @return global coordinates
+     */
     int[] translateRelativeCoordinatesToGlobal (SimulationServerThread connection, int relativeX, int relativeY) {
         int[] globalCoordinates = new int[2];
 
@@ -433,18 +455,10 @@ public class SimulationServer {
         return globalCoordinates;
     }
 
-    int[] translateGlobalCoordinatesToTargetRelative (SimulationServerThread connection, int globalX, int globalY) {
-        int[] relativeToTargetCoords = new int[2];
-
-        int relativeToTargetX = globalX % localMapSize;
-        int relativeToTargetY = globalY % localMapSize;
-
-        relativeToTargetCoords[0] = relativeToTargetX;
-        relativeToTargetCoords[1] = relativeToTargetY;
-
-        return relativeToTargetCoords;
-    }
-
+    /**
+     * when connection with client gets interrupted while simulation is simulating, only delete blocks of connection for table.
+     * @param sst connection to delete blocks of which
+     */
     public void deleteBlocksOfConnectionFromTable(SimulationServerThread sst) {
         for (TableItem tableItem : table) {
             if (tableItem.getConnection() == sst) {

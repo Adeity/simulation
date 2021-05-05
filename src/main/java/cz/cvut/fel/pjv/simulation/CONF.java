@@ -2,6 +2,9 @@ package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.model.Animal;
 
+/**
+ * configuration file with all animal parameters
+ */
 public class CONF {
     //  file separator
     public static final String fS = System.getProperty("file.separator");

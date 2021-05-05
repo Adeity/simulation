@@ -7,7 +7,7 @@ import cz.cvut.fel.pjv.simulation.model.Map;
 public interface Killer {
     /**
      * Killer will kill other animal if requirements (like attribute energy) are met
-     * @param simulation
+     * @param simulation is simulation
      * @param otherAnimal is animal that would get killed
      * @return true if other animal will get killed, false otherwise
      */
@@ -15,7 +15,7 @@ public interface Killer {
 
     /**
      * Killer kills other animal
-     * @param simulation
+     * @param simulation is simulation
      * @param otherAnimal is animal that gets killed
      */
     void kill(Simulation simulation, Animal otherAnimal);
@@ -24,5 +24,4 @@ public interface Killer {
      * Increase energy of killer after killing prey
      */
     void killHareAddStats();
-//    void findClosestPrey();
 }

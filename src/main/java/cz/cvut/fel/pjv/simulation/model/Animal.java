@@ -14,6 +14,10 @@ import java.util.logging.Logger;
 
 public abstract class Animal implements Serializable {
     private static final Logger LOG = Logger.getLogger(Animal.class.getName());
+
+    /**
+     * carries information about direction of animal
+     */
     public enum Direction {
         UP,
         DOWN,
@@ -45,7 +49,7 @@ public abstract class Animal implements Serializable {
      */
     public void evaluate(Map map, Simulation simulation) {
 //        Utilities.addHandlerToLogger(LOG);
-        System.out.println("Evaluating now: " + this.toString());
+        LOG.info("Evaluating now: " + this.toString());
         Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
 
         for (Block block : surroundingBlocks) {
@@ -61,14 +65,14 @@ public abstract class Animal implements Serializable {
                 continue;
             }
             if(this.interact(simulation, otherAnimal)) {
-                System.out.println(this + " interact with " + otherAnimal);
+                LOG.info(this + " interact with " + otherAnimal);
                 this.didEvaluate = true;
                 otherAnimal.didEvaluate = true;
                 break;
             }
         }
         if(!this.didEvaluate) {
-            System.out.println("Animals moves");
+            LOG.info("Animals moves");
             move(simulation);
             this.didEvaluate = true;
         }
@@ -127,6 +131,12 @@ public abstract class Animal implements Serializable {
         }
     }
 
+    /**
+     * this gets called by move method. checks wheter animal can move to desired block. Also checks wheter its on local map, if not,
+     * checks if network connection is up. If it is, asks server to move across clients.
+     * @param simulation is simulation
+     * @param block is desired block animal wants to move to
+     */
     protected void actualMove(Simulation simulation, Block block) {
         if (canMoveToBlock(block)) {
             LOG.info("Evaluated that animal " + this.toString() + " at block: " + block.coordX + ", " + block.coordY + " could move to block");
@@ -141,7 +151,7 @@ public abstract class Animal implements Serializable {
                         blockCopy = (Block) block.clone();
                         blockCopy.setAnimal(this);
                         LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
-//                        System.out.println("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
+//                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
                         if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
                             LOG.info("Animal moved to another map");
                             this.block.setAnimal(null);
@@ -162,6 +172,9 @@ public abstract class Animal implements Serializable {
         }
     }
 
+    /**
+     * animal changes direciton. this gets called when he cant move in his original direction.
+     */
     protected void changeDirection() {
         if (this.getDirection() == Direction.RIGHT) {
             LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.DOWN);
@@ -186,6 +199,11 @@ public abstract class Animal implements Serializable {
         LOG.info("Changing animals " + this.toString() + " direction method where animal doesnt have direction");
     }
 
+    /**
+     * asserts wheter animal can move to desired block
+     * @param block desired block
+     * @return true if animal can move to desired block. false otherwise
+     */
     private boolean canMoveToBlock(Block block) {
         LOG.info("Can move to block: " + block + "?");
         if (block != null) {
@@ -268,6 +286,12 @@ public abstract class Animal implements Serializable {
 //    protected void moveRight(Map map) {
 //    }
 
+    /**
+     * asserts wheter fox can see hare. fox cant see hare, if hare is in bushes and fox isnt.
+     * @param fox is fox
+     * @param hare is hare
+     * @return true of fox can see hare
+     */
     protected boolean foxSeesHare(Animal fox, Animal hare) {
         if (
                 !(fox instanceof Fox)

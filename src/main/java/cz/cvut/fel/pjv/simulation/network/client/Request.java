@@ -1,5 +1,9 @@
 package cz.cvut.fel.pjv.simulation.network.client;
 
+/**
+ * Instance of this is what gets created in network communication
+ * this has uuid, reuquest and response needed for network communication.
+ */
 public class Request {
     String request;
     String uuid;

@@ -12,6 +12,9 @@ import java.awt.event.MouseListener;
 import java.util.logging.*;
 import javax.swing.*;
 
+/**
+ * Each block (tile) is drawn here
+ */
 public class MapComponent extends JComponent {
     public static final int PREFERRED_GRID_SIZE_PIXELS = 30;
 
@@ -34,9 +37,9 @@ public class MapComponent extends JComponent {
 
     public MapComponent(Simulation simulation, int panelWidth) {
         this.simulation = simulation;
-        this.dimension = simulation.map.sizeOfMap;
+        this.dimension = this.simulation.map.sizeOfMap;
         this.terrainGrid = new Tile[dimension][dimension];
-        Block[][] blocks = simulation.map.blocks;
+        Block[][] blocks = this.simulation.map.blocks;
         Color terrainColor;
         Color animalColor;
         for (int i = 0; i < dimension; i++) {
@@ -148,7 +151,7 @@ public class MapComponent extends JComponent {
     private class MouseHandler implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent e) {
-            System.out.println(e.paramString());
+            LOG.info(e.paramString());
         }
 
         @Override

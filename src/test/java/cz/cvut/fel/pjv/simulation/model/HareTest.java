@@ -7,10 +7,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
+import java.util.logging.Logger;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class HareTest {
+    private static final Logger LOG = Logger.getLogger(HareTest.class.getName());
 
     @Test
     void test_mateChangeStats() {
@@ -146,11 +149,11 @@ class HareTest {
         );
 
 
-        System.out.println("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = 0; i < numOfRounds; i++) {
 
-            System.out.println("iteration: " + i + " | hare1 energy: " + hare1.getEnergyForMating());
-            System.out.println("iteration: " + i + " | hare2 energy: " + hare2.getEnergyForMating());
+            LOG.info("iteration: " + i + " | hare1 energy: " + hare1.getEnergyForMating());
+            LOG.info("iteration: " + i + " | hare2 energy: " + hare2.getEnergyForMating());
             map.evaluate();
             assertEquals(
                     2,
@@ -160,13 +163,13 @@ class HareTest {
 
         //  when they have enough energy for mating finally a new hare is born
 
-        System.out.println("Hare1 energy before last eval: " + hare1.getEnergyForMating());
-        System.out.println("Hare2 energy before last eval: " + hare2.getEnergyForMating());
+        LOG.info("Hare1 energy before last eval: " + hare1.getEnergyForMating());
+        LOG.info("Hare2 energy before last eval: " + hare2.getEnergyForMating());
         map.evaluate();
 
 
-        System.out.println("Hare1 energy after last eval: " + hare1.getEnergyForMating());
-        System.out.println("Hare2 energy after last eval: " + hare2.getEnergyForMating());
+        LOG.info("Hare1 energy after last eval: " + hare1.getEnergyForMating());
+        LOG.info("Hare2 energy after last eval: " + hare2.getEnergyForMating());
         assertEquals(
                 3,
                 map.numOfAnimals
@@ -198,8 +201,8 @@ class HareTest {
                         hare1.getAge() >= minimumAge
         );
 
-        System.out.println("Min energy for mating: " + minimumEnergyForMating + " | Max energy for mating: " + maximumEnergyForMating);
-        System.out.println("Hare energy for mating on spawn: " + hare1.getEnergyForMating());
+        LOG.info("Min energy for mating: " + minimumEnergyForMating + " | Max energy for mating: " + maximumEnergyForMating);
+        LOG.info("Hare energy for mating on spawn: " + hare1.getEnergyForMating());
         assertTrue(
                 hare1.getEnergyForMating() <= maximumEnergyForMating
                         &&
@@ -274,7 +277,7 @@ class HareTest {
         Mockito.doReturn(true).when(hare1).areReadyForMating(hare2);
         Mockito.doReturn(true).when(hare2).areReadyForMating(hare1);
 
-        System.out.println(map.animals.size());
+        LOG.info("size of map: " + map.animals.size());
 
         map.evaluate();
         assertEquals(

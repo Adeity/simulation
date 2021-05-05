@@ -5,6 +5,9 @@ import cz.cvut.fel.pjv.simulation.model.Map;
 
 import java.util.Comparator;
 
+/**
+ * is table entry with connection, its minx, maxx, miny, maxy identifier and its block after each round. also its status
+ */
 public class TableItem {
     SimulationServerThread connection;
     static int numberOfItems = 0;
@@ -38,6 +41,14 @@ public class TableItem {
         this.position = position;
     }
 
+    /**
+     * gets new table entry
+     * @param position is position of client on map
+     * @param sizeOfMap is each client local size of map
+     * @param connection is connection for entry
+     * @param status is status of entry
+     * @return instance of tableItem
+     */
     public static TableItem getInstance(int position, int sizeOfMap, SimulationServerThread connection, String status) {
         TableItem tableItem = new TableItem(position, connection, status);
         if (position == 0) {

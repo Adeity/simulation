@@ -18,6 +18,9 @@ import java.util.logging.*;
 
 import static java.lang.Character.isDigit;
 
+/**
+ * This is what you see when you first start the application on client side
+ */
 public class JFrameInit extends JFrame implements ActionListener{
 
     private volatile boolean needUpdate;
@@ -558,6 +561,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                 cardLayout.show(c, "cardInit");
                 break;
             case "FROM_CONNECT_ERROR_PANEL":
+                this.simulation.simulationClient = null;
                 cardLayout.show(c, "cardConnect");
                 break;
             case "FROM_TEMPLATE_PANEL":

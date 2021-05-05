@@ -6,10 +6,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 
+import java.util.logging.Logger;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
 
 class AnimalTest {
+    private static final Logger LOG = Logger.getLogger(AnimalTest.class.getName());
+
     @Test
     void test_setAnimalAtCoord_animalAlreadyOnMap() {
         Simulation simulation = new Simulation();
@@ -147,7 +151,7 @@ class AnimalTest {
         expectedNumOfAnimals = 1;
         currentNumOfAnimalsAttribute = map.numOfAnimals;
         currentSizeOfAnimalsList = map.animals.size();
-        System.out.println(map);
+        LOG.info(map.toString());
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -223,12 +227,12 @@ class AnimalTest {
         map.setAnimalAtCoord(fox, 1, 1);
 
         int numOfRounds = 8;
-        System.out.println("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = numOfRounds; i > 0; i--) {
-            System.out.println("before iteration: " + i + " | numOfAnimals: " + map.animals.size());
+            LOG.info("before iteration: " + i + " | numOfAnimals: " + map.animals.size());
             map.evaluate();
             int expectedNumOfAnimals = i;
-            System.out.println("after iteration: " + i + " | numOfAnimals: " + map.animals.size());
+            LOG.info("after iteration: " + i + " | numOfAnimals: " + map.animals.size());
             assertEquals(
                     expectedNumOfAnimals,
                     map.numOfAnimals

@@ -11,11 +11,14 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class MapTest {
+    private static final Logger LOG = Logger.getLogger(MapTest.class.getName());
+
 
     @Test
     void test_corretNumOfAnimalsInTemplate() {
@@ -46,7 +49,7 @@ class MapTest {
                             }
                         }
                         catch (NumberFormatException e) {
-                            System.out.println("Template has invalid number values!");
+                            LOG.info("Template has invalid number values!");
                         }
                         if(line.equals("----------")) {
                             break;
@@ -73,7 +76,7 @@ class MapTest {
                         );
                     }
                     else {
-                        System.out.println("numOfanimals not defined in: " +template.getName());
+                        LOG.info("numOfanimals not defined in: " +template.getName());
                     }
                     if(expectedNumOfFoxes != null) {
                         assertEquals(
@@ -83,7 +86,7 @@ class MapTest {
                         );
                     }
                     else {
-                        System.out.println("numOfFoxes not defined in: " +template.getName());
+                        LOG.info("numOfFoxes not defined in: " +template.getName());
                     }
                     if(expectedNumOfHare != null) {
                         assertEquals(
@@ -93,7 +96,7 @@ class MapTest {
                         );
                     }
                     else {
-                        System.out.println("numOfHare not defined in: " +template.getName());
+                        LOG.info("numOfHare not defined in: " +template.getName());
                     }
 
 

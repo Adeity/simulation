@@ -18,6 +18,10 @@ public class Controller {
         this.simulation = simulation;
     }
 
+    /**
+     * command cycle for controlling simulation through command.
+     * deprecated
+     */
     public void command() {
         File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
         String[] fileNames = mapTemplateDirectory.list();
@@ -27,42 +31,42 @@ public class Controller {
         boolean isClient = false;
 
         while (true) {
-            System.out.println("Initialize simulation: ");
-            System.out.println("1 - from template");
-            System.out.println("2 - generate from size");
+            LOG.info("Initialize simulation: ");
+            LOG.info("1 - from template");
+            LOG.info("2 - generate from size");
             if (!isClient) {
-                System.out.println("3 - create server");
-                System.out.println("4 - create client");
+                LOG.info("3 - create server");
+                LOG.info("4 - create client");
             }
             if (fileNames != null){
-                System.out.println("5 - load save");
+                LOG.info("5 - load save");
             }
             String s = sc.nextLine();
             if(s.equals("1")) {
-                System.out.println("Enter map template filename: ");
+                LOG.info("Enter map template filename: ");
                 s = sc.nextLine();
                 this.run(s);
-                System.out.println("Initializing map from template: " + s);
+                LOG.info("Initializing map from template: " + s);
                 break;
             }
             else if (s.equals("2")) {
-                System.out.println("Enter size of map: ");
+                LOG.info("Enter size of map: ");
                 s = sc.nextLine();
                 int size = Integer.parseInt(s);
                 this.run(size);
                 break;
             }
 //            else if (s.equals("3")) {
-//                System.out.println("Enter port: ");
+//                LOG.info("Enter port: ");
 //                s = sc.nextLine();
 //                controllerNetwork = new ControllerNetwork(simulation);
 //                controllerNetwork.startServer(Integer.parseInt(s));
 //            }
             else if (s.equals("4")) {
-                System.out.println("Enter IP address of server: ");
+                LOG.info("Enter IP address of server: ");
                 s = sc.nextLine();
                 String ipAddress = s;
-                System.out.println("Enter port: ");
+                LOG.info("Enter port: ");
                 s = sc.nextLine();
                 String port = s;
                 controllerNetwork = new ControllerNetwork(simulation);
@@ -76,7 +80,7 @@ public class Controller {
             }
             i++;
             if(i == 3) {
-                System.out.println("You entered invalid command 3 times, do you wish to try again? y/n");
+                LOG.info("You entered invalid command 3 times, do you wish to try again? y/n");
                 s = sc.nextLine();
                 if(s.equals("y") || s.equals("Y")) {
                     i = 0;
@@ -90,7 +94,7 @@ public class Controller {
 
         i = 0;
         if(simulation.isRunning) {
-            System.out.println("Available commands: next, end, show, stats, help");
+            LOG.info("Available commands: next, end, show, stats, help");
             while (true) {
                 String s = sc.nextLine();
                 if(s.equals("next")){
@@ -137,15 +141,15 @@ public class Controller {
                     continue;
                 }
                 else {
-                    System.out.println("Command: " + s + " not found. Type help to print available commands.");
+                    LOG.info("Command: " + s + " not found. Type help to print available commands.");
                     i++;
                 }
                 if(i == 3) {
-                    System.out.println("You entered invalid command 3 in a row times, do you wish to try again? y/n");
+                    LOG.info("You entered invalid command 3 in a row times, do you wish to try again? y/n");
                     s = sc.nextLine();
                     if(s.equals("y") || s.equals("Y")) {
                         i = 0;
-                        System.out.println("Available commands: next, end, show, stats, help");
+                        LOG.info("Available commands: next, end, show, stats, help");
                         continue;
                     }
                     else {
@@ -161,25 +165,42 @@ public class Controller {
 
     }
 
+    /**
+     * commands simulation to run from string
+     * @param s string, name of file
+     */
     public void run(String s) {
         this.simulation.run(s);
     }
 
+    /**
+     * commands simulation to run from size
+     * @param size int
+     */
     public void run(int size) {
         this.simulation.run(size);
     }
 
+    /**
+     * commands simulation to simulate day
+     */
     public void simulateDay() {
         simulation.simulateDay();
     }
 
+    /**
+     * sets simulation.isrunning parameter to false.
+     */
     public void endSimulation() {
         simulation.isRunning = false;
-        System.out.println("bye");
+        LOG.info("bye");
     }
 
+    /**
+     * logs map.tostring
+     */
     private void showCurrent() {
-        System.out.println(simulation.map);
+        LOG.info(simulation.map.toString());
     }
 
     private void printStats() {
@@ -193,12 +214,12 @@ public class Controller {
     }
 
     private void printHelp() {
-        System.out.println("Available commands: ");
-        System.out.println("next - simulates next day");
-        System.out.println("show - prints graphical representation of current state of simulation in command line");
-        System.out.println("stats - prints stats of current state of simulation");
-        System.out.println("end - end simulation and programme");
-        System.out.println("help - prints this help section");
+        LOG.info("Available commands: ");
+        LOG.info("next - simulates next day");
+        LOG.info("show - prints graphical representation of current state of simulation in command line");
+        LOG.info("stats - prints stats of current state of simulation");
+        LOG.info("end - end simulation and programme");
+        LOG.info("help - prints this help section");
     }
 
     private void save() {
@@ -206,46 +227,46 @@ public class Controller {
         String[] fileNames = mapTemplateDirectory.list();
 
         Scanner sc = new Scanner(System.in);
-        System.out.println("Enter name of new save: ");
+        LOG.info("Enter name of new save: ");
         String name = sc.nextLine();
 
         this.simulation.serializeWrite(name);
     }
 
-    public void loadCMD() {
+    private void loadCMD() {
         File mapTemplateDirectory = new File(CONF.MAP_SAVES_DIRECTORY);
         String[] fileNames = mapTemplateDirectory.list();
 
         if(fileNames == null) {
-            System.out.println("There are no save files.");
+            LOG.info("There are no save files.");
             System.exit(-3);
         }
 
-        System.out.println("Available saves: ");
+        LOG.info("Available saves: ");
         for (String file : fileNames) {
-            System.out.println(file);
+            LOG.info(file);
         }
 
         Scanner sc = new Scanner(System.in);
-        System.out.println("\nEnter name of save to load: ");
+        LOG.info("\nEnter name of save to load: ");
         String name;
 
         while (true) {
             name = sc.nextLine();
             boolean contains = Arrays.asList(fileNames).contains(name);
             if(!contains) {
-                System.out.println("There is no save with name: " + name);
+                LOG.info("There is no save with name: " + name);
             }
             else {
                 break;
             }
         }
 
-        System.out.println("Loading save: " + name);
+        LOG.info("Loading save: " + name);
         this.simulation.serializeRead(name);
     }
 
-    public void load(String saveName) {
+    private void load(String saveName) {
         this.simulation.serializeRead(saveName);
     }
 

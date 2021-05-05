@@ -4,6 +4,9 @@ import cz.cvut.fel.pjv.simulation.Simulation;
 
 import javax.swing.*;
 
+/**
+ * This is a view router with all JFrames.
+ */
 public class View {
     Simulation simulation;
 
@@ -102,5 +105,21 @@ public class View {
 
     public void closeJFrameStats() {
 
+    }
+
+    public JFrameInit getjFrameInit() {
+        return jFrameInit;
+    }
+
+    public JFrameSimulation getjFrameSimulation() {
+        return jFrameSimulation;
+    }
+
+    public JFrameStats getjFrameStats() {
+        return jFrameStats;
+    }
+
+    public JFrameClientSimulation getjFrameClientSimulation() {
+        return jFrameClientSimulation;
     }
 }

@@ -4,6 +4,9 @@ import cz.cvut.fel.pjv.simulation.network.server.SimulationServer;
 
 import javax.swing.*;
 
+/**
+ * this is kind of a router for every jframe
+ */
 public class View {
     SimulationServer simulationServer;
 
@@ -17,6 +20,10 @@ public class View {
         this.simulationServer = simulationServer;
     }
 
+    /**
+     * open simulation map of a single client.
+     * @param clientNumber is client number who's map is to be shown
+     */
     public void openJFrameSingleClientSimulation(int clientNumber) {
         if (jFrameSingleClientSimulation == null) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -37,6 +44,9 @@ public class View {
         }
     }
 
+    /**
+     * repaint single client window
+     */
     public void repaintJFrameSingleClientSimulation() {
         if (jFrameSingleClientSimulation == null) {
             return;
@@ -44,6 +54,9 @@ public class View {
         jFrameSingleClientSimulation.repaint();
     }
 
+    /**
+     * open first windows of server app
+     */
     public void openJFrameServerInit() {
         if (jFrameServerInit == null) {
             SwingUtilities.invokeLater(new Runnable() {

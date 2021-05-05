@@ -8,6 +8,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Stats of simulation can be seen here
+ */
 public class JFrameStats extends JFrame {
 
     JLabel day = new JLabel();

@@ -12,6 +12,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.logging.*;
 
+/**
+ * This shows map of simulation in local mode.
+ */
 public class JFrameSimulation extends JFrame implements ActionListener {
     private static final Logger LOG = Logger.getLogger(JFrameSimulation.class.getName());
     Simulation simulation;
@@ -45,7 +48,7 @@ public class JFrameSimulation extends JFrame implements ActionListener {
         mapPanel.setSize(new Dimension(800, 800));
         this.mapComponent = new MapComponent(this.simulation, mapPanel.getWidth());
         mapPanel.add(mapComponent);
-        System.out.println(mapPanel.getWidth());
+        LOG.info("mapPanel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));

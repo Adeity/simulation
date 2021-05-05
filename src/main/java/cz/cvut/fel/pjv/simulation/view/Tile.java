@@ -3,6 +3,9 @@ package cz.cvut.fel.pjv.simulation.view;
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * This represents one position on map.
+ */
 public class Tile extends JComponent {
     public Color terrainColor;
     public Color animalColor;

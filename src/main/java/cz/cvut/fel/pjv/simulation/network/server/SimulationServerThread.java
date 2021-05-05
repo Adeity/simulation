@@ -40,32 +40,34 @@ public class SimulationServerThread implements Runnable {
             String message, outputLine;
 
             //  Initiate conversation with client
-//            outWriter.println("MAP " + simulationServer.localMapSize);
-
-            outWriter.println("MAP map10.txt");
-            LOG.info("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
-
+            outWriter.println("MAP " + simulationServer.localMapSize);
             LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
-//            System.out.println("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+
+            //  SHOWCASE
+//            outWriter.println("MAP map10.txt");
+//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
+
+
+//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
 
             SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
             while ((message = inReader.readLine()) != null) {
-//                System.out.println("C"+Thread.currentThread().getName()+"->S " + message);
+//                LOG.info("C"+Thread.currentThread().getName()+"->S " + message);
                 LOG.info("C"+Thread.currentThread().getName()+"->S " + message);
                 String[] columns = message.split(" ");
 
                 String messageType = columns[0];
 
-                 if (messageType.equals("STATE")) {
+                 if (messageType.equals("STATE")) { // client sends back its state
                     String state = columns[1];
                     this.simulationServer.setStateOfConnection(this, state);
 
-                    if (state.equals("READY")) {
+                    if (state.equals("READY")) { // if it is ready, it is ready to simulate anothjer day
                         simulationServer.addNewItemToTable(this, "READY");
                         this.simulationServer.setStateOfConnection(this, "READY");
                     }
-                    else if (state.equals("SET")) {
+                    else if (state.equals("SET")) { // if it is set, client also sends back blocks for server to paint
                         try {
                             Block[][] blocks = (Block[][]) SerializationUtils.fromString(columns[2]);
                             this.simulationServer.setBlocksOfConnection(this, blocks);
@@ -74,11 +76,11 @@ public class SimulationServerThread implements Runnable {
                             e.printStackTrace();
                         }
                     }
-                    else if (state.equals("GO")) {
+                    else if (state.equals("GO")) { // client started evaluating its map
                         this.simulationServer.setStateOfConnection(this, "GO");
                     }
                 }
-                else if (messageType.equals("GET_BLOCK")) {
+                else if (messageType.equals("GET_BLOCK")) { // client sends GET_BLOCK request, server reroutes to another connection, or sends response straigth back, if there is no fitting connection which owns clients desired block
                     //  GET_BLOCK UUID -1 -1
                      LOG.info("Received GET_BLOCK request");
                     String uuid = columns[1];
@@ -101,7 +103,7 @@ public class SimulationServerThread implements Runnable {
 
                         String response = NetworkProtocol.buildBlockMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY,null);
                         outWriter.println(response);
-//                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+//                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
@@ -117,7 +119,7 @@ public class SimulationServerThread implements Runnable {
                     connection.getBlock(uuid, crTT[0], crTT[1], globalX, globalY, thisConnection.minX, thisConnection.minY);
                 }
 
-                else if (messageType.equals("SET_BLOCK")) { // SET_BLOCK [UUID2] 12 12 [SERIALIZED_BLOCK]
+                else if (messageType.equals("SET_BLOCK")) { // SET_BLOCK [UUID2] 12 12 [SERIALIZED_BLOCK] // client sends SET_BLOCK request, server reroutes to another connection, or sends response straigth back, if there is no fitting connection which owns clients desired block
                     String uuid = columns[1];
                     int relativeX = Integer.parseInt(columns[2]);
                     int relativeY = Integer.parseInt(columns[3]);
@@ -145,7 +147,7 @@ public class SimulationServerThread implements Runnable {
                         result = false;
                         response = NetworkProtocol.buildSetBlockResultMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY, "FALSE");
                         outWriter.println(response);
-//                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+//                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
@@ -160,7 +162,7 @@ public class SimulationServerThread implements Runnable {
                     connection.setBlock(uuid, crTT[0], crTT[1], globalX, globalY, thisConnection.minX, thisConnection.minY, block);
                 }
 
-                 else if (messageType.equals("BLOCK")) {
+                 else if (messageType.equals("BLOCK")) { //  client responds to servers GET_BLOCK request. server sends BLOCK back to original client requestor
                      //  BLOCK UUID [SERIALIZED_BLOCK]
                      String uuid = columns[1];
                      int relativeX = Integer.parseInt(columns[2]);
@@ -196,7 +198,7 @@ public class SimulationServerThread implements Runnable {
                      targetConnection.block(uuid, crTT[0], crTT[1], globalX, globalY, requestorMinX, requestorMinY, block);
                  }
 
-                else if (messageType.equals("SET_BLOCK_RESULT")) {
+                else if (messageType.equals("SET_BLOCK_RESULT")) { //  client responds to servers SET_BLOCK request. server sends result back to original client requestor
                      String uuid = columns[1];
                      int relativeX = Integer.parseInt(columns[2]);
                      int relativeY = Integer.parseInt(columns[3]);
@@ -229,50 +231,96 @@ public class SimulationServerThread implements Runnable {
         }
     }
 
+    /**
+     * send GET_BLOCK request to client
+     * @param uuid is uuid of request
+     * @param targetX is x coordinate relative to target connection
+     * @param targetY is y coordinate relative to target connection
+     * @param globalX is x coordinate in global perspective
+     * @param globalY is y coordinate in global perspective
+     * @param minX is minimum X coordinate of original requestor connection
+     * @param minY is minimumY coordinate of original requestor connection
+     */
     synchronized public void getBlock(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY) {
         Request currentRequest = new Request(
                 NetworkProtocol.buildGetBlockMessageFromServerToClient(targetX, targetY, globalX, globalY, minX, minY,uuid),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
         LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
-    synchronized public void setBlock(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
+    /**
+     * send SET_BLOCK request to client
+     * @param uuid is uuid of request
+     * @param targetX is x coordinate relative to target connection
+     * @param targetY is y coordinate relative to target connection
+     * @param globalX is x coordinate in global perspective
+     * @param globalY is y coordinate in global perspective
+     * @param minX is minimum X coordinate of original requestor connection
+     * @param minY is minimumY coordinate of original requestor connection
+     */
+    synchronized public void setBlock(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY, Block block) {
         Request currentRequest = new Request(
-                NetworkProtocol.buildSetBlockMessageFromServerToClient(x, y, globalX, globalY, minX, minY, uuid, block),
+                NetworkProtocol.buildSetBlockMessageFromServerToClient(targetX, targetY, globalX, globalY, minX, minY, uuid, block),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
         LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
+    /**
+     * send GO command to client
+     */
     synchronized public void go() {
-//        System.out.println("S->C" + Thread.currentThread().getName() + " GO");
+//        LOG.info("S->C" + Thread.currentThread().getName() + " GO");
         LOG.info("S->C" + Thread.currentThread().getName() + " GO");
         outWriter.println("GO");
     }
 
+    /**
+     * send SET command to client.
+     */
     synchronized public void set() {
         outWriter.println("SET");
     }
 
-    synchronized public void block(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
+    /**
+     * send BLOCK response to clients GET_BLOCK request
+     * @param uuid is uuid of request
+     * @param targetX is x coordinate relative to target connection
+     * @param targetY is y coordinate relative to target connection
+     * @param globalX is x coordinate in global perspective
+     * @param globalY is y coordinate in global perspective
+     * @param minX is minimum X coordinate of original requestor connection
+     * @param minY is minimumY coordinate of original requestor connection
+     */
+    synchronized public void block(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY, Block block) {
         Request currentRequest = new Request(
-                NetworkProtocol.buildBlockMessage(uuid, x, y, globalX, globalY, minX, minY, block),
+                NetworkProtocol.buildBlockMessage(uuid, targetX, targetY, globalX, globalY, minX, minY, block),
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
         LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
-    synchronized public void setBlockResult(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, String result) {
-        String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, x, y, globalX, globalY, minX, minY, result);
+    /**
+     * send SET_BLOCK_RESULT response to clients SET_BLOCK request
+     * @param uuid is uuid of request
+     * @param targetX is x coordinate relative to target connection
+     * @param targetY is y coordinate relative to target connection
+     * @param globalX is x coordinate in global perspective
+     * @param globalY is y coordinate in global perspective
+     * @param minX is minimum X coordinate of original requestor connection
+     * @param minY is minimumY coordinate of original requestor connection
+     */
+    synchronized public void setBlockResult(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY, String result) {
+        String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, targetX, targetY, globalX, globalY, minX, minY, result);
         outWriter.println(answerToClient);
-        System.out.println("S->C" + Thread.currentThread().getName() + " " + answerToClient);
+        LOG.info("S->C" + Thread.currentThread().getName() + " " + answerToClient);
         LOG.info("S->C" + Thread.currentThread().getName() + " " + answerToClient);
     }
 }

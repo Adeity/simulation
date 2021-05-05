@@ -11,6 +11,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * this shows every client map
+ */
 public class JFrameServerSimulation extends JFrame implements ActionListener {
     private static final Logger LOG = Logger.getLogger(JFrameServerSimulation.class.getName());
 
@@ -85,7 +88,7 @@ public class JFrameServerSimulation extends JFrame implements ActionListener {
         mapPanel.setSize(new Dimension(width, heigth));
         this.mapComponent = new MapComponent(this.simulationServer, mapPanel.getWidth(), mapPanel.getHeight(), widthDimension, heightDimension);
         mapPanel.add(mapComponent);
-        System.out.println(mapPanel.getWidth());
+        LOG.info("mapPanel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));

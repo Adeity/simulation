@@ -12,6 +12,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * this is for viewing map only of a single client
+ */
 public class SingleMapComponent extends JComponent {
     SimulationServer simulationServer;
 

@@ -42,6 +42,11 @@ public class ControllerNetwork {
 //        simulationClient.sendMapToServer(map);
 //    }
 
+    /**
+     * creates connection with server
+     * @param ipAddress is the address
+     * @param port is the port
+     */
     public void createClient(String ipAddress, int port) {
         simulation.simulationClient = new SimulationClient(ipAddress, port, simulation);
         simulation.simulationClient.connect();

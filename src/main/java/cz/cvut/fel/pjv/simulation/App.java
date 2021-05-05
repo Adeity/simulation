@@ -4,6 +4,9 @@ import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.controller.ControllerNetwork;
 import cz.cvut.fel.pjv.simulation.view.View;
 
+/**
+ * Application has simulation, controllers and view
+ */
 public class App {
     Simulation simulation;
     Controller controller;

@@ -16,6 +16,9 @@ import java.util.logging.Logger;
 
 import static java.lang.Character.isDigit;
 
+/**
+ * this is what you first see when you open server application
+ */
 public class JFrameServerInit extends JFrame implements ActionListener {
     private static final Logger LOG = Logger.getLogger(JFrameInit.class.getName());
 
@@ -138,6 +141,9 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         panelWaitRoom.setLayout(new FlowLayout());
     }
 
+    /**
+     * connection was added or removed so waitRoom panel must be repainted
+     */
     public void updateWaitRoomNumbers() {
         waitRoomConnectedClients.setText(simulationServer.getNumOfConnectedClients() + " / " + simulationServer.getMaxNumOfClients());
     }
@@ -235,6 +241,9 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         return res;
     }
 
+    /**
+     * set action commadns to each btn in card layout
+     */
     private void setActionCommands() {
         btnOneClients.setActionCommand("ONE_CLIENT");
         btnTwoClients.setActionCommand("TWO_CLIENTS");
@@ -246,6 +255,9 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         LOG.info("Action commands were added to buttons");
     }
 
+    /**
+     * add action listeners to each button
+     */
     private void addActionListeners() {
         btnOneClients.addActionListener(this);
         btnTwoClients.addActionListener(this);
@@ -257,6 +269,13 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         LOG.info("Action listeners were added to buttons");
     }
 
+    /**
+     * create a label cell of bag layout
+     * @param pos row position of bag layout fo rlable
+     * @param labelstr the text value of label
+     * @param panel this belongs to
+     * @return the jlabel
+     */
     public JLabel addMyLabelCell(int pos, String labelstr, JPanel panel) {
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.gridx = 0;
@@ -266,6 +285,14 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         return label;
     }
 
+    /**
+     * create jformattedtextfield where only numbers can be written
+     * @param pos row position of bag layout
+     * @param text redundant
+     * @param panel panel this belongs to
+     * @param t this indicates that this method returns formattedtextfield, not textfield
+     * @return the jformattedtextfield
+     */
     private JFormattedTextField addMyTextFieldCell(int pos, String text, JPanel panel, boolean t) {
         GridBagConstraints gridBagConstraints = new GridBagConstraints();
         gridBagConstraints.anchor = GridBagConstraints.EAST;

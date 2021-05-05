@@ -57,7 +57,7 @@ public class JFrameSingleClientSimulation extends JFrame {
         mapPanel.setSize(new Dimension(width, heigth));
         this.mapComponent = new SingleMapComponent(this.simulationServer, mapPanel.getWidth(), mapPanel.getHeight(), widthDimension, heightDimension);
         mapPanel.add(mapComponent);
-        System.out.println(mapPanel.getWidth());
+        LOG.info("map panel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));

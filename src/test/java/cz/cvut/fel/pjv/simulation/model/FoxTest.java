@@ -7,10 +7,13 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mockito;
 
+import java.util.logging.Logger;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 class FoxTest {
+    private static final Logger LOG = Logger.getLogger(FoxTest.class.getName());
     @ParameterizedTest
     @CsvSource({
             "3",
@@ -70,11 +73,11 @@ class FoxTest {
                 fox2.getAge()
         );
 
-        System.out.println("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = 0; i < numOfRounds; i++) {
 
-            System.out.println("iteration: " + i + " | fox1 energy: " + fox1.getEnergyForMating());
-            System.out.println("iteration: " + i + " | fox2 energy: " + fox2.getEnergyForMating());
+            LOG.info("iteration: " + i + " | fox1 energy: " + fox1.getEnergyForMating());
+            LOG.info("iteration: " + i + " | fox2 energy: " + fox2.getEnergyForMating());
             map.evaluate();
             assertEquals(
                     2,
@@ -83,13 +86,13 @@ class FoxTest {
         }
 
         //  when they have enough energy for mating finally a new fox is born
-        System.out.println("Hare1 energy before last eval: " + fox1.getEnergyForMating());
-        System.out.println("Hare2 energy before last eval: " + fox2.getEnergyForMating());
+        LOG.info("Hare1 energy before last eval: " + fox1.getEnergyForMating());
+        LOG.info("Hare2 energy before last eval: " + fox2.getEnergyForMating());
         map.evaluate();
 
 
-        System.out.println("Hare1 energy after last eval: " + fox1.getEnergyForMating());
-        System.out.println("Hare2 energy after last eval: " + fox2.getEnergyForMating());
+        LOG.info("Hare1 energy after last eval: " + fox1.getEnergyForMating());
+        LOG.info("Hare2 energy after last eval: " + fox2.getEnergyForMating());
         assertEquals(
                 3,
                 map.numOfAnimals
@@ -158,7 +161,7 @@ class FoxTest {
         Mockito.doReturn(true).when(fox1).areReadyForMating(fox2);
         Mockito.doReturn(true).when(fox2).areReadyForMating(fox1);
 
-        System.out.println(map.animals.size());
+        LOG.info("Size of map: " + map.animals.size());
 
         map.evaluate();
         assertEquals(
@@ -252,10 +255,10 @@ class FoxTest {
         fox.setEnergy(5);
 
         int numOfRounds = 4;
-        System.out.println("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = 0; i < numOfRounds; i++) {
 
-            System.out.println("iteration: " + i + " | fox1 energy: " + fox.getEnergy());
+            LOG.info("iteration: " + i + " | fox1 energy: " + fox.getEnergy());
             map.evaluate();
             assertEquals(
                     1,
@@ -264,10 +267,10 @@ class FoxTest {
         }
 
         //  when they have enough energy for mating finally a new fox is born
-        System.out.println("fox energy before last eval: " + fox.getEnergy());
+        LOG.info("fox energy before last eval: " + fox.getEnergy());
         map.evaluate();
 
-        System.out.println("fox energy after last eval: " + fox.getEnergy());
+        LOG.info("fox energy after last eval: " + fox.getEnergy());
         assertEquals(
                 0,
                 map.numOfAnimals

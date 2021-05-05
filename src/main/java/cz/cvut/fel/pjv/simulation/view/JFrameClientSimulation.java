@@ -10,6 +10,9 @@ import java.awt.event.ActionListener;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * JFrame window for when simulation is connected to server
+ */
 public class JFrameClientSimulation extends JFrame implements ActionListener {
     private static final Logger LOG = Logger.getLogger(JFrameClientSimulation.class.getName());
     Simulation simulation;
@@ -41,7 +44,7 @@ public class JFrameClientSimulation extends JFrame implements ActionListener {
         mapPanel.setSize(new Dimension(500, 500));
         this.mapComponent = new MapComponent(this.simulation, mapPanel.getWidth());
         mapPanel.add(mapComponent);
-        System.out.println(mapPanel.getWidth());
+        LOG.info("map panel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));
@@ -70,7 +73,5 @@ public class JFrameClientSimulation extends JFrame implements ActionListener {
                 this.simulation.getView().openJFrameStats();
                 break;
         }
-        this.simulation.getView().repaintJFrameStats();
-        this.simulation.getView().repaintJFrameClientSimulation();
     }
 }

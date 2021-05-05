@@ -2,6 +2,9 @@ package cz.cvut.fel.pjv.simulation.network.server;
 
 import java.util.Comparator;
 
+/**
+ * this is so it can be sorted by position
+ */
 public class TableItemComparator implements Comparator<TableItem> {
     @Override
     public int compare(TableItem o1, TableItem o2) {
