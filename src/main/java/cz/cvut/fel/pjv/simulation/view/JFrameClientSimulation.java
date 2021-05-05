@@ -1,38 +1,34 @@
 package cz.cvut.fel.pjv.simulation.view;
 
-import cz.cvut.fel.pjv.simulation.App;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.controller.Controller;
-import cz.cvut.fel.pjv.simulation.model.Map;
 import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.logging.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-public class JFrameSimulation extends JFrame implements ActionListener {
-    private static final Logger LOG = Logger.getLogger(JFrameSimulation.class.getName());
+public class JFrameClientSimulation extends JFrame implements ActionListener {
+    private static final Logger LOG = Logger.getLogger(JFrameClientSimulation.class.getName());
     Simulation simulation;
     MapComponent mapComponent;
-
-    JButton btnNext = new JButton("Next");
     JButton btnShowStats = new JButton("Show stats");
 
-    public JFrameSimulation(Simulation simulation) {
+    public JFrameClientSimulation(Simulation simulation) {
         this.simulation = simulation;
     }
 
     public void init() {
         LOG.setLevel(Level.OFF);
+
         Box verticalBox = Box.createVerticalBox();
         Box buttons = Box.createHorizontalBox();
-        buttons.add(btnNext);
         buttons.add(btnShowStats);
 
 
-        this.setTitle("Simulation");
+        this.setTitle("Simulation client");
 
         this.addActionListeners();
         //  this windows options
@@ -42,7 +38,7 @@ public class JFrameSimulation extends JFrame implements ActionListener {
         this.setVisible(true);
 
         JPanel mapPanel = new JPanel();
-        mapPanel.setSize(new Dimension(800, 800));
+        mapPanel.setSize(new Dimension(500, 500));
         this.mapComponent = new MapComponent(this.simulation, mapPanel.getWidth());
         mapPanel.add(mapComponent);
         System.out.println(mapPanel.getWidth());
@@ -56,22 +52,7 @@ public class JFrameSimulation extends JFrame implements ActionListener {
     }
 
     private void addActionListeners() {
-        btnNext.addActionListener(this);
         btnShowStats.addActionListener(this);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        switch (e.getActionCommand()) {
-            case "Next":
-                LOG.info("Simulating next day");
-                this.simulation.simulateDay();
-                break;
-            case "Show stats":
-                LOG.info("Opening stats");
-                this.simulation.getView().openJFrameStats();
-                break;
-        }
     }
 
     public void repaint() {
@@ -79,5 +60,17 @@ public class JFrameSimulation extends JFrame implements ActionListener {
         if (mapComponent != null) {
             this.mapComponent.repaint();
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        switch (e.getActionCommand()) {
+            case "Show stats":
+                LOG.info("Opening stats");
+                this.simulation.getView().openJFrameStats();
+                break;
+        }
+        this.simulation.getView().repaintJFrameStats();
+        this.simulation.getView().repaintJFrameClientSimulation();
     }
 }

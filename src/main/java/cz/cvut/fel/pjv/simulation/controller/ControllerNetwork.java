@@ -44,6 +44,7 @@ public class ControllerNetwork {
 
     public void createClient(String ipAddress, int port) {
         simulation.simulationClient = new SimulationClient(ipAddress, port, simulation);
+        simulation.simulationClient.connect();
         Thread t = new Thread(simulation.simulationClient);
         t.start();
     }

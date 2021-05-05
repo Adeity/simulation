@@ -10,8 +10,10 @@ import java.io.*;
 import java.net.Socket;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 public class SimulationServerThread implements Runnable {
+    private static final Logger LOG = Logger.getLogger(SimulationServerThread.class.getName());
     public Socket clientSocket;
     public SimulationServer simulationServer;
 
@@ -38,13 +40,19 @@ public class SimulationServerThread implements Runnable {
             String message, outputLine;
 
             //  Initiate conversation with client
-            outWriter.println("MAP " + simulationServer.localMapSize);
-            System.out.println("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+//            outWriter.println("MAP " + simulationServer.localMapSize);
+
+            outWriter.println("MAP map10.txt");
+            LOG.info("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
+
+            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+//            System.out.println("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
 
             SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
             while ((message = inReader.readLine()) != null) {
-                System.out.println("C"+Thread.currentThread().getName()+"->S " + message);
+//                System.out.println("C"+Thread.currentThread().getName()+"->S " + message);
+                LOG.info("C"+Thread.currentThread().getName()+"->S " + message);
                 String[] columns = message.split(" ");
 
                 String messageType = columns[0];
@@ -54,12 +62,14 @@ public class SimulationServerThread implements Runnable {
                     this.simulationServer.setStateOfConnection(this, state);
 
                     if (state.equals("READY")) {
+                        simulationServer.addNewItemToTable(this, "READY");
+                        this.simulationServer.setStateOfConnection(this, "READY");
+                    }
+                    else if (state.equals("SET")) {
                         try {
                             Block[][] blocks = (Block[][]) SerializationUtils.fromString(columns[2]);
-
-                            simulationServer.addConnectionToTableIfThereIsntAlready(this, "READY");
                             this.simulationServer.setBlocksOfConnection(this, blocks);
-                            this.simulationServer.setStateOfConnection(this, "READY");
+                            this.simulationServer.setStateOfConnection(this, "SET");
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
@@ -70,6 +80,7 @@ public class SimulationServerThread implements Runnable {
                 }
                 else if (messageType.equals("GET_BLOCK")) {
                     //  GET_BLOCK UUID -1 -1
+                     LOG.info("Received GET_BLOCK request");
                     String uuid = columns[1];
                     int relativeX = Integer.parseInt(columns[2]);
                     int relativeY = Integer.parseInt(columns[3]);
@@ -80,15 +91,25 @@ public class SimulationServerThread implements Runnable {
                     int globalY = globaCoords[1];
 
                     TableItem thisConnection = this.simulationServer.findTableItemByConnection(this);
+                    LOG.info("Found that connection asking for this blocks has global coordinates: [minX, maxX][minY, maxY]: " + thisConnection.minX + ", " + thisConnection.maxX + " | " + thisConnection.minY + ", " + thisConnection.maxY);
 
                     TableItem targetConnection = this.simulationServer.findTableItemWithConnectionByGlobalCoordinates(globalX, globalY);
+
+
                     if (targetConnection == null) {
+                        LOG.info("Found that connection who was that block doesnt exist. Sending back null block");
+
                         String response = NetworkProtocol.buildBlockMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY,null);
                         outWriter.println(response);
-                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+//                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
-                    SimulationServerThread connection = targetConnection.getConnection();
+
+                     LOG.info("Found that connection who was that block is connection with global coordinates: [minX, maxX][minY, maxY]: " + targetConnection.minX + ", " + targetConnection.maxX + " | " + targetConnection.minY + ", " + targetConnection.maxY);
+
+
+                     SimulationServerThread connection = targetConnection.getConnection();
                     //  coords relative to target
                      int[] crTT = simulationServer.findCoordinatesRelativeToTarget(targetConnection.minX, targetConnection.minY, globalX, globalY);
 
@@ -124,7 +145,8 @@ public class SimulationServerThread implements Runnable {
                         result = false;
                         response = NetworkProtocol.buildSetBlockResultMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY, "FALSE");
                         outWriter.println(response);
-                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+//                        System.out.println("S->C" + Thread.currentThread().getName() + " " + response);
+                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
                      SimulationServerThread connection = targetConnection.getConnection();
@@ -198,6 +220,12 @@ public class SimulationServerThread implements Runnable {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            if (simulationServer.isRunning()) {
+                this.simulationServer.deleteBlocksOfConnectionFromTable(this);
+            }
+            else {
+                this.simulationServer.deleteConnectionFromTable(this);
+            }
         }
     }
 
@@ -207,7 +235,8 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     synchronized public void setBlock(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
@@ -216,12 +245,18 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     synchronized public void go() {
-        System.out.println("S->C" + Thread.currentThread().getName() + " GO");
+//        System.out.println("S->C" + Thread.currentThread().getName() + " GO");
+        LOG.info("S->C" + Thread.currentThread().getName() + " GO");
         outWriter.println("GO");
+    }
+
+    synchronized public void set() {
+        outWriter.println("SET");
     }
 
     synchronized public void block(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, Block block) {
@@ -230,12 +265,14 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        System.out.println("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     synchronized public void setBlockResult(String uuid, int x, int y, int globalX, int globalY, int minX, int minY, String result) {
         String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, x, y, globalX, globalY, minX, minY, result);
         outWriter.println(answerToClient);
         System.out.println("S->C" + Thread.currentThread().getName() + " " + answerToClient);
+        LOG.info("S->C" + Thread.currentThread().getName() + " " + answerToClient);
     }
 }

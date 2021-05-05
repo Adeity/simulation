@@ -2,14 +2,17 @@ package cz.cvut.fel.pjv.simulation;
 
 import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.controller.ControllerNetwork;
+import cz.cvut.fel.pjv.simulation.view.View;
 
 public class App {
     Simulation simulation;
     Controller controller;
     ControllerNetwork controllerNetwork;
+    View view;
 
     public App() {
         simulation = new Simulation();
+        view = new View(simulation);
         controller = new Controller(simulation);
         this.controllerNetwork = new ControllerNetwork(simulation);
     }

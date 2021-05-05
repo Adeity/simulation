@@ -132,6 +132,7 @@ class FoxTest {
     void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
         //  make sure newborns arent ready for mating
         CONF.FOX_MATING_MIN_AGE = 100;
+        CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("test_mockito_twoFoxesMateSevenTimesInARow_blankmap.txt", simulation);
         simulation.setMap(map);

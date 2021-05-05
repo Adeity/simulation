@@ -12,13 +12,12 @@ import static cz.cvut.fel.pjv.simulation.CONF.*;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Fox extends Animal implements Killer{
-    private static final Logger LOG = Logger.getLogger(Map.class.getName());
+    private static final Logger LOG = Logger.getLogger(Fox.class.getName());
     public Fox() {
         this(null);
     }
     
     public Fox(Block block) {
-        Utilities.addHandlerToLogger(LOG);
         this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
         this.block = block;
         this.age = getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE);
@@ -78,9 +77,9 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected boolean mate(Simulation simulation, Animal otherAnimal) {
+        LOG.info(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
         mateChangeStats(otherAnimal);
-//        LOG.info(this + " is mating with " + otherAnimal);
-        System.out.println(this + " is mating with " + otherAnimal);
+        LOG.info("Asking simulation to find free block for mating.");
         Block freeBlockForNewBorn = simulation.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
             LOG.info("No space for mating");
@@ -89,12 +88,38 @@ public class Fox extends Animal implements Killer{
 
         Fox newBorn = (Fox) createNewBorn(freeBlockForNewBorn);
 
-        simulation.map.animals.add(newBorn);
-        simulation.map.numOfFoxes++;
-        simulation.map.numOfAnimals++;
 
-        mateChangeStats(otherAnimal);
-        return true;
+        if (simulation.isOnMyMap(freeBlockForNewBorn.coordX, freeBlockForNewBorn.coordY)) {
+            simulation.map.animals.add(newBorn);
+            simulation.map.numOfFoxes++;
+            simulation.map.numOfAnimals++;
+            freeBlockForNewBorn.setAnimal(newBorn);
+            mateChangeStats(otherAnimal);
+            return true;
+        }
+        else {
+            if (simulation.simulationClient != null) {
+                Block blockCopy = null;
+                try {
+                    blockCopy = (Block) freeBlockForNewBorn.clone();
+                    blockCopy.setAnimal(newBorn);
+                    if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                        LOG.info("Animal was born on another map.");
+                        mateChangeStats(otherAnimal);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override

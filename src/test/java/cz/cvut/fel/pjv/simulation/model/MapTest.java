@@ -2,6 +2,7 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
+import cz.cvut.fel.pjv.simulation.network.server.SimulationServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -134,9 +135,13 @@ class MapTest {
     void test_TwoHareDie() {
         CONF.HARE_INIT_DIRECTION = null;
         CONF.FOX_INIT_DIRECTION = null;
+        CONF.FOX_MATING_MIN_AGE = 100000;
+        CONF.FOX_INIT_MIN_ENERGY = 100;
+        CONF.FOX_INIT_MAX_ENERGY = 110;
         Simulation simulation = new Simulation();
-        Map map = new Map("testmap3.txt", simulation);
-        simulation.setMap(map);
+        Simulation simulationSpy = spy(simulation);
+        Map map = new Map("testmap3.txt", simulationSpy);
+        simulationSpy.setMap(map);
         Map mapSpy = spy(map);
         Animal animalMock = mock(Animal.class);
 
@@ -161,8 +166,8 @@ class MapTest {
 
         mapSpy.animals = new ArrayList<Animal>(9);
 
-        mapSpy.animals.add(hare1);
         mapSpy.animals.add(hare2);
+        mapSpy.animals.add(hare1);
         mapSpy.animals.add(fox1);
         mapSpy.animals.add(fox2);
         mapSpy.animals.add(fox3);
@@ -175,7 +180,7 @@ class MapTest {
 
         mapSpy.evaluate();
 
-        verify(mapSpy, times(1)).deleteAnimalAtBlock(any(Block.class));
+        verify(simulationSpy, times(1)).deleteAnimalAtBlock(any(Block.class));
 
     }
 }

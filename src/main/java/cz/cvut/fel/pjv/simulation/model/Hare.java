@@ -4,11 +4,13 @@ import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Victim;
 
+import java.util.logging.Logger;
+
 import static cz.cvut.fel.pjv.simulation.CONF.ENERGY_FOR_MATING;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
 public class Hare extends Animal implements Victim {
-
+    private static final Logger LOG = Logger.getLogger(Hare.class.getName());
     public Hare(Block block) {
         this.block = block;
         this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
@@ -23,24 +25,54 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected boolean mate(Simulation simulation, Animal otherAnimal) {
+        LOG.info(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
         mateChangeStats(otherAnimal);
-        Block freeBlockForNewBorn = simulation.map.findFreeBlockForMating(this, otherAnimal);
+        LOG.info("Asking simulation to find free block for mating.");
+        Block freeBlockForNewBorn = simulation.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
-            System.out.println("There is no space for mating.");
+            LOG.info("No space for mating");
             return false;
         }
 
         Hare newBorn = (Hare) createNewBorn(freeBlockForNewBorn);
 
-        simulation.map.animals.add(newBorn);
-        simulation.map.numOfHare++;
-        simulation.map.numOfAnimals++;
-        return true;
+
+        if (simulation.isOnMyMap(freeBlockForNewBorn.coordX, freeBlockForNewBorn.coordY)) {
+            simulation.map.animals.add(newBorn);
+            simulation.map.numOfHare++;
+            simulation.map.numOfAnimals++;
+            freeBlockForNewBorn.setAnimal(newBorn);
+            mateChangeStats(otherAnimal);
+            return true;
+        }
+        else {
+            if (simulation.simulationClient != null) {
+                Block blockCopy = null;
+                try {
+                    blockCopy = (Block) freeBlockForNewBorn.clone();
+                    blockCopy.setAnimal(newBorn);
+                    if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                        LOG.info("Animal was born on another map.");
+                        mateChangeStats(otherAnimal);
+                        return true;
+                    }
+                    else {
+                        return false;
+                    }
+                } catch (CloneNotSupportedException e) {
+                    e.printStackTrace();
+                }
+            }
+            else {
+                return false;
+            }
+        }
+        return false;
     }
 
     @Override
     protected boolean interact(Simulation simulation, Animal otherAnimal) {
-
+        LOG.info(this.toString() + " interacts with " + otherAnimal.toString());
         if (
                 otherAnimal instanceof Fox
                         &&
@@ -48,6 +80,7 @@ public class Hare extends Animal implements Victim {
                 &&
                         foxSeesHare(otherAnimal, this)
         ) {
+            LOG.info("Evaluated that this animal will get killed by other animal. This animal dies.");
             die(simulation);
             ((Fox) otherAnimal).killHareAddStats();
         }
@@ -58,6 +91,7 @@ public class Hare extends Animal implements Victim {
             mate(simulation, otherAnimal);
         }
         else {
+            LOG.info(this.toString() + " didnt interact with " + otherAnimal.toString() + " at all.");
             return false;
         }
         return true;
@@ -70,11 +104,7 @@ public class Hare extends Animal implements Victim {
 
     @Override
     public boolean willAnimalGetKilled(Animal otherAnimal) {
-        if (otherAnimal.isReadyToKill()) {
-            return true;
-        }
-        //  TODO: implement terrain constraints
-        return false;
+        return otherAnimal.isReadyToKill();
     }
 
     @Override
@@ -134,6 +164,4 @@ public class Hare extends Animal implements Victim {
 
         return newBornHare;
     }
-
-
 }

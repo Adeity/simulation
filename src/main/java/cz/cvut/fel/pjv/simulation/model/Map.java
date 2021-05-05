@@ -15,6 +15,7 @@ public class Map implements Serializable{
     private static final Logger LOG = Logger.getLogger(Map.class.getName());
     public Block[][] blocks;
     public List<Animal> animals = new ArrayList<>();
+    public List<Animal> animalQueue = new ArrayList<>();
     public int sizeOfMap;
     public int numOfFoxes = 0;
     public int numOfHare = 0;
@@ -162,7 +163,7 @@ public class Map implements Serializable{
      * Evaluates each animal. It gets rid of dead animals and shuffles the list at the end.
      */
     public void evaluate() {
-        Utilities.addHandlerToLogger(LOG);
+        LOG.info("Starting evaluation of day. There are: " + this.animals.size() + " animals.");
         LOG.setLevel(Level.INFO);
         for (int i = 0; i < animals.size(); i++) {
             Animal a = animals.get(i);
@@ -181,6 +182,10 @@ public class Map implements Serializable{
                 this.deleteAnimalAtBlock(a.getBlock());
             }
         }
+
+        this.animals.addAll(animalQueue);
+        this.animalQueue.clear();
+
         //  change stats of each animal
         //  change stats of map also
         for (Animal a : this.animals) {
@@ -204,15 +209,38 @@ public class Map implements Serializable{
         Collections.shuffle(animals);
     }
 
+    /**
+     * This method is used only when server asks to set block
+     * @param x coord
+     * @param y coord
+     * @param newBlock
+     * @return true if this method set the block as asked. false otherwise
+     */
     public boolean setBlock(int x, int y, Block newBlock) {
         Block currentBlock = blocks[x][y];
 
-        if (currentBlock.getAnimal() != null) {
-            return !currentBlock.getAnimal().didEvaluate;
+        if (newBlock.getAnimal() != null) {
+            if (currentBlock.getAnimal() == null) {
+                this.serverAskstoSetAnimalAtCoord(newBlock.getAnimal(), x, y);
+                return true;
+            }
+            else {
+                return false;
+            }
         }
         else {
-            blocks[x][y] = newBlock;
-            return true;
+            if (currentBlock.getAnimal() != null) {
+                if (currentBlock.getAnimal().didEvaluate) {
+                    return false;
+                }
+                else {
+                    this.deleteAnimalAtBlock(currentBlock);
+                    return true;
+                }
+            }
+            else {
+                return false;
+            }
         }
     }
 
@@ -439,7 +467,28 @@ public class Map implements Serializable{
         else if(a instanceof Fox) {
             numOfFoxes++;
         }
+        LOG.info("Adding animal: " + a.toString() + " to animals list");
         this.animals.add(a);
+        numOfAnimals++;
+    }
+
+    public void serverAskstoSetAnimalAtCoord(Animal a, int coordX, int coordY) {
+        Block block = blocks[coordX][coordY];
+        a.block = block;
+        block.setAnimal(a);
+
+        a.didEvaluate = true;
+
+        if (!this.animals.contains(a)) { // this is very likely
+            LOG.info("Animal came from server, so I must put it to queue before adding it straigth to animals list.");
+            animalQueue.add(a);
+        }
+        if(a instanceof  Hare) {
+            numOfHare++;
+        }
+        else if(a instanceof Fox) {
+            numOfFoxes++;
+        }
         numOfAnimals++;
     }
 

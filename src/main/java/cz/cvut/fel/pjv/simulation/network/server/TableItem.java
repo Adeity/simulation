@@ -3,31 +3,50 @@ package cz.cvut.fel.pjv.simulation.network.server;
 import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.model.Map;
 
+import java.util.Comparator;
+
 public class TableItem {
     SimulationServerThread connection;
     static int numberOfItems = 0;
     String status;
     Block[][] blocks;
+    int position;
     int minX;
     int maxX;
     int minY;
     int maxY;
 
-    public TableItem(SimulationServerThread connection, String status) {
+    public TableItem(int position, SimulationServerThread connection, String status) {
         this.connection = connection;
         this.status = status;
+        this.position = position;
     }
 
-    public static TableItem getInstance(int sizeOfMap, SimulationServerThread connection, String status) {
-        TableItem tableItem = new TableItem(connection, status);
-        System.out.println("Adding new table item with num: " + numberOfItems);
-        if (numberOfItems == 0) {
+    public static int getNumberOfItems() {
+        return numberOfItems;
+    }
+
+    public static void setNumberOfItems(int numberOfItems) {
+        TableItem.numberOfItems = numberOfItems;
+    }
+
+    public int getPosition() {
+        return position;
+    }
+
+    public void setPosition(int position) {
+        this.position = position;
+    }
+
+    public static TableItem getInstance(int position, int sizeOfMap, SimulationServerThread connection, String status) {
+        TableItem tableItem = new TableItem(position, connection, status);
+        if (position == 0) {
             tableItem.setMinX(0);
             tableItem.setMaxX(sizeOfMap - 1);
             tableItem.setMinY(0);
             tableItem.setMaxY(sizeOfMap - 1);
         }
-        else if (numberOfItems == 1) {
+        else if (position == 1) {
             tableItem.setMinX(0);
             tableItem.setMaxX(
                     sizeOfMap - 1
@@ -39,7 +58,7 @@ public class TableItem {
                     (2 * sizeOfMap) - 1
             );
         }
-        else if (numberOfItems == 2) {
+        else if (position == 2) {
             tableItem.setMinX(
                     sizeOfMap
             );
@@ -51,7 +70,7 @@ public class TableItem {
                     sizeOfMap - 1
             );
         }
-        else if (numberOfItems == 3) {
+        else if (position == 3) {
             tableItem.setMinX(
                     sizeOfMap
             );
@@ -65,7 +84,6 @@ public class TableItem {
                     (2 * sizeOfMap) - 1
             );
         }
-        numberOfItems++;
         return tableItem;
     }
 
@@ -121,4 +139,5 @@ public class TableItem {
     public void setBlocks(Block[][] blocks) {
         this.blocks = blocks;
     }
+
 }

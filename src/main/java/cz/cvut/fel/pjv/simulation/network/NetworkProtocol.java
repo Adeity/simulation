@@ -133,11 +133,19 @@ public class NetworkProtocol {
         return out;
     }
 
-    public static String buildStateReadyMessage(Block[][] blocks) {
+    public static String buildStateReadyMessage() {
         String out = "";
         out += "STATE";
         out += " ";
         out += "READY";
+        return out;
+    }
+
+    public static String buildStateSetMessage(Block[][] blocks) {
+        String out = "";
+        out += "STATE";
+        out += " ";
+        out += "SET";
         out += " ";
         try {
             out += SerializationUtils.toString(blocks);
@@ -147,4 +155,5 @@ public class NetworkProtocol {
         }
         return out;
     }
+
 }

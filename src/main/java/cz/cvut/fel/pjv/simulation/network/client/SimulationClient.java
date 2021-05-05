@@ -30,10 +30,15 @@ public class SimulationClient implements Runnable{
         this.host = host;
         this.port = port;
         this.simulation = simulation;
+
+    }
+
+    public boolean connect() {
         try {
             this.socket = new Socket(host, port);
         } catch (IOException e) {
             System.out.println("Trouble connecting to server");
+            return false;
         }
 
         try {
@@ -44,6 +49,7 @@ public class SimulationClient implements Runnable{
         catch (IOException e) {
             e.printStackTrace();
         }
+        return true;
     }
 
     public void close() {
@@ -59,7 +65,6 @@ public class SimulationClient implements Runnable{
     @Override
     public void run() {
         try {
-            socket = new Socket(host, port);
             String in;
             String out;
 
@@ -83,6 +88,10 @@ public class SimulationClient implements Runnable{
 //                    this.simulation.simulateDay();
                 }
 
+                else if (messageType.equals("SET")) {
+                    sendStateSet();
+                }
+
                 else if (messageType.equals("SET_BLOCK_RESULT")) {
                     String messageUUID = columns[1];
                     if (currentRequest == null) {
@@ -91,6 +100,7 @@ public class SimulationClient implements Runnable{
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
                         System.out.println("UUID from set_block_result matches");
+                        LOG.info("Received resposnse to SET_BLOCK request: " + in);
                         synchronized (lock) {
                             System.out.println("Setting response to my SET_BLOCK request and notifying");
                             this.currentRequest.setResponse(in);
@@ -100,9 +110,13 @@ public class SimulationClient implements Runnable{
                 }
 
                 else if (messageType.equals("MAP")) {
-                    int sizeOfMap = Integer.parseInt(columns[1]);
-                    simulation.run(sizeOfMap);
-                    sendStateReady(simulation.map.blocks);
+                    try {
+                        int sizeOfMap = Integer.parseInt(columns[1]);
+                        simulation.run(sizeOfMap);
+                    } catch (NumberFormatException e) {
+                        simulation.run(columns[1]);
+                    }
+                    sendStateReady();
                 }
 
                 else if (messageType.equals("BLOCK")) {
@@ -185,7 +199,8 @@ public class SimulationClient implements Runnable{
 
         synchronized(lock){
             outWriter.println(currentRequest.getRequest());
-            System.out.println("C->S " + currentRequest.getRequest());
+            LOG.info("My GET_BLOCK request to server: C->S " + currentRequest.getRequest());
+//            System.out.println("C->S " + currentRequest.getRequest());
 
             try {
                 System.out.println("Calling wait in getBlock method");
@@ -206,8 +221,8 @@ public class SimulationClient implements Runnable{
 //                return null;
 //            }
 //        }
-
-        System.out.println("S->C " + currentRequest.getResponse());
+        LOG.info("Response to my GET_BLOCK request from server: " + "S->C " + currentRequest.getResponse());
+//        System.out.println("S->C " + currentRequest.getResponse());
 
         String[] response = currentRequest.response.split(" ");
         Block block;
@@ -229,7 +244,7 @@ public class SimulationClient implements Runnable{
     }
 
     public boolean setBlock(int x, int y, Block block) {
-
+        LOG.info("Trying to set block with relative coordinates to me: " + x + ", " + y + " block with x attribute: " + x + ", " + y + " Tostring: " + block.toString());
         String uuid = UUID.randomUUID().toString();
         currentRequest = new Request(
                 NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
@@ -275,8 +290,17 @@ public class SimulationClient implements Runnable{
         return booleanResponse;
     }
 
-    public void sendStateReady(Block[][] blocks) {
-        outWriter.println(NetworkProtocol.buildStateReadyMessage(blocks));
-        System.out.println("C->S " + NetworkProtocol.buildStateReadyMessage(this.simulation.map.blocks));
+    public void sendStateReady() {
+        String response = NetworkProtocol.buildStateReadyMessage();
+        outWriter.println(response);
+        System.out.println("C->S " + response);
+    }
+
+    public void sendStateSet() {
+        String response = NetworkProtocol.buildStateSetMessage(this.simulation.map.blocks);
+        outWriter.println(response);
+        LOG.info("C->S " + response);
+        simulation.getView().repaintJFrameClientSimulation();
+        simulation.getView().repaintJFrameStats();
     }
 }

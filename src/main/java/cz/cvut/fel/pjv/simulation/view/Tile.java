@@ -32,7 +32,14 @@ public class Tile extends JComponent {
         int y = this.x * tileWidth;
 
         //  paint terrain
-        g.setColor(terrainColor);
+        if(terrainColor == null) {
+            g.setColor(Color.WHITE);
+            g.fillRect(x, y, tileWidth, tileWidth);
+            return;
+        }
+        else {
+            g.setColor(terrainColor);
+        }
         g.fillRect(x, y, tileWidth, tileWidth);
 
         //  paint animal

@@ -4,6 +4,7 @@ import cz.cvut.fel.pjv.simulation.App;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.controller.Controller;
+import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -23,9 +24,8 @@ public class JFrameInit extends JFrame implements ActionListener{
 
     private static final Logger LOG = Logger.getLogger(JFrameInit.class.getName());
 
-    App app;
+    Simulation simulation;
 
-    JFrameSimulation jFrameSimulace;
 
     CardLayout cardLayout = new CardLayout(40, 30);
     FlowLayout flowLayout = new FlowLayout();
@@ -54,6 +54,9 @@ public class JFrameInit extends JFrame implements ActionListener{
     JTextField templateName = new JTextField();
     JTextField saveName = new JTextField();
 
+    JTextField connectAddressField = new JTextField();
+    JFormattedTextField connectPortField = new JFormattedTextField();
+
     JLabel heading = new JLabel("Simulation application");
     JLabel welcome = new JLabel("Welcome");
     JLabel headingFromSize = new JLabel("Generate map from size");
@@ -63,11 +66,15 @@ public class JFrameInit extends JFrame implements ActionListener{
     JLabel headingParamsOther = new JLabel("Config of other attributes");
     JLabel headingFromTemplateError = new JLabel("Invalid template");
     JLabel headingFromSaveError = new JLabel("Invalid save");
+    JLabel headingFromConnectErrorPanel = new JLabel("Connection failed");
+    JLabel headingFromConnectPanel = new JLabel("Connect");
+    JLabel headingInitDistributed = new JLabel("Distributed: ");
 
 
     JButton btnFromSize = new JButton("Size");
     JButton btnFromTemplate = new JButton("Template");
     JButton btnFromSave = new JButton("Save");
+    JButton btnConnect = new JButton("Connect");
     JButton btnRun = new JButton("Run");
 
 
@@ -77,10 +84,13 @@ public class JFrameInit extends JFrame implements ActionListener{
     JButton btnBackFromSaveErrorPanel = new JButton("Back");
     JButton btnBackFromSizePanel = new JButton("Back");
     JButton btnBackFromParam = new JButton("Back");
+    JButton btnBackFromConnectPanel = new JButton("Back");
+    JButton btnBackFromConnectErrorPanel = new JButton("Back");
 
     JButton btnOkFromTemplatePanel = new JButton("Ok");
     JButton btnOkFromSavePanel = new JButton("Ok");
     JButton btnOkFromSizePanel = new JButton("Ok");
+    JButton btnOkFromConnectPanel = new JButton("Ok");
 
     JButton btnRunFromParams = new JButton("Run");
 
@@ -92,6 +102,9 @@ public class JFrameInit extends JFrame implements ActionListener{
     JPanel panelParameters = new JPanel();
     JPanel panelSaveError = new JPanel();
     JPanel panelTemplateError = new JPanel();
+
+    JPanel panelConnect = new JPanel();
+    JPanel panelConnectError = new JPanel();
 
     private boolean fromTemplate;
     private boolean fromSave;
@@ -106,7 +119,6 @@ public class JFrameInit extends JFrame implements ActionListener{
 
     MapComponent map;
     JButton jb1, jb2, jb3;
-    Controller controller;
 
     private void backButtonsCommands() {
         btnBackFromTemplatePanel.setActionCommand("FROM_TEMPLATE_PANEL");
@@ -116,12 +128,18 @@ public class JFrameInit extends JFrame implements ActionListener{
         btnBackFromSaveErrorPanel.setActionCommand("FROM_SAVE_ERROR_PANEL");
 
         btnBackFromSizePanel.setActionCommand("FROM_SIZE_PANEL");
+
+        btnBackFromConnectPanel.setActionCommand("FROM_CONNECT_PANEL");
+        btnBackFromConnectErrorPanel.setActionCommand("FROM_CONNECT_ERROR_PANEL");
     }
 
     private void okButtonsCommands() {
         btnOkFromTemplatePanel.setActionCommand("TEMPLATE_TO_PARAMS");
         btnOkFromSavePanel.setActionCommand("SAVE_TO_PARAMS");
         btnOkFromSizePanel.setActionCommand("SIZE_TO_PARAMS");
+        btnOkFromConnectPanel.setActionCommand("CONNECT_TO_SIMULATION");
+
+        btnConnect.setActionCommand("INIT_TO_CONNECT");
 
         btnRunFromParams.setActionCommand("Run");
     }
@@ -142,18 +160,24 @@ public class JFrameInit extends JFrame implements ActionListener{
         btnBackFromSavePanel.addActionListener(this);
         btnBackFromSaveErrorPanel.addActionListener(this);
         btnBackFromSizePanel.addActionListener(this);
+        btnConnect.addActionListener(this);
 
         btnOkFromSavePanel.addActionListener(this);
         btnOkFromSizePanel.addActionListener(this);
         btnOkFromTemplatePanel.addActionListener(this);
         btnRunFromParams.addActionListener(this);
 
+        btnBackFromConnectPanel.addActionListener(this);
+        btnBackFromConnectErrorPanel.addActionListener(this);
+
+        btnOkFromConnectPanel.addActionListener(this);
+
 
         btnBackFromParam.addActionListener(new BackFromParamToSave());
     }
 
-    public JFrameInit(App app) {
-        this.app = app;
+    public JFrameInit(Simulation simulation) {
+        this.simulation = simulation;
         LOG.setUseParentHandlers(false);
         Handler stdout = new StreamHandler(System.out, new SimpleFormatter()) {
             @Override
@@ -192,6 +216,8 @@ public class JFrameInit extends JFrame implements ActionListener{
         this.saveErrorPanel();
         this.templateErrorPanel();
         this.paramsPanel();
+        this.connectPanel();
+        this.connectErrorPanel();
 
 
         c.add(panelInit, "cardInit");
@@ -201,6 +227,8 @@ public class JFrameInit extends JFrame implements ActionListener{
         c.add(panelSaveError, "cardSaveError");
         c.add(panelTemplateError, "cardTemplateError");
         c.add(panelParameters, "cardParams");
+        c.add(panelConnect, "cardConnect");
+        c.add(panelConnectError, "cardConnectError");
     }
 
     private void setHeadingSizes() {
@@ -213,6 +241,8 @@ public class JFrameInit extends JFrame implements ActionListener{
         this.headingParamsOther.setFont(headingParamsOther.getFont().deriveFont(14f));
         this.headingFromSaveError.setFont(headingFromSaveError.getFont().deriveFont(20f));
         this.headingFromTemplateError.setFont(headingFromTemplateError.getFont().deriveFont(20f));
+//        this.headingInitLocal.setFont(headingInitLocal.getFont().deriveFont(20f));
+//        this.headingInitDistributed.setFont(headingInitDistributed.getFont().deriveFont(26f));
     }
 
     private void saveErrorPanel() {
@@ -241,16 +271,49 @@ public class JFrameInit extends JFrame implements ActionListener{
         panelInit.add(heading);
 //        panelInit.add(welcome);
         panelInit.add(Box.createRigidArea(new Dimension(0, 20)));
-        panelInit.add(new JLabel("Init map from: "));
+        panelInit.add(new JLabel("Local init map from: "));
         panelInit.add(Box.createRigidArea(new Dimension(0, 7)));
 
         panelInit.setAlignmentX(0);
 
         panelInit.add(horizontalBox);
+        panelInit.add(headingInitDistributed);
+        panelInit.add(btnConnect);
 
 //        panelInit.setAlignmentX(100);
 //        panelInit.setLayout(new BoxLayout(panelInit, BoxLayout.PAGE_AXIS));
 
+    }
+
+    private void connectPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridBagLayout());
+        GridBagConstraints gridBagConstraints = new GridBagConstraints();
+        // All mandatory fields.
+        // 1.
+        JLabel hwCodeLabel = addMyLabelCell(0, "Address: ", panel);
+        connectAddressField = addMyTextFieldCell(0, "", panel);
+
+        JLabel sizeLabel = addMyLabelCell(1, "Port: ", panel);
+        connectPortField = addMyTextFieldCell(1, "", panel, true);
+
+        connectAddressField.setText("localhost");
+        connectPortField.setValue(8888);
+
+        Box horizontalBox = Box.createHorizontalBox();
+
+        horizontalBox.add(btnBackFromConnectPanel);
+        horizontalBox.add(btnOkFromConnectPanel);
+
+        panelConnect.add(headingFromConnectPanel);
+        panelConnect.add(panel);
+        panelConnect.add(horizontalBox);
+        panelConnect.setLayout(new FlowLayout());
+    }
+
+    private void connectErrorPanel() {
+        panelConnectError.add(headingFromConnectErrorPanel);
+        panelConnectError.add(btnBackFromConnectErrorPanel);
     }
 
     private void savePanel() {
@@ -450,31 +513,52 @@ public class JFrameInit extends JFrame implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
             case "Run":
+                changeConfig();
+                if(this.fromSave) {
+                    simulation.serializeRead(saveName.getText());
+                    simulation.getView().openJFrameSimulation();
+                }
+                else if(this.fromTemplate) {
+                    simulation.run(templateName.getText());
+                    simulation.getView().openJFrameSimulation();
+                }
+                else if(this.fromSize) {
+                    simulation.run(this.getIntegerFromTextField(this.sizeField.getText()));
+                    simulation.getView().openJFrameSimulation();
+                }
                 c.setVisible(false);
                 this.dispose();
                 this.setVisible(false);
-                changeConfig();
-                if(this.fromSave) {
-                    jFrameSimulace = new JFrameSimulation(this.app, this.saveName.getText());
+                break;
+            case "CONNECT_TO_SIMULATION":
+                if (this.simulation.connectToServer(connectAddressField.getText(), getIntegerFromTextField(connectPortField.getText()))) {
+                    simulation.getView().openJFrameClientSimulation();
+                    c.setVisible(false);
+                    this.dispose();
+                    this.setVisible(false);
+                } else {
+                    cardLayout.show(c, "cardConnectError");
                 }
-                else if(this.fromTemplate) {
-                    jFrameSimulace = new JFrameSimulation(this.app, this.templateName.getText(), true);
-                }
-                else if(this.fromSize) {
-                    jFrameSimulace = new JFrameSimulation(this.app, getIntegerFromTextField(this.sizeField.getText()));
-                }
-                jFrameSimulace.setVisible(true);
                 break;
             case "Reset":
                 break;
             case "Size":
                 cardLayout.show(c, "cardSize");
                 break;
+            case "INIT_TO_CONNECT":
+                cardLayout.show(c, "cardConnect");
+                break;
             case "Template":
                 cardLayout.show(c, "cardTemplate");
                 break;
             case "Save":
                 cardLayout.show(c, "cardSave");
+                break;
+            case "FROM_CONNECT_PANEL":
+                cardLayout.show(c, "cardInit");
+                break;
+            case "FROM_CONNECT_ERROR_PANEL":
+                cardLayout.show(c, "cardConnect");
                 break;
             case "FROM_TEMPLATE_PANEL":
                 cardLayout.show(c, "cardInit");
@@ -552,7 +636,6 @@ public class JFrameInit extends JFrame implements ActionListener{
                 LOG.info("Save " + saveName.getText() + " not found");
                 cardLayout.show(c, "cardSaveError");
                 break;
-
             case "FROM_PARAM_TO_TEMPLATE_PANEL":
                 cardLayout.show(c, "cardTemplate");
                 break;

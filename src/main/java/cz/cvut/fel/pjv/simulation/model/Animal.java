@@ -2,6 +2,7 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
+import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import java.io.ObjectInputStream;
 import java.io.Serializable;
@@ -43,6 +44,7 @@ public abstract class Animal implements Serializable {
      * @param map map of simulation
      */
     public void evaluate(Map map, Simulation simulation) {
+//        Utilities.addHandlerToLogger(LOG);
         System.out.println("Evaluating now: " + this.toString());
         Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
 
@@ -78,26 +80,56 @@ public abstract class Animal implements Serializable {
     protected void move(Simulation simulation) {
         int changeDirectionCounter = 3;
         Block block = null;
+        LOG.info("Animal " + this.toString() + " is looking to move");
         if (this.getDirection() == Direction.RIGHT) {
             block = simulation.getBlock(this.block.coordX, this.block.coordY + 1);
+            LOG.info("Animal " + toString() + " tries to move right to block at " + this.block.coordX + ", " + (this.block.coordY + 1));
+            if (block == null) {
+                LOG.info("The block is however null");
+            }
+            else {
+                LOG.info("The block is not null");
+            }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.DOWN) {
             block = simulation.getBlock(this.block.coordX + 1, this.block.coordY);
+            LOG.info("Animal " + toString() + " tries to move down to block at " + (this.block.coordX + 1) + ", " + this.block.coordY);
+            if (block == null) {
+                LOG.info("The block is however null");
+            }
+            else {
+                LOG.info("The block is not null");
+            }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.LEFT) {
             block = simulation.getBlock(this.block.coordX, this.block.coordY - 1);
+            LOG.info("Animal " + toString() + " tries to move left to block at " + this.block.coordX + ", " + (this.block.coordY - 1));
+            if (block == null) {
+                LOG.info("The block is however null");
+            }
+            else {
+                LOG.info("The block is not null");
+            }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.UP) {
             block = simulation.getBlock(this.block.coordX - 1, this.block.coordY);
+            LOG.info("Animal " + toString() + " tries to move up to block at " + (this.block.coordX - 1) + ", " + this.block.coordY);
+            if (block == null) {
+                LOG.info("The block is however null");
+            }
+            else {
+                LOG.info("The block is not null");
+            }
             actualMove(simulation, block);
         }
     }
 
     protected void actualMove(Simulation simulation, Block block) {
         if (canMoveToBlock(block)) {
+            LOG.info("Evaluated that animal " + this.toString() + " at block: " + block.coordX + ", " + block.coordY + " could move to block");
             if (simulation.isOnMyMap(block.coordX, block.coordY)) {
                 simulation.map.deleteAnimalAtBlock(this.block);
                 simulation.map.setAnimalAtCoord(this, block.coordX, block.coordY);
@@ -108,8 +140,12 @@ public abstract class Animal implements Serializable {
                     try {
                         blockCopy = (Block) block.clone();
                         blockCopy.setAnimal(this);
+                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
+//                        System.out.println("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
                         if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                            LOG.info("Animal moved to another map");
                             this.block.setAnimal(null);
+                            this.die(simulation);
                         }
                     } catch (CloneNotSupportedException e) {
                         e.printStackTrace();
@@ -121,26 +157,40 @@ public abstract class Animal implements Serializable {
             }
         }
         else {
+            LOG.info("Evaluated that animal " + this.toString() + " could NOT move to desired block");
             changeDirection();
         }
     }
 
     protected void changeDirection() {
         if (this.getDirection() == Direction.RIGHT) {
+            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.DOWN);
             setDirection(Direction.DOWN);
+            return;
         }
         else if (this.getDirection() == Direction.DOWN) {
+            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.LEFT);
             setDirection(Direction.LEFT);
+            return;
         }
         else if (this.getDirection() == Direction.LEFT) {
+            LOG.info("Changing animals" + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.UP);
             setDirection(Direction.UP);
+            return;
         }
         else if (this.getDirection() == Direction.UP) {
+            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.RIGHT);
             setDirection(Direction.RIGHT);
+            return;
         }
+        LOG.info("Changing animals " + this.toString() + " direction method where animal doesnt have direction");
     }
 
     private boolean canMoveToBlock(Block block) {
+        LOG.info("Can move to block: " + block + "?");
+        if (block != null) {
+            LOG.info(block.toString());
+        }
         return block != null && block.getTerrain() != Block.Terrain.WATER && block.getAnimal() == null;
     }
 
@@ -288,7 +338,7 @@ public abstract class Animal implements Serializable {
         catch (NullPointerException e) {
             block = " nullBlock ";
         }
-        res += getClass().getSimpleName() + block + isDead + " age: " + age + " " +didEvaluate;
+        res += getClass().getSimpleName() + block + isDead + " age: " + age + " " +didEvaluate + " " + this.getDirection();
         return res;
     }
 

@@ -2,11 +2,14 @@ package cz.cvut.fel.pjv.simulation.network.server;
 
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Block;
+import cz.cvut.fel.pjv.simulation.network.server.view.View;
+import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.logging.Logger;
 
 import static java.lang.Thread.sleep;
@@ -15,6 +18,37 @@ public class SimulationServer {
     private static final Logger LOG = Logger.getLogger(SimulationServer.class.getName());
 
     int localMapSize;
+    static int connectionNum = 0;
+
+    boolean running = false;
+
+    View view;
+
+    public View getView() {
+        return view;
+    }
+
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    private int port;
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
 
     public void setLocalMapSize(int localMapSize) {
         this.localMapSize = localMapSize;
@@ -28,28 +62,60 @@ public class SimulationServer {
     ArrayList<Socket> clientSockets = new ArrayList<>();
     ServerSocket serverSocket;
 
-    boolean simulating = false;
 
+    private int maxNumOfClients;
+    private int numOfConnectedClients = 0;
+
+    public int getMaxNumOfClients() {
+        return maxNumOfClients;
+    }
+
+    public void setMaxNumOfClients(int maxNumOfClients) {
+        this.maxNumOfClients = maxNumOfClients;
+        if (view != null) {
+            view.repaintJFrameServerInit();
+        }
+    }
 
     public SimulationServer(int port) {
+        this.port = port;
+//        Utilities.addHandlerToLogger(LOG);
         try  {
-            serverSocket = new ServerSocket(port);
+            serverSocket = new ServerSocket(this.port);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public int getNumOfConnectedClients() {
+        return numOfConnectedClients;
+    }
+
+    public void setNumOfConnectedClients(int numOfConnectedClients) {
+        this.numOfConnectedClients = numOfConnectedClients;
+        if(this.view != null) {
+            view.repaintJFrameServerInit();
+        }
+    }
+
     public void listen() {
         try {
-            int connectionNum = 0;
             while (true) {
-                if(connectionNum >= 4) {
+                if (running) {
+
+                    System.out.println("Running is true so I stop listening");
                     break;
                 }
-                if(simulating) {
-                    break;
-                }
+                System.out.println("Connection num is: " + connectionNum);
                 Socket clientSocket = serverSocket.accept();
+                if (running) {
+                    LOG.info("Simulation is running so server stops listening for client connections");
+                    break;
+                }
+                if (numOfConnectedClients >= getMaxNumOfClients()) {
+                    LOG.info("There are already maximum of: "+ getMaxNumOfClients() + "  clients connected. Declining connection.");
+                    continue;
+                }
                 serverSocket.getLocalSocketAddress();
                 if (clientSockets.contains(clientSocket)) {
                     continue;
@@ -60,9 +126,8 @@ public class SimulationServer {
                 t.setName(String.valueOf(connectionNum));
                 connectionNum++;
                 t.start();
-
-
             }
+            LOG.info("Server stopped listening for client connections");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -86,15 +151,110 @@ public class SimulationServer {
         return coords;
     }
 
+
+    public void addNewItemToTable(SimulationServerThread sst, String status) {
+        boolean contains = false;
+        for (TableItem tableItem : table) {
+            if (tableItem.getConnection() == sst) {
+                contains = true;
+                LOG.fine("Connection is already in table.");
+                return;
+            }
+        }
+
+        boolean upLeft = false;
+        boolean upRight = false;
+        boolean downLeft = false;
+        boolean downRight = false;
+
+        boolean[] positions = new boolean[4];
+        positions[0] = upLeft;
+        positions[1] = upRight;
+        positions[2] = downLeft;
+        positions[3] = downRight;
+
+        for (TableItem tableItem : table) {
+            if (tableItem.minX == 0 && tableItem.minY == 0) {
+                LOG.info("Position 0 is taken");
+                positions[0] = true;
+            }
+            else if (tableItem.minX == 0 && tableItem.minY == localMapSize) {
+                LOG.info("Position 1 is taken");
+                positions[1] = true;
+            }
+            else if (tableItem.minX == localMapSize && tableItem.minY == 0) {
+                LOG.info("Position 2 is taken");
+                positions[2] = true;
+            }
+            else if (tableItem.minX == localMapSize && tableItem.minY == localMapSize) {
+                LOG.info("Position 3 is taken");
+                positions[3] = true;
+            }
+        }
+
+        for (int i = 0; i < positions.length; i++) {
+            if (!positions[i]) {
+                LOG.info("Adding client to position: " + i);
+                this.table.add(TableItem.getInstance(i, this.localMapSize, sst, "READY"));
+                this.setNumOfConnectedClients(table.size());
+                break;
+            }
+        }
+    }
+
+    synchronized public ArrayList<Block[][]> getBlocks() {
+        this.table.sort(new TableItemComparator());
+        ArrayList<Block[][]> blocks = new ArrayList<>();
+        for (TableItem tableItem : table) {
+            LOG.info("Adding blocks from tableItem with position: " + tableItem.getPosition());
+            blocks.add(tableItem.getBlocks());
+        }
+        return blocks;
+    }
+
+    public void deleteConnectionFromTable(SimulationServerThread sst) {
+        TableItem tableItemToRemove = null;
+        for (TableItem tableItem : table) {
+            if (tableItem.getConnection() == sst) {
+                tableItemToRemove = tableItem;
+                break;
+            }
+        }
+        if (tableItemToRemove == null) {
+            return;
+        }
+        this.table.remove(tableItemToRemove);
+        this.setNumOfConnectedClients(table.size());
+        LOG.info("Connection was removed from table");
+    }
+
+//    public void addConnectionToTableIfThereIsntAlready(SimulationServerThread sst, String status) {
+//        boolean contains = false;
+//        for (TableItem tableItem : table) {
+//            if (tableItem.getConnection() == sst) {
+//                contains = true;
+//                break;
+//            }
+//        }
+//        if (!contains) {
+//            this.table.add(
+//                    TableItem.getInstance(localMapSize, sst, status)
+//            );
+//        }
+//    }
+
     public TableItem findTableItemWithConnectionByGlobalCoordinates (int globalX, int globalY) {
+        LOG.info("Finding connection by global coordinates: " + globalX + ", " + globalY);
         TableItem connectionTarget = null;
         for (TableItem tableItem : table) {
+            LOG.info("This one has: [minX, globalX, maxX] (" + tableItem.minX + ", " + globalX + ", " + tableItem.maxX + ") [minY, globalY, maxY] (" + tableItem.minY + ", " + globalY + ", " + tableItem.maxY + ")");
             if (
                             globalX >= tableItem.minX
-                            && globalX < tableItem.maxX
+                            && globalX <= tableItem.maxX
                             && globalY >= tableItem.minY
-                            && globalY < tableItem.maxY
+                            && globalY <= tableItem.maxY
             ) {
+                LOG.info("This is the connection I was looking for. Breaking cycle.");
                 connectionTarget = tableItem;
                 break;
             }
@@ -181,7 +341,6 @@ public class SimulationServer {
     }
 
     private boolean everyConnectionIsReady() {
-
         boolean everyConnectionReady = true;
         for (TableItem tableItem : table) {
             if (!tableItem.getStatus().equals("READY")) {
@@ -192,45 +351,60 @@ public class SimulationServer {
         return everyConnectionReady;
     }
 
-    public void go() {
+    private boolean everyConnectionIsSet() {
+        boolean everyConnectionSet = true;
+        for (TableItem tableItem : table) {
+            if (!tableItem.getStatus().equals("SET")) {
+                everyConnectionSet = false;
+                break;
+            }
+        }
+        return everyConnectionSet;
+    }
+
+    public void set() {
         if (everyConnectionIsReady()) {
+            for (TableItem tableItem : table) {
+                tableItem.connection.set();
+            }
+        }
+    }
+
+    public void go() {
+        if (everyConnectionIsSet()) {
+            view.repaintJFrameSingleClientSimulation();
+            view.repaintJFrameServerSimulation();
             for (TableItem tableItem : table) {
                 tableItem.connection.go();
             }
         }
+        else {
+            set();
+        }
+    }
+
+    public void stopInitStartSimulating() {
+//        simulating = true;
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true) {
+                    try {
+                        sleep(3000);
+                    } catch (InterruptedException e) {
+
+                    }
+                    go();
+                }
+            }
+        });
+        t.start();
     }
 
     public boolean isInMapBounds(int x, int y) {
         boolean boolX = x >= 0 && x < localMapSize;
         boolean boolY = y >= 0 && y < localMapSize;
         return boolX && boolY;
-    }
-
-    public void stopInitStartSimulating() {
-//        simulating = true;
-        while (true) {
-            try {
-                sleep(10000);
-            } catch (InterruptedException e) {
-
-            }
-            go();
-        }
-    }
-
-    public void addConnectionToTableIfThereIsntAlready(SimulationServerThread sst, String status) {
-        boolean contains = false;
-        for (TableItem tableItem : table) {
-            if (tableItem.getConnection() == sst) {
-                contains = true;
-                break;
-            }
-        }
-        if (!contains) {
-            this.table.add(
-                    TableItem.getInstance(localMapSize, sst, status)
-            );
-        }
     }
 
     int[] translateRelativeCoordinatesToGlobal (SimulationServerThread connection, int relativeX, int relativeY) {
@@ -269,5 +443,13 @@ public class SimulationServer {
         relativeToTargetCoords[1] = relativeToTargetY;
 
         return relativeToTargetCoords;
+    }
+
+    public void deleteBlocksOfConnectionFromTable(SimulationServerThread sst) {
+        for (TableItem tableItem : table) {
+            if (tableItem.getConnection() == sst) {
+                tableItem.setBlocks(null);
+            }
+        }
     }
 }

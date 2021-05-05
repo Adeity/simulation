@@ -1,5 +1,6 @@
 package cz.cvut.fel.pjv.simulation.view;
 
+import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.model.Fox;
 import cz.cvut.fel.pjv.simulation.model.Hare;
@@ -27,39 +28,40 @@ public class MapComponent extends JComponent {
     public int dimension;
 
 
-    private Map map;
+    private Simulation simulation;
 
     private Tile[][] terrainGrid;
 
-    public MapComponent(Map mapIn, int panelWidth) {
-        this.map = mapIn;
-        this.dimension = map.sizeOfMap;
+    public MapComponent(Simulation simulation, int panelWidth) {
+        this.simulation = simulation;
+        this.dimension = simulation.map.sizeOfMap;
         this.terrainGrid = new Tile[dimension][dimension];
+        Block[][] blocks = simulation.map.blocks;
         Color terrainColor;
         Color animalColor;
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 terrainColor = null;
                 animalColor = null;
-                if(map.blocks[i][j].getTerrain() == Block.Terrain.GRASS) {
+                if(blocks[i][j].getTerrain() == Block.Terrain.GRASS) {
                     terrainColor = GRASS;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.BUSH) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.BUSH) {
                     terrainColor = BUSH;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.WATER) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.WATER) {
                     terrainColor = WATER;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.GRASS_WITH_GRAIN) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.GRASS_WITH_GRAIN) {
                     terrainColor = GRASS_WITH_GRAIN;
                 }
-                if(map.blocks[i][j].getAnimal() == null) {
+                if(blocks[i][j].getAnimal() == null) {
                     animalColor = null;
                 }
-                else if(map.blocks[i][j].getAnimal() instanceof Fox) {
+                else if(blocks[i][j].getAnimal() instanceof Fox) {
                     animalColor = FOX;
                 }
-                else if(map.blocks[i][j].getAnimal() instanceof Hare) {
+                else if(blocks[i][j].getAnimal() instanceof Hare) {
                     animalColor = HARE;
                 }
                 this.terrainGrid[i][j] = new Tile(terrainColor, animalColor, i, j, panelWidth/dimension);
@@ -88,8 +90,6 @@ public class MapComponent extends JComponent {
         LOG.setLevel(Level.ALL);
         stdout.setLevel(Level.ALL);
 
-
-
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 terrainGrid[i][j].paintComponent(g);
@@ -112,29 +112,30 @@ public class MapComponent extends JComponent {
     }
 
     private void updateTiles() {
+        Block[][] blocks = simulation.map.blocks;
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 Color terrainColor = null;
                 Color animalColor = null;
-                if(map.blocks[i][j].getTerrain() == Block.Terrain.GRASS) {
+                if(blocks[i][j].getTerrain() == Block.Terrain.GRASS) {
                     terrainColor = GRASS;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.BUSH) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.BUSH) {
                     terrainColor = BUSH;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.WATER) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.WATER) {
                     terrainColor = WATER;
                 }
-                else if (map.blocks[i][j].getTerrain() == Block.Terrain.GRASS_WITH_GRAIN) {
+                else if (blocks[i][j].getTerrain() == Block.Terrain.GRASS_WITH_GRAIN) {
                     terrainColor = GRASS_WITH_GRAIN;
                 }
-                if(map.blocks[i][j].getAnimal() == null) {
+                if(blocks[i][j].getAnimal() == null) {
                     animalColor = null;
                 }
-                else if(map.blocks[i][j].getAnimal() instanceof Fox) {
+                else if(blocks[i][j].getAnimal() instanceof Fox) {
                     animalColor = FOX;
                 }
-                else if(map.blocks[i][j].getAnimal() instanceof Hare) {
+                else if(blocks[i][j].getAnimal() instanceof Hare) {
                     animalColor = HARE;
                 }
                 this.terrainGrid[i][j].terrainColor = terrainColor;

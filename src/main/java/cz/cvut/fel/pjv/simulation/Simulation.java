@@ -3,17 +3,22 @@ package cz.cvut.fel.pjv.simulation;
 import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.model.*;
 import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
+import cz.cvut.fel.pjv.simulation.view.View;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Observable;
 import java.util.Scanner;
+import java.util.logging.Logger;
 import java.util.stream.Stream;
 
 public class Simulation implements Serializable{
+    private static final Logger LOG = Logger.getLogger(Simulation.class.getName());
     public Map map;
     public boolean isRunning;
     public int day = 0;
+    App app;
+    View view;
 
     public SimulationClient simulationClient = null;
 
@@ -28,14 +33,27 @@ public class Simulation implements Serializable{
     public Simulation() {
     }
 
+    public void setView(View view) {
+        this.view = view;
+    }
+
+    public View getView() {
+        return view;
+    }
+
     /**
      * starts simulation
      * finishes when complete
      */
     public void run(int size) {
         this.isRunning = true;
-        System.out.println("init new map");
         this.map = new Map(size, this);
+        if (simulationClient != null) {
+            simulationClient.sendStateReady();
+            getView().repaintJFrameClientSimulation();
+        }
+        getView().repaintJFrameSimulation();
+        getView().repaintJFrameStats();
     }
 
     public void setMap(Map map) {
@@ -46,14 +64,22 @@ public class Simulation implements Serializable{
         this.isRunning = true;
         this.map = new Map(filename, this);
         if (simulationClient != null) {
-            simulationClient.sendStateReady(map.blocks);
+            simulationClient.sendStateReady();
+        }
+        else {
+            getView().repaintJFrameSimulation();
+            getView().repaintJFrameStats();
         }
     }
 
     public void simulateDay(){
         this.map.evaluate();
         if (simulationClient != null) {
-            simulationClient.sendStateReady(map.blocks);
+            simulationClient.sendStateReady();
+        }
+        else {
+            getView().repaintJFrameSimulation();
+            getView().repaintJFrameStats();
         }
         day++;
     }
@@ -72,6 +98,18 @@ public class Simulation implements Serializable{
             out.writeObject(this.map);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public boolean connectToServer (String address, int port) {
+        this.simulationClient = new SimulationClient(address, port, this);
+        if (this.simulationClient.connect()) {
+            Thread t = new Thread(this.simulationClient);
+            t.start();
+            return true;
+        }
+        else {
+            return false;
         }
     }
 
@@ -110,11 +148,14 @@ public class Simulation implements Serializable{
     }
 
     public Block getBlock(int coordX, int coordY) {
+        LOG.info("Getting block on: " + coordX + ", " + coordY);
         if (isOnMyMap(coordX, coordY)) {
+            LOG.info("The block on " + coordX + ", " + coordY + " is on local map.");
             return map.getBlock(coordX, coordY);
         }
         else {
             if (simulationClient != null) {
+                LOG.info("The block on " + coordX + ", " + coordY + " is NOT on local map. Asking server to get this block.");
                 Block block = simulationClient.getBlock(coordX, coordY);
                 if (block == null) {
                     System.out.println("This is simulation speaking, thank you for the block: null " + coordX + " " + coordY);
@@ -137,19 +178,6 @@ public class Simulation implements Serializable{
         return isLocalX && isLocalY;
     }
 
-    public boolean setBlock (int x, int y, Block newBlock) {
-        if (isOnMyMap(x, y)) {
-            return map.setBlock(x, y, newBlock);
-        }
-        else {
-            if (simulationClient != null) {
-                return simulationClient.setBlock(x, y, newBlock);
-            }
-            else {
-                return false;
-            }
-        }
-    }
 
     public Block findFreeBlockForMating(Animal a1, Animal a2) {
         Block[] a1Sb = getSurroundingBlocks(a1.block);
@@ -160,6 +188,7 @@ public class Simulation implements Serializable{
                 continue;
             }
             if (b.isBlockFree()) {
+                LOG.info("Returning free block to animals: " + b.coordX + ", " + b.coordY);
                 return b;
             }
         }
@@ -171,6 +200,7 @@ public class Simulation implements Serializable{
         int blockY = block.coordY;
 
         if (isOnMyMap(blockX, blockY)) {
+            LOG.info("Deleting animal at local map");
             map.deleteAnimalAtBlock(block);
             return true;
         }
@@ -194,7 +224,7 @@ public class Simulation implements Serializable{
             return map.setBlock(x, y, newBlock);
         }
         else {
-            System.err.println("Server asks to set block that is not on my map");
+            LOG.info("Server asks to set block that is not on my map");
             return false;
         }
     }
