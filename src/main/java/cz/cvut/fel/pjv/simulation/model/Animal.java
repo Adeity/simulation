@@ -1,10 +1,7 @@
 package cz.cvut.fel.pjv.simulation.model;
 
-import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
-import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,8 +9,12 @@ import java.util.List;
 import java.util.Random;
 import java.util.logging.Logger;
 
+/**
+ * Entity animal in simulation is an entity with attributes energy, energyForMating and age. Each animal gets evaluated each day in simulation.
+ */
 public abstract class Animal implements Serializable {
     private static final Logger LOG = Logger.getLogger(Animal.class.getName());
+
 
     /**
      * carries information about direction of animal
@@ -34,13 +35,14 @@ public abstract class Animal implements Serializable {
         }
     };
 
-    public int energy;
-    public int energyForMating;
-    public int age;
-    public boolean isDead;
-    public boolean didEvaluate;
-    public Block block;
-    public Direction direction;
+    private int energy;
+    private boolean evaluating;
+    private int energyForMating;
+    private int age;
+    private boolean isDead;
+    private boolean didEvaluate;
+    private Block block;
+    private Direction direction;
 
     /**
      * If animal looks around and finds another animal to interact with, it does so.
@@ -49,33 +51,35 @@ public abstract class Animal implements Serializable {
      */
     public void evaluate(Map map, Simulation simulation) {
 //        Utilities.addHandlerToLogger(LOG);
+        this.setEvaluating(true);
         LOG.info("Evaluating now: " + this.toString());
-        Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.block);
+        Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.getBlock());
 
         for (Block block : surroundingBlocks) {
             if (block == null) {
                 continue;
             }
-            Animal otherAnimal = block.animal;
+            Animal otherAnimal = block.getAnimal();
 
             if (otherAnimal == null) {
                 continue;
             }
-            if (otherAnimal.didEvaluate) {
+            if (otherAnimal.isDidEvaluate()) {
                 continue;
             }
             if(this.interact(simulation, otherAnimal)) {
                 LOG.info(this + " interact with " + otherAnimal);
-                this.didEvaluate = true;
-                otherAnimal.didEvaluate = true;
+                this.setDidEvaluate(true);
+                otherAnimal.setDidEvaluate(true);
                 break;
             }
         }
-        if(!this.didEvaluate) {
+        if(!this.isDidEvaluate()) {
             LOG.info("Animals moves");
             move(simulation);
-            this.didEvaluate = true;
+            this.setDidEvaluate(true);
         }
+        this.setEvaluating(false);
     }
 
     /**
@@ -86,8 +90,8 @@ public abstract class Animal implements Serializable {
         Block block = null;
         LOG.info("Animal " + this.toString() + " is looking to move");
         if (this.getDirection() == Direction.RIGHT) {
-            block = simulation.getBlock(this.block.coordX, this.block.coordY + 1);
-            LOG.info("Animal " + toString() + " tries to move right to block at " + this.block.coordX + ", " + (this.block.coordY + 1));
+            block = simulation.getBlock(this.getBlock().getCoordX(), this.getBlock().getCoordY() + 1);
+            LOG.info("Animal " + toString() + " tries to move right to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() + 1));
             if (block == null) {
                 LOG.info("The block is however null");
             }
@@ -97,8 +101,8 @@ public abstract class Animal implements Serializable {
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.DOWN) {
-            block = simulation.getBlock(this.block.coordX + 1, this.block.coordY);
-            LOG.info("Animal " + toString() + " tries to move down to block at " + (this.block.coordX + 1) + ", " + this.block.coordY);
+            block = simulation.getBlock(this.getBlock().getCoordX() + 1, this.getBlock().getCoordY());
+            LOG.info("Animal " + toString() + " tries to move down to block at " + (this.getBlock().getCoordX() + 1) + ", " + this.getBlock().getCoordY());
             if (block == null) {
                 LOG.info("The block is however null");
             }
@@ -108,8 +112,8 @@ public abstract class Animal implements Serializable {
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.LEFT) {
-            block = simulation.getBlock(this.block.coordX, this.block.coordY - 1);
-            LOG.info("Animal " + toString() + " tries to move left to block at " + this.block.coordX + ", " + (this.block.coordY - 1));
+            block = simulation.getBlock(this.getBlock().getCoordX(), this.getBlock().getCoordY() - 1);
+            LOG.info("Animal " + toString() + " tries to move left to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() - 1));
             if (block == null) {
                 LOG.info("The block is however null");
             }
@@ -119,8 +123,8 @@ public abstract class Animal implements Serializable {
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.UP) {
-            block = simulation.getBlock(this.block.coordX - 1, this.block.coordY);
-            LOG.info("Animal " + toString() + " tries to move up to block at " + (this.block.coordX - 1) + ", " + this.block.coordY);
+            block = simulation.getBlock(this.getBlock().getCoordX() - 1, this.getBlock().getCoordY());
+            LOG.info("Animal " + toString() + " tries to move up to block at " + (this.getBlock().getCoordX() - 1) + ", " + this.getBlock().getCoordY());
             if (block == null) {
                 LOG.info("The block is however null");
             }
@@ -132,6 +136,7 @@ public abstract class Animal implements Serializable {
     }
 
     /**
+     *
      * this gets called by move method. checks wheter animal can move to desired block. Also checks wheter its on local map, if not,
      * checks if network connection is up. If it is, asks server to move across clients.
      * @param simulation is simulation
@@ -139,10 +144,10 @@ public abstract class Animal implements Serializable {
      */
     protected void actualMove(Simulation simulation, Block block) {
         if (canMoveToBlock(block)) {
-            LOG.info("Evaluated that animal " + this.toString() + " at block: " + block.coordX + ", " + block.coordY + " could move to block");
-            if (simulation.isOnMyMap(block.coordX, block.coordY)) {
-                simulation.map.deleteAnimalAtBlock(this.block);
-                simulation.map.setAnimalAtCoord(this, block.coordX, block.coordY);
+            LOG.info("Evaluated that animal " + this.toString() + " at block: " + block.getCoordX() + ", " + block.getCoordY() + " could move to block");
+            if (simulation.isOnMyMap(block.getCoordX(), block.getCoordY())) {
+                simulation.map.deleteAnimalAtBlock(this.getBlock());
+                simulation.map.setAnimalAtCoord(this, block.getCoordX(), block.getCoordY());
             }
             else {
                 if (simulation.simulationClient != null) {
@@ -150,11 +155,11 @@ public abstract class Animal implements Serializable {
                     try {
                         blockCopy = (Block) block.clone();
                         blockCopy.setAnimal(this);
-                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
+                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.getCoordX() + ", " + block.getCoordY());
 //                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
-                        if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                        if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
                             LOG.info("Animal moved to another map");
-                            this.block.setAnimal(null);
+                            this.getBlock().setAnimal(null);
                             this.die(simulation);
                         }
                     } catch (CloneNotSupportedException e) {
@@ -218,10 +223,10 @@ public abstract class Animal implements Serializable {
      * @param simulation simulation
      */
     protected boolean die(Simulation simulation) {
-        this.isDead = true;
-        this.energy = -10;
-        this.age = -10;
-        return simulation.deleteAnimalAtBlock(this.block);
+        this.setDead(true);
+        this.setEnergy(-10);
+        this.setAge(-10);
+        return simulation.deleteAnimalAtBlock(this.getBlock());
     }
 
     /**
@@ -302,8 +307,8 @@ public abstract class Animal implements Serializable {
             return false;
         }
 
-        Block.Terrain foxBlockTerrain = fox.block.getTerrain();
-        Block.Terrain hareBlockTerrain = hare.block.getTerrain();
+        Block.Terrain foxBlockTerrain = fox.getBlock().getTerrain();
+        Block.Terrain hareBlockTerrain = hare.getBlock().getTerrain();
 
         if (foxBlockTerrain == hareBlockTerrain) {
             return true;
@@ -333,92 +338,148 @@ public abstract class Animal implements Serializable {
 
         Animal animal = (Animal) o;
 
-        if (energy != animal.energy) return false;
-        if (age != animal.age) return false;
-        if (isDead != animal.isDead) return false;
-        if (didEvaluate != animal.didEvaluate) return false;
-        return block.equals(animal.block);
+        if (getEnergy() != animal.getEnergy()) return false;
+        if (getAge() != animal.getAge()) return false;
+        if (isDead() != animal.isDead()) return false;
+        if (isDidEvaluate() != animal.isDidEvaluate()) return false;
+        return getBlock().equals(animal.getBlock());
     }
 
     @Override
     public int hashCode() {
-        int result = energy;
-        result = 31 * result + age;
-        result = 31 * result + (isDead ? 1 : 0);
-        result = 31 * result + (didEvaluate ? 1 : 0);
-        result = 31 * result + block.hashCode();
+        int result = getEnergy();
+        result = 31 * result + getAge();
+        result = 31 * result + (isDead() ? 1 : 0);
+        result = 31 * result + (isDidEvaluate() ? 1 : 0);
+        result = 31 * result + getBlock().hashCode();
         return result;
     }
 
     @Override
     public String toString() {
         String res = "";
-        String isDead = (this.isDead ? "Dead" : "Alive");
-        String didEvaluate = (this.didEvaluate ? "Evaluated" : "notEvaluated");
+        String isDead = (this.isDead() ? "Dead" : "Alive");
+        String didEvaluate = (this.isDidEvaluate() ? "Evaluated" : "notEvaluated");
         String block;
         try {
-            block = " x,y:("+this.block.coordX+", "+this.block.coordY + ") ";
+            block = " x,y:("+ this.getBlock().getCoordX() +", "+ this.getBlock().getCoordY() + ") ";
         }
         catch (NullPointerException e) {
             block = " nullBlock ";
         }
-        res += getClass().getSimpleName() + block + isDead + " age: " + age + " " +didEvaluate + " " + this.getDirection();
+        res += getClass().getSimpleName() + block + isDead + " age: " + getAge() + " " +didEvaluate + " " + this.getDirection();
         return res;
     }
 
+    /**
+     * Animals need energy to live. Animal gets energy by eating. If animal reaches 0 energy, it dies.
+     */
     public int getEnergy() {
         return energy;
     }
 
+    /**
+     * Animals need energy to live. Animal gets energy by eating. If animal reaches 0 energy, it dies. This value decrements daily.
+     */
     public void setEnergy(int energy) {
         this.energy = energy;
     }
 
+    /**
+     * Animal needs energy for mating. Based on set energy for mating value, animal can mate once every that value. This energy increments daily. This energy gets reset to 0 after mating.
+     */
     public int getEnergyForMating() {
         return energyForMating;
     }
 
+    /**
+     * Animal needs energy for mating. Based on set energy for mating value, animal can mate once every that value. This energy increments daily. This energy gets reset to 0 after mating.
+     */
     public void setEnergyForMating(int energyForMating) {
         this.energyForMating = energyForMating;
     }
 
+    /**
+     * Information about how many days has animal lived in simulation ( + what age it started). Animals can't die if age in this simulation. They however need minimum age to be able to mate with other animals.
+     */
     public int getAge() {
         return age;
     }
 
+    /**
+     * Information about how many days has animal lived in simulation ( + what age it started). Animals can't die if age in this simulation. They however need minimum age to be able to mate with other animals.
+     */
     public void setAge(int age) {
         this.age = age;
     }
 
+    /**
+     * If animal gets killed by other animal or it dies of hunger, this attribute gets set to true. It is an indicator that this animal is to be deleted from the map.
+     */
     public boolean isDead() {
         return isDead;
     }
 
+    /**
+     * If animal gets killed by other animal or it dies of hunger, this attribute gets set to true. It is an indicator that this animal is to be deleted from the map.
+     */
     public void setDead(boolean dead) {
         isDead = dead;
     }
 
+    /**
+     * This is an indicator that animal has been evaluated in a day of a simulation, so other animals wont interact with that evaluated animal anymore.
+     */
     public boolean isDidEvaluate() {
         return didEvaluate;
     }
 
+    /**
+     * This is an indicator that animal has been evaluated in a day of a simulation, so other animals wont interact with that evaluated animal anymore.
+     */
     public void setDidEvaluate(boolean didEvaluate) {
         this.didEvaluate = didEvaluate;
     }
 
+    /**
+     * The block animal is currently standing on.
+     */
     public Block getBlock() {
         return block;
     }
 
+    /**
+     * The block animal is currently standing on.
+     */
     public void setBlock(Block block) {
         this.block = block;
     }
 
+    /**
+     * The direction animal would be headed if it were to move.
+     */
     public Direction getDirection() {
         return direction;
     }
 
+    /**
+     * The direction animal would be headed if it were to move.
+     */
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    /**
+     * Boolean indicator that animal is currently being evaluated and so server shouldn't ask to modify this animal by request from another client.
+     */
+    public boolean isEvaluating() {
+        return evaluating;
+    }
+
+    /**
+     * Boolean indicator that animal is currently being evaluated and so server shouldn't ask to modify this animal by request from another client.
+     */
+    public void setEvaluating(boolean evaluating) {
+        this.evaluating = evaluating;
     }
 }

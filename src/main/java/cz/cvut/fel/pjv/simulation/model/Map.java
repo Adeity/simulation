@@ -2,7 +2,6 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -11,25 +10,28 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
+/**
+ * Map representation of simulation. This carries information about size of map, number of animals on the map and each block. Map is always square.
+ */
 public class Map implements Serializable{
     private static final Logger LOG = Logger.getLogger(Map.class.getName());
-    public Block[][] blocks;
-    public List<Animal> animals = new ArrayList<>();
-    public List<Animal> animalQueue = new ArrayList<>();
-    public int sizeOfMap;
-    public int numOfFoxes = 0;
-    public int numOfHare = 0;
-    public int numOfAnimals = 0;
+    private Block[][] blocks;
+    private List<Animal> animals = new ArrayList<>();
+    private List<Animal> animalQueue = new ArrayList<>();
+    private int sizeOfMap;
+    private int numOfFoxes = 0;
+    private int numOfHare = 0;
+    private int numOfAnimals = 0;
     //  G block = Grass block
-    public int numOfGBlocks = 0;
+    private int numOfGBlocks = 0;
     //  B block = Bush block
-    public int numOfBBlocks = 0;
+    private int numOfBBlocks = 0;
     //  W block = Water block
-    public int numOfWBlocks = 0;
+    private int numOfWBlocks = 0;
     //  R lock = Grass with grain block
-    public int numOfRBlocks = 0;
+    private int numOfRBlocks = 0;
 
-    Simulation simulation;
+    private Simulation simulation;
 
 
 
@@ -38,7 +40,7 @@ public class Map implements Serializable{
      * @param size is dimension, map is then Dim(size x size)
      */
     public Map(int size, Simulation simulation) {
-        this.simulation = simulation;
+        this.setSimulation(simulation);
 //        initMap(size);
     }
 
@@ -46,7 +48,7 @@ public class Map implements Serializable{
      * constructor with default dimension x dimension of map
      */
     public Map(Simulation simulation) {
-        this.simulation = simulation;
+        this.setSimulation(simulation);
         initMap(10);
     }
 
@@ -55,7 +57,7 @@ public class Map implements Serializable{
      * @param filename is text file, which contains predefined map in appropriate format
      */
     public Map(String filename, Simulation simulation) {
-        this.simulation = simulation;
+        this.setSimulation(simulation);
         LOG.info(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename);
         try (
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename), StandardCharsets.UTF_8));
@@ -68,7 +70,7 @@ public class Map implements Serializable{
                 String[] metaData = line.split(" ");
                 try {
                     if(metaData[0].equals("size:")) {
-                        this.sizeOfMap = Integer.parseInt(metaData[1]);
+                        this.setSizeOfMap(Integer.parseInt(metaData[1]));
                     }
                 }
                 catch (NumberFormatException e) {
@@ -82,13 +84,13 @@ public class Map implements Serializable{
                 }
             }
 
-            this.blocks = new Block[this.sizeOfMap][this.sizeOfMap];
+            this.setBlocks(new Block[this.getSizeOfMap()][this.getSizeOfMap()]);
 
             //  read and init map
-            for (int i = 0; i < this.sizeOfMap; i++) {
+            for (int i = 0; i < this.getSizeOfMap(); i++) {
                 line = br.readLine();
                 String[] blocks = line.split(" ");
-                if(blocks.length != this.sizeOfMap) {
+                if(blocks.length != this.getSizeOfMap()) {
                     LOG.info("Wrong amount of blocks in map template.");
                     return;
                 }
@@ -98,19 +100,19 @@ public class Map implements Serializable{
                     switch (Character.toString(blocks[k].charAt(0))) {
                         case "G":
                             t = Block.Terrain.GRASS;
-                            numOfGBlocks++;
+                            setNumOfGBlocks(getNumOfGBlocks() + 1);
                             break;
                         case "B":
                             t = Block.Terrain.BUSH;
-                            numOfBBlocks++;
+                            setNumOfBBlocks(getNumOfBBlocks() + 1);
                             break;
                         case "W":
                             t = Block.Terrain.WATER;
-                            numOfWBlocks++;
+                            setNumOfWBlocks(getNumOfWBlocks() + 1);
                             break;
                         case "R":
                             t = Block.Terrain.GRASS_WITH_GRAIN;
-                            numOfRBlocks++;
+                            setNumOfRBlocks(getNumOfRBlocks() + 1);
                             break;
                         default:
                             t = null;
@@ -135,17 +137,17 @@ public class Map implements Serializable{
                                 break;
                         }
                     }
-                    this.blocks[i][k] = new Block(t, a, i, k);
+                    this.getBlocks()[i][k] = new Block(t, a, i, k);
                     if (a != null) {
                         if(a instanceof Hare) {
-                            numOfHare++;
+                            setNumOfHare(getNumOfHare() + 1);
                         }
                         else if (a instanceof Fox) {
-                            numOfFoxes++;
+                            setNumOfFoxes(getNumOfFoxes() + 1);
                         }
-                        this.animals.add(a);
-                        numOfAnimals++;
-                        a.block = this.blocks[i][k];
+                        this.getAnimals().add(a);
+                        setNumOfAnimals(getNumOfAnimals() + 1);
+                        a.setBlock(this.getBlocks()[i][k]);
                     }
                 }
             }
@@ -163,50 +165,50 @@ public class Map implements Serializable{
      * Evaluates each animal. It gets rid of dead animals and shuffles the list at the end.
      */
     public void evaluate() {
-        LOG.info("Starting evaluation of day. There are: " + this.animals.size() + " animals.");
+        LOG.info("Starting evaluation of day. There are: " + this.getAnimals().size() + " animals.");
         LOG.setLevel(Level.INFO);
-        for (int i = 0; i < animals.size(); i++) {
-            Animal a = animals.get(i);
+        for (int i = 0; i < getAnimals().size(); i++) {
+            Animal a = getAnimals().get(i);
             LOG.finest("Checking animal: " + a);
-            if (a.didEvaluate) {
+            if (a.isDidEvaluate()) {
                 LOG.finest(a + " already evaluated");
                 continue;
             }
             else {
                 LOG.finest(a + " evaluating");
-                a.evaluate(this, simulation);
+                a.evaluate(this, getSimulation());
             }
             a.nextDayChangeStats();
-            if (a.energy <= 0 && !a.isDead) {
-                a.isDead = true;
+            if (a.getEnergy() <= 0 && !a.isDead()) {
+                a.setDead(true);
                 this.deleteAnimalAtBlock(a.getBlock());
             }
         }
 
-        this.animals.addAll(animalQueue);
-        this.animalQueue.clear();
+        this.getAnimals().addAll(getAnimalQueue());
+        this.getAnimalQueue().clear();
 
         //  change stats of each animal
         //  change stats of map also
-        for (Animal a : this.animals) {
-            if (a.isDead) {
-                LOG.finest("Found dead animal in list: " + a.getClass().getSimpleName() + " at: (" + a.block.coordX + ", " + a.block.coordY + ")");
+        for (Animal a : this.getAnimals()) {
+            if (a.isDead()) {
+                LOG.finest("Found dead animal in list: " + a.getClass().getSimpleName() + " at: (" + a.getBlock().getCoordX() + ", " + a.getBlock().getCoordY() + ")");
                 if(a instanceof Fox) {
-                    numOfFoxes--;
+                    setNumOfFoxes(getNumOfFoxes() - 1);
                 }
                 else if (a instanceof Hare) {
-                    numOfHare--;
+                    setNumOfHare(getNumOfHare() - 1);
                 }
-                numOfAnimals--;
+                setNumOfAnimals(getNumOfAnimals() - 1);
                 continue;
             }
-            a.didEvaluate = false;
+            a.setDidEvaluate(false);
         }
         //  get rid of dead animals now that they have been accounted for
-        this.animals.removeIf(a -> a.isDead);
+        this.getAnimals().removeIf(a -> a.isDead());
         LOG.info("Done evaluating");
 
-        Collections.shuffle(animals);
+        Collections.shuffle(getAnimals());
     }
 
     /**
@@ -217,7 +219,7 @@ public class Map implements Serializable{
      * @return true if this method set the block as asked. false otherwise
      */
     public boolean setBlock(int x, int y, Block newBlock) {
-        Block currentBlock = blocks[x][y];
+        Block currentBlock = getBlocks()[x][y];
 
         if (newBlock.getAnimal() != null) {
             if (currentBlock.getAnimal() == null) {
@@ -230,7 +232,7 @@ public class Map implements Serializable{
         }
         else {
             if (currentBlock.getAnimal() != null) {
-                if (currentBlock.getAnimal().didEvaluate) {
+                if (currentBlock.getAnimal().isDidEvaluate() || currentBlock.getAnimal().isEvaluating()) {
                     return false;
                 }
                 else {
@@ -250,12 +252,12 @@ public class Map implements Serializable{
      * @param block is block for newborn animal
      */
     public void addNewBornOnBlock(Animal a, Block block) {
-        if (this.blocks[block.coordX][block.coordY].animal != null) {
+        if (this.getBlocks()[block.getCoordX()][block.getCoordY()].getAnimal() != null) {
             return;
         }
-        a.age = 0;
-        a.block = this.blocks[block.coordX][block.coordY];
-        this.blocks[block.coordX][block.coordY].setAnimal(a);
+        a.setAge(0);
+        a.setBlock(this.getBlocks()[block.getCoordX()][block.getCoordY()]);
+        this.getBlocks()[block.getCoordX()][block.getCoordY()].setAnimal(a);
     }
 
 
@@ -264,8 +266,8 @@ public class Map implements Serializable{
     }
 
     public Block findFreeBlockForMating (Animal a1, Animal a2) {
-        Block[] a1Sb = simulation.getSurroundingBlocks(a1.block);
-        Block[] a2Sb = simulation.getSurroundingBlocks(a2.block);
+        Block[] a1Sb = getSimulation().getSurroundingBlocks(a1.getBlock());
+        Block[] a2Sb = getSimulation().getSurroundingBlocks(a2.getBlock());
         Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
         for (Block b : surroundingBlocks) {
             if (b == null) {
@@ -289,7 +291,7 @@ public class Map implements Serializable{
             int coordY
     ){
         try {
-            return blocks[coordX][coordY];
+            return getBlocks()[coordX][coordY];
         }
         catch (ArrayIndexOutOfBoundsException e) {
 //            LOG.info(e.getMessage());
@@ -304,8 +306,8 @@ public class Map implements Serializable{
      * @param size is size of one dimension, map ends up being Dim(size x size)
      */
     public void initMap(int size) {
-        this.sizeOfMap = size;
-        this.blocks = new Block[size][size];
+        this.setSizeOfMap(size);
+        this.setBlocks(new Block[size][size]);
         initMapFillWithGrass();
         initMapAddBushes();
         initMapAddLakes();
@@ -316,12 +318,12 @@ public class Map implements Serializable{
      * fills whole map with grass
      */
     private void initMapFillWithGrass() {
-        for (int i = 0; i < this.sizeOfMap; i++) {
-            for (int k = 0; k < this.sizeOfMap; k++) {
-                this.blocks[i][k] = new Block(Block.Terrain.GRASS, i, k);
+        for (int i = 0; i < this.getSizeOfMap(); i++) {
+            for (int k = 0; k < this.getSizeOfMap(); k++) {
+                this.getBlocks()[i][k] = new Block(Block.Terrain.GRASS, i, k);
             }
         }
-        this.numOfGBlocks += this.sizeOfMap * this.sizeOfMap;
+        this.setNumOfGBlocks(this.getNumOfGBlocks() + this.getSizeOfMap() * this.getSizeOfMap());
     }
 
     /**
@@ -330,12 +332,12 @@ public class Map implements Serializable{
     private void initMapAddBushes() {
         int bushRow = 0;
         int bushCol = 0;
-        int totalSize = this.sizeOfMap;
+        int totalSize = this.getSizeOfMap();
         while (bushRow < totalSize) {
             while (bushCol < totalSize) {
-                this.blocks[bushRow][bushCol].setTerrain(Block.Terrain.BUSH);
-                this.numOfGBlocks--;
-                this.numOfBBlocks++;
+                this.getBlocks()[bushRow][bushCol].setTerrain(Block.Terrain.BUSH);
+                this.setNumOfGBlocks(this.getNumOfGBlocks() - 1);
+                this.setNumOfBBlocks(this.getNumOfBBlocks() + 1);
                 if (bushCol % 9 == 2) {
                     bushCol += 7;
                 }
@@ -358,10 +360,10 @@ public class Map implements Serializable{
      */
     private void initMapAddLakes() {
         int row = 6, col = 0;
-        while (row < this.sizeOfMap) {
+        while (row < this.getSizeOfMap()) {
             col += 17;
-            if (col / this.sizeOfMap > 1) {
-                col %= sizeOfMap;
+            if (col / this.getSizeOfMap() > 1) {
+                col %= getSizeOfMap();
                 row += 10;
             }
             addLake(row, col);
@@ -380,9 +382,9 @@ public class Map implements Serializable{
             for (int k = centerCol - r; k <= centerCol + r; k++) {
                 if((i - centerRow) * (i - centerRow) + (k - centerCol) * (k - centerCol) <= r*r) {
                     try {
-                        this.blocks[i][k].setTerrain(Block.Terrain.WATER);
-                        this.numOfGBlocks--;
-                        this.numOfWBlocks++;
+                        this.getBlocks()[i][k].setTerrain(Block.Terrain.WATER);
+                        this.setNumOfGBlocks(this.getNumOfGBlocks() - 1);
+                        this.setNumOfWBlocks(this.getNumOfWBlocks() + 1);
                     }
                     catch (ArrayIndexOutOfBoundsException e) {
                         continue;
@@ -398,18 +400,18 @@ public class Map implements Serializable{
     private void initMapAddAnimals() {
         int x = 7;
         int y = 3;
-        int dimension = this.sizeOfMap;
+        int dimension = this.getSizeOfMap();
         boolean odd = true;
         for (int i = 0; i < dimension; i += x) {
             for (int k = 0; k <= i; k += y) {
                 int j = i - k;
-                if (this.blocks[j][k].getTerrain() != Block.Terrain.WATER) {
+                if (this.getBlocks()[j][k].getTerrain() != Block.Terrain.WATER) {
                     if(odd) {
-                        setAnimalAtCoord(new Fox(this.blocks[j][k]) ,j, k);
+                        setAnimalAtCoord(new Fox(this.getBlocks()[j][k]) ,j, k);
                         odd = false;
                     }
                     else {
-                        setAnimalAtCoord(new Hare(this.blocks[j][k]) ,j, k);
+                        setAnimalAtCoord(new Hare(this.getBlocks()[j][k]) ,j, k);
                         odd = true;
                     }
                 }
@@ -418,13 +420,13 @@ public class Map implements Serializable{
         for (int i = dimension - 2; i >= 0; i -= x) {
             for (int k = 0; k <= i; k += y) {
                 int j = i - k;
-                if (this.blocks[dimension - k - 1][dimension - j - 1].getTerrain() != Block.Terrain.WATER) {
+                if (this.getBlocks()[dimension - k - 1][dimension - j - 1].getTerrain() != Block.Terrain.WATER) {
                     if(odd) {
-                        setAnimalAtCoord(new Fox(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
+                        setAnimalAtCoord(new Fox(this.getBlocks()[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
                         odd = false;
                     }
                     else {
-                        setAnimalAtCoord(new Hare(this.blocks[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
+                        setAnimalAtCoord(new Hare(this.getBlocks()[dimension - k - 1][dimension - j - 1]) ,dimension - k - 1, dimension - j - 1);
                         odd = true;
                     }
                 }
@@ -436,10 +438,10 @@ public class Map implements Serializable{
     public String toString() {
         String res = "";
         String part = "";
-        for (int i = 0; i < this.sizeOfMap; i++) {
-            for (int k = 0; k < this.sizeOfMap; k++) {
+        for (int i = 0; i < this.getSizeOfMap(); i++) {
+            for (int k = 0; k < this.getSizeOfMap(); k++) {
                 part += " ";
-                part += "|" + this.blocks[i][k];
+                part += "|" + this.getBlocks()[i][k];
                 part += "| ";
                 res += part;
                 part = "";
@@ -456,22 +458,22 @@ public class Map implements Serializable{
      * @param coordY is y coordinate of map
      */
     public void setAnimalAtCoord (Animal a, int coordX, int coordY) {
-        Block block = blocks[coordX][coordY];
-        if (block.animal != null) {
-            deleteAnimalAtBlock(this.blocks[coordX][coordY]);
+        Block block = getBlocks()[coordX][coordY];
+        if (block.getAnimal() != null) {
+            deleteAnimalAtBlock(this.getBlocks()[coordX][coordY]);
         }
-        a.block = block;
-        block.animal = a;
+        a.setBlock(block);
+        block.setAnimal(a);
 
         if(a instanceof  Hare) {
-            numOfHare++;
+            setNumOfHare(getNumOfHare() + 1);
         }
         else if(a instanceof Fox) {
-            numOfFoxes++;
+            setNumOfFoxes(getNumOfFoxes() + 1);
         }
         LOG.info("Adding animal: " + a.toString() + " to animals list");
-        this.animals.add(a);
-        numOfAnimals++;
+        this.getAnimals().add(a);
+        setNumOfAnimals(getNumOfAnimals() + 1);
     }
 
     /**
@@ -481,23 +483,23 @@ public class Map implements Serializable{
      * @param coordY is coordinate of block
      */
     public void serverAskstoSetAnimalAtCoord(Animal a, int coordX, int coordY) {
-        Block block = blocks[coordX][coordY];
-        a.block = block;
+        Block block = getBlocks()[coordX][coordY];
+        a.setBlock(block);
         block.setAnimal(a);
 
-        a.didEvaluate = true;
+        a.setDidEvaluate(true);
 
-        if (!this.animals.contains(a)) { // this is very likely
+        if (!this.getAnimals().contains(a)) { // this is very likely
             LOG.info("Animal came from server, so I must put it to queue before adding it straigth to animals list.");
-            animalQueue.add(a);
+            getAnimalQueue().add(a);
         }
         if(a instanceof  Hare) {
-            numOfHare++;
+            setNumOfHare(getNumOfHare() + 1);
         }
         else if(a instanceof Fox) {
-            numOfFoxes++;
+            setNumOfFoxes(getNumOfFoxes() + 1);
         }
-        numOfAnimals++;
+        setNumOfAnimals(getNumOfAnimals() + 1);
     }
 
     /**
@@ -505,16 +507,16 @@ public class Map implements Serializable{
      * @param block where animal is to be deleted
      */
     public void deleteAnimalAtBlock(Block block) {
-        if (block.animal != null) {
-            this.animals.remove(block.animal);
-            if(block.animal instanceof Hare) {
-                numOfHare--;
+        if (block.getAnimal() != null) {
+            this.getAnimals().remove(block.getAnimal());
+            if(block.getAnimal() instanceof Hare) {
+                setNumOfHare(getNumOfHare() - 1);
             }
-            else if(block.animal instanceof Fox){
-                numOfFoxes--;
+            else if(block.getAnimal() instanceof Fox){
+                setNumOfFoxes(getNumOfFoxes() - 1);
             }
-            numOfAnimals--;
-            this.blocks[block.coordX][block.coordY].animal = null;
+            setNumOfAnimals(getNumOfAnimals() - 1);
+            this.getBlocks()[block.getCoordX()][block.getCoordY()].setAnimal(null);
         }
         else {
             LOG.info("There is no animal on this block");
@@ -525,15 +527,15 @@ public class Map implements Serializable{
      * Print stats of current state of map
      */
     public void printStats() {
-        LOG.info("Size of map: " + this.sizeOfMap);
-        LOG.info("Num of grass blocks: " + numOfGBlocks + " | Num of grass with grains blocks: " + numOfRBlocks + " | Num of grass with water blocks: " + numOfWBlocks + " | Num of bush blocks: " + numOfBBlocks);
-        LOG.info("Number of animals in animals list: " + this.animals.size());
+        LOG.info("Size of map: " + this.getSizeOfMap());
+        LOG.info("Num of grass blocks: " + getNumOfGBlocks() + " | Num of grass with grains blocks: " + getNumOfRBlocks() + " | Num of grass with water blocks: " + getNumOfWBlocks() + " | Num of bush blocks: " + getNumOfBBlocks());
+        LOG.info("Number of animals in animals list: " + this.getAnimals().size());
         LOG.info("Animals in animals list: ");
-        for (Animal a : this.animals) {
+        for (Animal a : this.getAnimals()) {
             LOG.info(a.toString());
         }
-        LOG.info("Num of foxes: " + numOfFoxes);
-        LOG.info("Num of hare: " + numOfHare);
+        LOG.info("Num of foxes: " + getNumOfFoxes());
+        LOG.info("Num of hare: " + getNumOfHare());
 
     }
 
@@ -542,7 +544,7 @@ public class Map implements Serializable{
      */
     private String cmdOneRowOfEmpty() {
         String res = "";
-        for (int j = 0; j < sizeOfMap; j ++) {
+        for (int j = 0; j < getSizeOfMap(); j ++) {
             res += "|";
             res+=String.join("", Collections.nCopies( 3, " "));
         }
@@ -553,8 +555,168 @@ public class Map implements Serializable{
      * @return String something like "----------" + "\n"
      */
     private String cmdOneRowOfStraigthLines() {
-        return String.join("", Collections.nCopies( 4 * sizeOfMap, ("_"))) + "\n";
+        return String.join("", Collections.nCopies( 4 * getSizeOfMap(), ("_"))) + "\n";
     }
 
 
+    /**
+     * Two dimensional array of blocks each representing one block where different terrain and animals could be. First dimension of this array is sizeOfMap big and each second dimension is also sizeOfMap big. Map is always square.
+     */
+    public Block[][] getBlocks() {
+        return blocks;
+    }
+
+    /**
+     * Two dimensional array of blocks each representing one block where different terrain and animals could be. First dimension of this array is sizeOfMap big and each second dimension is also sizeOfMap big. Map is always square.
+     */
+    public void setBlocks(Block[][] blocks) {
+        this.blocks = blocks;
+    }
+
+    /**
+     * List of animals currently on the map.
+     */
+    public List<Animal> getAnimals() {
+        return animals;
+    }
+
+    /**
+     * List of animals currently on the map.
+     */
+    public void setAnimals(List<Animal> animals) {
+        this.animals = animals;
+    }
+
+    /**
+     * List of animals that came from distributed simulation from another client. These animals are to be added to animals list after evaluation of a day is finished.
+     */
+    public List<Animal> getAnimalQueue() {
+        return animalQueue;
+    }
+
+    /**
+     * If size of map is 10, then number of blocks on map is 10*10 = 100.
+     */
+    public int getSizeOfMap() {
+        return sizeOfMap;
+    }
+
+    /**
+     * If size of map is 10, then number of blocks on map is 10*10 = 100.
+     */
+    public void setSizeOfMap(int sizeOfMap) {
+        this.sizeOfMap = sizeOfMap;
+    }
+
+    /**
+     * Number of foxes currently on map.
+     */
+    public int getNumOfFoxes() {
+        return numOfFoxes;
+    }
+
+    /**
+     * Number of foxes currently on map.
+     */
+    public void setNumOfFoxes(int numOfFoxes) {
+        this.numOfFoxes = numOfFoxes;
+    }
+
+    /**
+     * Number of hare currently on map.
+     */
+    public int getNumOfHare() {
+        return numOfHare;
+    }
+
+    /**
+     * Number of hare currently on map.
+     */
+    public void setNumOfHare(int numOfHare) {
+        this.numOfHare = numOfHare;
+    }
+
+    /**
+     * Number of animals currently on map
+     */
+    public int getNumOfAnimals() {
+        return numOfAnimals;
+    }
+
+    /**
+     * Number of animals currently on map
+     */
+    public void setNumOfAnimals(int numOfAnimals) {
+        this.numOfAnimals = numOfAnimals;
+    }
+
+    /**
+     * Number of grass blocks currently on map
+     */
+    public int getNumOfGBlocks() {
+        return numOfGBlocks;
+    }
+
+    /**
+     * Number of grass blocks currently on map
+     */
+    public void setNumOfGBlocks(int numOfGBlocks) {
+        this.numOfGBlocks = numOfGBlocks;
+    }
+
+    /**
+     * Number of bush blocks currently on map
+     */
+    public int getNumOfBBlocks() {
+        return numOfBBlocks;
+    }
+
+    /**
+     * Number of bush blocks currently on map
+     */
+    public void setNumOfBBlocks(int numOfBBlocks) {
+        this.numOfBBlocks = numOfBBlocks;
+    }
+
+    /**
+     * Number of water blocks currently on map
+     */
+    public int getNumOfWBlocks() {
+        return numOfWBlocks;
+    }
+
+    /**
+     * Number of water blocks currently on map
+     */
+    public void setNumOfWBlocks(int numOfWBlocks) {
+        this.numOfWBlocks = numOfWBlocks;
+    }
+
+    /**
+     * Number of grass with grain blocks currently on map
+     */
+    public int getNumOfRBlocks() {
+        return numOfRBlocks;
+    }
+
+    /**
+     * Number of grass with grain blocks currently on map
+     */
+    public void setNumOfRBlocks(int numOfRBlocks) {
+        this.numOfRBlocks = numOfRBlocks;
+    }
+
+    /**
+     * Simulation this map is representing
+     */
+    public Simulation getSimulation() {
+        return simulation;
+    }
+
+    /**
+     * Simulation this map is representing
+     */
+    public void setSimulation(Simulation simulation) {
+        this.simulation = simulation;
+    }
 }

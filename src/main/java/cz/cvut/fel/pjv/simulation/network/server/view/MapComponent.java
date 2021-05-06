@@ -13,6 +13,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.*;
 
+/**
+ * Graphical representation of blocks of global simulation map.
+ */
 public class MapComponent extends JComponent {
     private static final Logger LOG = Logger.getLogger(MapComponent.class.getName());
 

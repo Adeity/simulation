@@ -2,16 +2,18 @@ package cz.cvut.fel.pjv.simulation.controller;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.view.JFrameSimulation;
 
 import java.io.File;
 import java.util.Arrays;
 import java.util.Scanner;
 import java.util.logging.Logger;
 
+/**
+ * This is controller for MVC architecture. this class is mainly used for application running in command line mode.
+ */
 public class Controller {
     private final Simulation simulation;
-    ControllerNetwork controllerNetwork;
+    private ControllerNetwork controllerNetwork;
     private static final Logger LOG = Logger.getLogger(Controller.class.getName());
 
     public Controller(Simulation simulation) {
@@ -69,8 +71,8 @@ public class Controller {
                 LOG.info("Enter port: ");
                 s = sc.nextLine();
                 String port = s;
-                controllerNetwork = new ControllerNetwork(simulation);
-                controllerNetwork.createClient(ipAddress, Integer.parseInt(port));
+                setControllerNetwork(new ControllerNetwork(getSimulation()));
+                getControllerNetwork().createClient(ipAddress, Integer.parseInt(port));
                 isClient = true;
                 continue;
             }
@@ -93,7 +95,7 @@ public class Controller {
         }
 
         i = 0;
-        if(simulation.isRunning) {
+        if(getSimulation().isRunning) {
             LOG.info("Available commands: next, end, show, stats, help");
             while (true) {
                 String s = sc.nextLine();
@@ -170,7 +172,7 @@ public class Controller {
      * @param s string, name of file
      */
     public void run(String s) {
-        this.simulation.run(s);
+        this.getSimulation().run(s);
     }
 
     /**
@@ -178,21 +180,21 @@ public class Controller {
      * @param size int
      */
     public void run(int size) {
-        this.simulation.run(size);
+        this.getSimulation().run(size);
     }
 
     /**
      * commands simulation to simulate day
      */
     public void simulateDay() {
-        simulation.simulateDay();
+        getSimulation().simulateDay();
     }
 
     /**
      * sets simulation.isrunning parameter to false.
      */
     public void endSimulation() {
-        simulation.isRunning = false;
+        getSimulation().isRunning = false;
         LOG.info("bye");
     }
 
@@ -200,11 +202,11 @@ public class Controller {
      * logs map.tostring
      */
     private void showCurrent() {
-        LOG.info(simulation.map.toString());
+        LOG.info(getSimulation().map.toString());
     }
 
     private void printStats() {
-        simulation.printStats();
+        getSimulation().printStats();
     }
 
     private void keepRunning() {
@@ -230,7 +232,7 @@ public class Controller {
         LOG.info("Enter name of new save: ");
         String name = sc.nextLine();
 
-        this.simulation.serializeWrite(name);
+        this.getSimulation().serializeWrite(name);
     }
 
     private void loadCMD() {
@@ -263,11 +265,23 @@ public class Controller {
         }
 
         LOG.info("Loading save: " + name);
-        this.simulation.serializeRead(name);
+        this.getSimulation().serializeRead(name);
     }
 
     private void load(String saveName) {
-        this.simulation.serializeRead(saveName);
+        this.getSimulation().serializeRead(saveName);
+    }
+
+    protected Simulation getSimulation() {
+        return simulation;
+    }
+
+    protected ControllerNetwork getControllerNetwork() {
+        return controllerNetwork;
+    }
+
+    protected void setControllerNetwork(ControllerNetwork controllerNetwork) {
+        this.controllerNetwork = controllerNetwork;
     }
 
 //    public void changeTerrainAtCoord (Block.Terrain terrain, int row, int col) {

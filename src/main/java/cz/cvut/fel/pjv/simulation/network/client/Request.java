@@ -22,19 +22,19 @@ public class Request {
         this.request = request;
     }
 
-    public String getUuid() {
+    protected String getUuid() {
         return uuid;
     }
 
-    public void setUuid(String uuid) {
+    protected void setUuid(String uuid) {
         this.uuid = uuid;
     }
 
-    public String getResponse() {
+    protected String getResponse() {
         return response;
     }
 
-    public void setResponse(String response) {
+    protected void setResponse(String response) {
         this.response = response;
     }
 }

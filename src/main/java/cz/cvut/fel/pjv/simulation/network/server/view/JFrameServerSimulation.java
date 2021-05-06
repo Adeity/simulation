@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * this shows every client map
+ * this shows every client map on server side application
  */
 public class JFrameServerSimulation extends JFrame implements ActionListener {
     private static final Logger LOG = Logger.getLogger(JFrameServerSimulation.class.getName());

@@ -19,6 +19,9 @@ public class View {
         this.simulation = simulation;
     }
 
+    /**
+     * JFrameInit is what you first see when you open simulation application on client side.
+     */
     public void openJFrameInit() {
         if (jFrameInit == null) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -35,11 +38,17 @@ public class View {
 
     }
 
+    /**
+     * JFrameInit is what you first see when you open simulation application on client side.
+     */
     public void closeJFrameInit() {
 
     }
 
-    public void openJFrameSimulation() {
+    /**
+     * JFrameSimulation is a window with local client simulation map.
+     */
+    protected void openJFrameSimulation() {
         if (jFrameSimulation == null) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override
@@ -56,12 +65,18 @@ public class View {
         }
     }
 
+    /**
+     * JFrameSimulation is a window with local client simulation map.
+     */
     public void repaintJFrameSimulation() {
         if(jFrameSimulation != null) {
             this.jFrameSimulation.repaint();
         }
     }
 
+    /**
+     * JFrameClientSimulation is a window with local client simulation map for when client is connected to the server.
+     */
     public void openJFrameClientSimulation() {
         if (jFrameClientSimulation == null) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -78,16 +93,19 @@ public class View {
         }
     }
 
+    /**
+     * JFrameClientSimulation is a window with local client simulation map for when client is connected to the server.
+     */
     public void repaintJFrameClientSimulation() {
         if (jFrameClientSimulation != null) {
             this.jFrameClientSimulation.repaint();
         }
     }
 
-    public void closeJFrameSimulation() {
 
-    }
-
+    /**
+     * JFrameStats is a windows with information about current state of the map. Such as number of foxes and hare.
+     */
     public void openJFrameStats() {
         if(jFrameStats == null) {
             jFrameStats = new JFrameStats(this.simulation);
@@ -95,6 +113,9 @@ public class View {
         jFrameStats.setVisible(true);
     }
 
+    /**
+     * JFrameStats is a windows with information about current state of the map. Such as number of foxes and hare.
+     */
     public void repaintJFrameStats() {
         if (jFrameStats == null) {
             return;
@@ -103,22 +124,30 @@ public class View {
         jFrameStats.repaint();
     }
 
-    public void closeJFrameStats() {
-
-    }
-
+    /**
+     * JFrameInit is what you first see when you open simulation application on client side.
+     */
     public JFrameInit getjFrameInit() {
         return jFrameInit;
     }
 
+    /**
+     * JFrameSimulation is a window with local client simulation map.
+     */
     public JFrameSimulation getjFrameSimulation() {
         return jFrameSimulation;
     }
 
+    /**
+     * JFrameStats is a windows with information about current state of the map. Such as number of foxes and hare.
+     */
     public JFrameStats getjFrameStats() {
         return jFrameStats;
     }
 
+    /**
+     * JFrameClientSimulation is a window with local client simulation map for when client is connected to the server.
+     */
     public JFrameClientSimulation getjFrameClientSimulation() {
         return jFrameClientSimulation;
     }

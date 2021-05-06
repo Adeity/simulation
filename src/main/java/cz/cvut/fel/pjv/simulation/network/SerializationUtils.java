@@ -3,6 +3,9 @@ package cz.cvut.fel.pjv.simulation.network;
 import java.io.*;
 import java.util.Base64;
 
+/**
+ * Server and client often send Base64 serialized object to each other. This Utils class is to support that.
+ */
 public class SerializationUtils {
     /** Write the object to a Base64 string. */
     public static String toString( Serializable o ) throws IOException {

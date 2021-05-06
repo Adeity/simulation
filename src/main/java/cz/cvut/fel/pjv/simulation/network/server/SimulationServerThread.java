@@ -4,7 +4,6 @@ import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.network.NetworkProtocol;
 import cz.cvut.fel.pjv.simulation.network.SerializationUtils;
 import cz.cvut.fel.pjv.simulation.network.client.Request;
-import javafx.scene.control.Tab;
 
 import java.io.*;
 import java.net.Socket;
@@ -12,12 +11,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * This represents single connection with a client. It receives requests from server and reroutes them with help of SimulationServer.
+ */
 public class SimulationServerThread implements Runnable {
     private static final Logger LOG = Logger.getLogger(SimulationServerThread.class.getName());
-    public Socket clientSocket;
-    public SimulationServer simulationServer;
-
-    ArrayList<Request> currentRequests = new ArrayList<>();
+    protected Socket clientSocket;
+    protected SimulationServer simulationServer;
 
     PrintWriter outWriter;
     BufferedReader inReader;
@@ -40,11 +40,11 @@ public class SimulationServerThread implements Runnable {
             String message, outputLine;
 
             //  Initiate conversation with client
-            outWriter.println("MAP " + simulationServer.localMapSize);
-            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+//            outWriter.println("MAP " + simulationServer.localMapSize);
+//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
 
-            //  SHOWCASE
-//            outWriter.println("MAP map10.txt");
+//              SHOWCASE
+            outWriter.println("MAP showcase1.txt");
 //            LOG.info("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
 
 
@@ -156,8 +156,8 @@ public class SimulationServerThread implements Runnable {
                     int[] crTT = simulationServer.findCoordinatesRelativeToTarget(targetConnection.minX, targetConnection.minY, globalX, globalY);
 
                     if (block != null) {
-                        block.coordX = crTT[0];
-                        block.coordY = crTT[1];
+                        block.setCoordX(crTT[0]);
+                        block.setCoordY(crTT[1]);
                     }
                     connection.setBlock(uuid, crTT[0], crTT[1], globalX, globalY, thisConnection.minX, thisConnection.minY, block);
                 }
@@ -188,8 +188,8 @@ public class SimulationServerThread implements Runnable {
                      int[] crTT = simulationServer.findCoordinatesRelativeToTarget(requestorMinX, requestorMinY, globalX, globalY);
 
                      if (block != null) {
-                         block.coordX = crTT[0];
-                         block.coordY = crTT[1];
+                         block.setCoordX(crTT[0]);
+                         block.setCoordY(crTT[1]);
                      }
 
                      if (targetConnection == null) {

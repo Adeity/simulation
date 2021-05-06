@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 /**
- * this is for viewing map only of a single client
+ * Graphical representation of map of simulation for one specific client.
  */
 public class SingleMapComponent extends JComponent {
     SimulationServer simulationServer;

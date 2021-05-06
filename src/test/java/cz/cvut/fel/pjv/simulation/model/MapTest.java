@@ -2,7 +2,6 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.network.server.SimulationServer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -10,7 +9,6 @@ import org.junit.jupiter.params.provider.CsvSource;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -65,10 +63,10 @@ class MapTest {
                     if (expectedNumOfAnimals != null) {
                         assertEquals(
                                 expectedNumOfAnimals.intValue(),
-                                map.numOfAnimals,
+                                map.getNumOfAnimals(),
                                 "Wrong num of animals at map " + template.getName()
                         );
-                        int animalListSize = map.animals.size();
+                        int animalListSize = map.getAnimals().size();
                         assertEquals(
                                 expectedNumOfAnimals.intValue(),
                                 animalListSize,
@@ -81,7 +79,7 @@ class MapTest {
                     if(expectedNumOfFoxes != null) {
                         assertEquals(
                                 expectedNumOfFoxes.intValue(),
-                                map.numOfFoxes,
+                                map.getNumOfFoxes(),
                                 template.getName()
                         );
                     }
@@ -91,7 +89,7 @@ class MapTest {
                     if(expectedNumOfHare != null) {
                         assertEquals(
                                 expectedNumOfHare.intValue(),
-                                map.numOfHare,
+                                map.getNumOfHare(),
                                 template.getName()
                         );
                     }
@@ -124,7 +122,7 @@ class MapTest {
         Map map = new Map(mapSizeParam, simulation);
 
         int actualNumOfBlocks = 0;
-        for (Block[] blocks : map.blocks) {
+        for (Block[] blocks : map.getBlocks()) {
             actualNumOfBlocks += blocks.length;
         }
 
@@ -149,36 +147,36 @@ class MapTest {
         Animal animalMock = mock(Animal.class);
 
         Hare hare1 = new Hare(
-                mapSpy.blocks[2][1]
+                mapSpy.getBlocks()[2][1]
         );
         Hare hare2 = new Hare(
-                mapSpy.blocks[1][0]
+                mapSpy.getBlocks()[1][0]
         );
         Fox fox1 = new Fox(
-                mapSpy.blocks[0][1]
+                mapSpy.getBlocks()[0][1]
         );
         Fox fox2 = new Fox(
-                mapSpy.blocks[0][2]
+                mapSpy.getBlocks()[0][2]
         );
         Fox fox3 = new Fox(
-                mapSpy.blocks[0][0]
+                mapSpy.getBlocks()[0][0]
         );
         Hare hare3 = new Hare(
-                mapSpy.blocks[2][0]
+                mapSpy.getBlocks()[2][0]
         );
 
-        mapSpy.animals = new ArrayList<Animal>(9);
+        mapSpy.setAnimals(new ArrayList<Animal>(9));
 
-        mapSpy.animals.add(hare2);
-        mapSpy.animals.add(hare1);
-        mapSpy.animals.add(fox1);
-        mapSpy.animals.add(fox2);
-        mapSpy.animals.add(fox3);
-        mapSpy.animals.add(hare3);
+        mapSpy.getAnimals().add(hare2);
+        mapSpy.getAnimals().add(hare1);
+        mapSpy.getAnimals().add(fox1);
+        mapSpy.getAnimals().add(fox2);
+        mapSpy.getAnimals().add(fox3);
+        mapSpy.getAnimals().add(hare3);
 
         assertEquals(
                 6,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         mapSpy.evaluate();

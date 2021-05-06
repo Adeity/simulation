@@ -1,0 +1,8 @@
+size: 3
+numOfFoxes: 1
+numOfHare: 0
+numOfAnimals: 1
+----------
+GN GN GN
+GF GN GF
+GN GN GN

@@ -72,6 +72,9 @@ public class View {
         }
     }
 
+    /**
+     * Repaints jframe if it is not null
+     */
     public void repaintJFrameServerInit() {
         if (jFrameServerInit == null) {
             return;
@@ -79,6 +82,9 @@ public class View {
         jFrameServerInit.repaint();
     }
 
+    /**
+     * Opens JFrame with global map simulation
+     */
     public void openJFrameServerSimulation(SimulationServer simulationServer) {
         if (jFrameServerSimulation == null) {
             SwingUtilities.invokeLater(new Runnable() {
@@ -97,6 +103,9 @@ public class View {
 
     }
 
+    /**
+     * Repaint JFrame with global map of simulation
+     */
     public void repaintJFrameServerSimulation () {
         if (jFrameServerSimulation == null) {
             return;
@@ -106,14 +115,24 @@ public class View {
     }
 
 
+    /**
+     * JFrame init is what you first see when you open server side application.
+     */
     public JFrameServerInit getjFrameServerInit() {
         return jFrameServerInit;
     }
 
+    /**
+     * JFrameSingleClientSimulation represents windows where map of a single client is shown.
+     */
     public JFrameSingleClientSimulation getjFrameSingleClientSimulation() {
         return jFrameSingleClientSimulation;
     }
 
+    /**
+     * JFrameServerSimulation is a window where global map of distributed simulation is drawn.
+     * @return
+     */
     public JFrameServerSimulation getjFrameServerSimulation() {
         return jFrameServerSimulation;
     }

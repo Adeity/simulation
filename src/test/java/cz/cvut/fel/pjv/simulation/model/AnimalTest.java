@@ -3,7 +3,6 @@ package cz.cvut.fel.pjv.simulation.model;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 
 import java.util.logging.Logger;
@@ -25,8 +24,8 @@ class AnimalTest {
         int currentSizeOfAnimalsList;
 
         expectedNumOfAnimals = 1;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -44,8 +43,8 @@ class AnimalTest {
         );
 
         expectedNumOfAnimals = 1;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -67,8 +66,8 @@ class AnimalTest {
         int currentSizeOfAnimalsList;
 
         expectedNumOfAnimals = 0;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -86,8 +85,8 @@ class AnimalTest {
         );
 
         expectedNumOfAnimals = 1;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -109,8 +108,8 @@ class AnimalTest {
         int currentSizeOfAnimalsList;
 
         expectedNumOfAnimals = 0;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -122,12 +121,12 @@ class AnimalTest {
 
 
         map.deleteAnimalAtBlock(
-                map.blocks[0][0]
+                map.getBlocks()[0][0]
         );
 
         expectedNumOfAnimals = 0;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -149,8 +148,8 @@ class AnimalTest {
         int currentSizeOfAnimalsList;
 
         expectedNumOfAnimals = 1;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         LOG.info(map.toString());
         assertEquals(
                 expectedNumOfAnimals,
@@ -162,11 +161,11 @@ class AnimalTest {
         );
 
         map.deleteAnimalAtBlock(
-                map.blocks[0][0]
+                map.getBlocks()[0][0]
         );
         expectedNumOfAnimals = 0;
-        currentNumOfAnimalsAttribute = map.numOfAnimals;
-        currentSizeOfAnimalsList = map.animals.size();
+        currentNumOfAnimalsAttribute = map.getNumOfAnimals();
+        currentSizeOfAnimalsList = map.getAnimals().size();
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -194,7 +193,7 @@ class AnimalTest {
         //  make sure block on which hare is placed is bush
         assertEquals(
                 Block.Terrain.BUSH,
-                map.blocks[1][0].getTerrain()
+                map.getBlocks()[1][0].getTerrain()
         );
         map.setAnimalAtCoord(hare, 1, 0);
 
@@ -203,11 +202,11 @@ class AnimalTest {
         //  assert that there are still two animals on map, therefore fox didnt kill hare
         assertEquals(
                 2,
-                map.animals.size()
+                map.getAnimals().size()
         );
         //  also check animals list
-        assertTrue(map.animals.contains(hare));
-        assertTrue(map.animals.contains(fox));
+        assertTrue(map.getAnimals().contains(hare));
+        assertTrue(map.getAnimals().contains(fox));
     }
 
     @Test
@@ -229,18 +228,18 @@ class AnimalTest {
         int numOfRounds = 8;
         LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = numOfRounds; i > 0; i--) {
-            LOG.info("before iteration: " + i + " | numOfAnimals: " + map.animals.size());
+            LOG.info("before iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
             map.evaluate();
             int expectedNumOfAnimals = i;
-            LOG.info("after iteration: " + i + " | numOfAnimals: " + map.animals.size());
+            LOG.info("after iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
             assertEquals(
                     expectedNumOfAnimals,
-                    map.numOfAnimals
+                    map.getNumOfAnimals()
             );
         }
 
         assertTrue(
-                map.animals.contains(fox)
+                map.getAnimals().contains(fox)
         );
     }
 }

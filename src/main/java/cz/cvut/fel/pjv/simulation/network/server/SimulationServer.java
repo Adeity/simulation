@@ -27,38 +27,79 @@ public class SimulationServer {
 
     View view;
 
+    /**
+     * Router for every JFrame
+     */
     public View getView() {
         return view;
     }
 
+    /**
+     * Router for every JFrame
+     */
     public void setView(View view) {
         this.view = view;
     }
 
     private int port;
 
+    /**
+     * Port simulation is listening at.
+     */
     public int getPort() {
         return port;
     }
 
+    /**
+     * Port simulation is listening at.
+     */
     public void setPort(int port) {
         this.port = port;
     }
 
+    /**
+     * Indicator that simulation stopped receiving connections and started sending commands to clients.
+     */
     public boolean isRunning() {
         return running;
     }
 
+    /**
+     * Indicator that simulation stopped receiving connections and started sending commands to clients.
+     */
     public void setRunning(boolean running) {
         this.running = running;
     }
 
+    /**
+     * This is how big is each clients local map.
+     */
     public void setLocalMapSize(int localMapSize) {
         this.localMapSize = localMapSize;
     }
 
+    /**
+     * This is how big is each clients local map.
+     */
     public int getLocalMapSize() {
         return localMapSize;
+    }
+
+    /**
+     * Maximum number of connected clients server is allowing.
+     */
+    public int getMaxNumOfClients() {
+        return maxNumOfClients;
+    }
+
+    /**
+     * Maximum number of connected clients server is allowing.
+     */
+    public void setMaxNumOfClients(int maxNumOfClients) {
+        this.maxNumOfClients = maxNumOfClients;
+        if (view != null) {
+            view.repaintJFrameServerInit();
+        }
     }
 
     ArrayList<TableItem> table = new ArrayList<>();
@@ -69,16 +110,7 @@ public class SimulationServer {
     private int maxNumOfClients;
     private int numOfConnectedClients = 0;
 
-    public int getMaxNumOfClients() {
-        return maxNumOfClients;
-    }
 
-    public void setMaxNumOfClients(int maxNumOfClients) {
-        this.maxNumOfClients = maxNumOfClients;
-        if (view != null) {
-            view.repaintJFrameServerInit();
-        }
-    }
 
     public SimulationServer(int port) {
         this.port = port;

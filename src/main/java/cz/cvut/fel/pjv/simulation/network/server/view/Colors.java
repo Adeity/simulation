@@ -3,7 +3,7 @@ package cz.cvut.fel.pjv.simulation.network.server.view;
 import java.awt.*;
 
 /**
- * used for view
+ * Colors - used for view
  */
 public class Colors {
 

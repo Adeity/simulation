@@ -10,6 +10,9 @@ import java.net.Socket;
 import java.util.UUID;
 import java.util.logging.Logger;
 
+/**
+ * Simulation client is able to receive and send messages to server using network protocol messages.
+ */
 public class SimulationClient implements Runnable{
     private static final Logger LOG = Logger.getLogger(SimulationClient.class.getName());
     Socket socket = null;
@@ -322,7 +325,7 @@ public class SimulationClient implements Runnable{
      * send current version of map blocks to server and be in STATE SET
      */
     public void sendStateSet() {
-        String response = NetworkProtocol.buildStateSetMessage(this.simulation.map.blocks);
+        String response = NetworkProtocol.buildStateSetMessage(this.simulation.map.getBlocks());
         outWriter.println(response);
         LOG.info("C->S " + response);
         simulation.getView().repaintJFrameClientSimulation();

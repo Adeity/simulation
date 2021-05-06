@@ -1,14 +1,11 @@
 package cz.cvut.fel.pjv.simulation;
 
-import cz.cvut.fel.pjv.simulation.controller.Controller;
 import cz.cvut.fel.pjv.simulation.model.*;
 import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 import cz.cvut.fel.pjv.simulation.view.View;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.Observable;
-import java.util.Scanner;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -174,8 +171,8 @@ public class Simulation implements Serializable{
      * @return array of surrounding blocks
      */
     public Block[] getSurroundingBlocks (Block block) {
-        int coordX = block.coordX;
-        int coordY = block.coordY;
+        int coordX = block.getCoordX();
+        int coordY = block.getCoordY();
         return new Block[]{
                 this.getBlock(coordX - 1, coordY - 1),
                 this.getBlock(coordX - 1, coordY),
@@ -226,8 +223,8 @@ public class Simulation implements Serializable{
      * @return true if it is, false otherwise
      */
     public boolean isOnMyMap(int x, int y) {
-        boolean isLocalX = (x >= 0 && x < map.sizeOfMap);
-        boolean isLocalY = (y >= 0 && y < map.sizeOfMap);
+        boolean isLocalX = (x >= 0 && x < map.getSizeOfMap());
+        boolean isLocalY = (y >= 0 && y < map.getSizeOfMap());
         return isLocalX && isLocalY;
     }
 
@@ -239,15 +236,15 @@ public class Simulation implements Serializable{
      * @return surrounding blocks for both animals
      */
     public Block findFreeBlockForMating(Animal a1, Animal a2) {
-        Block[] a1Sb = getSurroundingBlocks(a1.block);
-        Block[] a2Sb = getSurroundingBlocks(a2.block);
+        Block[] a1Sb = getSurroundingBlocks(a1.getBlock());
+        Block[] a2Sb = getSurroundingBlocks(a2.getBlock());
         Block[] surroundingBlocks = concatSurroundingBlocks(a1Sb, a2Sb);
         for (Block b : surroundingBlocks) {
             if (b == null) {
                 continue;
             }
             if (b.isBlockFree()) {
-                LOG.info("Returning free block to animals: " + b.coordX + ", " + b.coordY);
+                LOG.info("Returning free block to animals: " + b.getCoordX() + ", " + b.getCoordY());
                 return b;
             }
         }
@@ -261,8 +258,8 @@ public class Simulation implements Serializable{
      * @return true if deletion was successful, false otherwise
      */
     public boolean deleteAnimalAtBlock(Block block) {
-        int blockX = block.coordX;
-        int blockY = block.coordY;
+        int blockX = block.getCoordX();
+        int blockY = block.getCoordY();
 
         if (isOnMyMap(blockX, blockY)) {
             LOG.info("Deleting animal at local map");

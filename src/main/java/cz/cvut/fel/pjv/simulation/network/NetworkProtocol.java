@@ -8,7 +8,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 /**
- * builds server-client client-server communication messages
+ * Builds server-client client-server communication messages.
  */
 public class NetworkProtocol {
     private static final Logger LOG = Logger.getLogger(NetworkProtocol.class.getName());

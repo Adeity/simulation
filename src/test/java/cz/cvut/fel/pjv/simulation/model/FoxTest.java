@@ -26,8 +26,8 @@ class FoxTest {
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoFoxesMateInFiveRounds.txt", simulation);
         simulation.setMap(map);
-        Animal fox1 = map.blocks[0][0].getAnimal();
-        Animal fox2 = map.blocks[0][1].getAnimal();
+        Animal fox1 = map.getBlocks()[0][0].getAnimal();
+        Animal fox2 = map.getBlocks()[0][1].getAnimal();
 
         //  set energy for mating needed
         CONF.ENERGY_FOR_MATING = 100;
@@ -81,7 +81,7 @@ class FoxTest {
             map.evaluate();
             assertEquals(
                     2,
-                    map.numOfAnimals
+                    map.getNumOfAnimals()
             );
         }
 
@@ -95,7 +95,7 @@ class FoxTest {
         LOG.info("Hare2 energy after last eval: " + fox2.getEnergyForMating());
         assertEquals(
                 3,
-                map.numOfAnimals
+                map.getNumOfAnimals()
         );
     }
 
@@ -151,58 +151,58 @@ class FoxTest {
 
         assertEquals(
                 fox1,
-                map.blocks[1][0].getAnimal()
+                map.getBlocks()[1][0].getAnimal()
         );
         assertEquals(
                 fox2,
-                map.blocks[1][1].getAnimal()
+                map.getBlocks()[1][1].getAnimal()
         );
 
         Mockito.doReturn(true).when(fox1).areReadyForMating(fox2);
         Mockito.doReturn(true).when(fox2).areReadyForMating(fox1);
 
-        LOG.info("Size of map: " + map.animals.size());
+        LOG.info("Size of map: " + map.getAnimals().size());
 
         map.evaluate();
         assertEquals(
                 3,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 4,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 5,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 6,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 7,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 8,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 9,
-                map.animals.size()
+                map.getAnimals().size()
         );
     }
 
@@ -232,7 +232,7 @@ class FoxTest {
         );
         assertEquals(
                 expectedDidEvaluate,
-                newBorn.didEvaluate
+                newBorn.isDidEvaluate()
         );
         assertEquals(
                 expectedBlock,
@@ -250,7 +250,7 @@ class FoxTest {
         Map map = new Map("test_foxDiesOfHunger.txt", simulation);
         simulation.setMap(map);
 
-        Animal fox = map.blocks[0][0].getAnimal();
+        Animal fox = map.getBlocks()[0][0].getAnimal();
 
         fox.setEnergy(5);
 
@@ -262,7 +262,7 @@ class FoxTest {
             map.evaluate();
             assertEquals(
                     1,
-                    map.numOfAnimals
+                    map.getNumOfAnimals()
             );
         }
 
@@ -273,20 +273,20 @@ class FoxTest {
         LOG.info("fox energy after last eval: " + fox.getEnergy());
         assertEquals(
                 0,
-                map.numOfAnimals
+                map.getNumOfAnimals()
         );
         assertFalse(
-                map.animals.contains(fox)
+                map.getAnimals().contains(fox)
         );
 
         assertTrue(
-                map.blocks[0][0].getAnimal() != fox
+                map.getBlocks()[0][0].getAnimal() != fox
                         &&
-                        map.blocks[0][1].getAnimal() != fox
+                        map.getBlocks()[0][1].getAnimal() != fox
                         &&
-                        map.blocks[1][0].getAnimal() != fox
+                        map.getBlocks()[1][0].getAnimal() != fox
                         &&
-                        map.blocks[1][1].getAnimal() != fox
+                        map.getBlocks()[1][1].getAnimal() != fox
         );
     }
 }

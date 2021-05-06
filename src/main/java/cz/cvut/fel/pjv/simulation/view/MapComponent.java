@@ -4,7 +4,6 @@ import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.Block;
 import cz.cvut.fel.pjv.simulation.model.Fox;
 import cz.cvut.fel.pjv.simulation.model.Hare;
-import cz.cvut.fel.pjv.simulation.model.Map;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
@@ -13,7 +12,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 /**
- * Each block (tile) is drawn here
+ * Graphical representation of map of simulation on client side.
  */
 public class MapComponent extends JComponent {
     public static final int PREFERRED_GRID_SIZE_PIXELS = 30;
@@ -37,9 +36,9 @@ public class MapComponent extends JComponent {
 
     public MapComponent(Simulation simulation, int panelWidth) {
         this.simulation = simulation;
-        this.dimension = this.simulation.map.sizeOfMap;
+        this.dimension = this.simulation.map.getSizeOfMap();
         this.terrainGrid = new Tile[dimension][dimension];
-        Block[][] blocks = this.simulation.map.blocks;
+        Block[][] blocks = this.simulation.map.getBlocks();
         Color terrainColor;
         Color animalColor;
         for (int i = 0; i < dimension; i++) {
@@ -115,7 +114,7 @@ public class MapComponent extends JComponent {
     }
 
     private void updateTiles() {
-        Block[][] blocks = simulation.map.blocks;
+        Block[][] blocks = simulation.map.getBlocks();
         for (int i = 0; i < dimension; i++) {
             for (int j = 0; j < dimension; j++) {
                 Color terrainColor = null;

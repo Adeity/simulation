@@ -3,14 +3,15 @@ package cz.cvut.fel.pjv.simulation.model;
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
 import cz.cvut.fel.pjv.simulation.model.survivalOfTheFittest.Killer;
-import cz.cvut.fel.pjv.simulation.utils.Utilities;
 
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static cz.cvut.fel.pjv.simulation.CONF.*;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
+/**
+ * Fox is an animal that kills hare, mates with other foxes and dies of hunger.
+ */
 public class Fox extends Animal implements Killer{
     private static final Logger LOG = Logger.getLogger(Fox.class.getName());
     public Fox() {
@@ -18,11 +19,11 @@ public class Fox extends Animal implements Killer{
     }
     
     public Fox(Block block) {
-        this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
-        this.block = block;
-        this.age = getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE);
-        this.energy = getRandomNumber(CONF.FOX_INIT_MIN_ENERGY, CONF.FOX_INIT_MAX_ENERGY);
-        this.direction = FOX_INIT_DIRECTION;
+        this.setEnergyForMating(getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX));
+        this.setBlock(block);
+        this.setAge(getRandomNumber(CONF.FOX_INIT_MIN_AGE, CONF.FOX_INIT_MAX_AGE));
+        this.setEnergy(getRandomNumber(CONF.FOX_INIT_MIN_ENERGY, CONF.FOX_INIT_MAX_ENERGY));
+        this.setDirection(FOX_INIT_DIRECTION);
     }
 
     @Override
@@ -62,13 +63,13 @@ public class Fox extends Animal implements Killer{
     @Override
     protected boolean areReadyForMating(Animal otherAnimal) {
         if(
-                this.age < CONF.FOX_MATING_MIN_AGE
+                this.getAge() < CONF.FOX_MATING_MIN_AGE
                         ||
-                        otherAnimal.age < CONF.FOX_MATING_MIN_AGE
+                        otherAnimal.getAge() < CONF.FOX_MATING_MIN_AGE
                 ||
-                        this.energyForMating < CONF.ENERGY_FOR_MATING
+                        this.getEnergyForMating() < CONF.ENERGY_FOR_MATING
                 ||
-                        otherAnimal.energyForMating < CONF.ENERGY_FOR_MATING
+                        otherAnimal.getEnergyForMating() < CONF.ENERGY_FOR_MATING
         ){
             return false;
         }
@@ -89,10 +90,10 @@ public class Fox extends Animal implements Killer{
         Fox newBorn = (Fox) createNewBorn(freeBlockForNewBorn);
 
 
-        if (simulation.isOnMyMap(freeBlockForNewBorn.coordX, freeBlockForNewBorn.coordY)) {
-            simulation.map.animals.add(newBorn);
-            simulation.map.numOfFoxes++;
-            simulation.map.numOfAnimals++;
+        if (simulation.isOnMyMap(freeBlockForNewBorn.getCoordX(), freeBlockForNewBorn.getCoordY())) {
+            simulation.map.getAnimals().add(newBorn);
+            simulation.map.setNumOfFoxes(simulation.map.getNumOfFoxes() + 1);
+            simulation.map.setNumOfAnimals(simulation.map.getNumOfAnimals() + 1);
             freeBlockForNewBorn.setAnimal(newBorn);
             mateChangeStats(otherAnimal);
             return true;
@@ -103,7 +104,7 @@ public class Fox extends Animal implements Killer{
                 try {
                     blockCopy = (Block) freeBlockForNewBorn.clone();
                     blockCopy.setAnimal(newBorn);
-                    if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                    if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
                         LOG.info("Animal was born on another map.");
                         mateChangeStats(otherAnimal);
                         return true;
@@ -140,15 +141,15 @@ public class Fox extends Animal implements Killer{
 
     @Override
     public void killHareAddStats() {
-        this.energy += CONF.FOX_KILLING_ENERGY_INCREASE;
+        this.setEnergy(this.getEnergy() + CONF.FOX_KILLING_ENERGY_INCREASE);
     }
 
     @Override
     protected void nextDayChangeStats() {
-        this.energy -= FOX_DAILY_ENERGY_DECREASE;
-        this.age += FOX_DAILY_AGE_INCREASE;
-        if(this.energyForMating < ENERGY_FOR_MATING) {
-            this.energyForMating += CONF.ENERGY_FOR_MATING_DAILY_INCREASE;
+        this.setEnergy(this.getEnergy() - FOX_DAILY_ENERGY_DECREASE);
+        this.setAge(this.getAge() + FOX_DAILY_AGE_INCREASE);
+        if(this.getEnergyForMating() < ENERGY_FOR_MATING) {
+            this.setEnergyForMating(this.getEnergyForMating() + CONF.ENERGY_FOR_MATING_DAILY_INCREASE);
         }
     }
 
@@ -167,7 +168,7 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected void mateChangeStats (Animal otherAnimal) {
-        this.energyForMating = 0;
-        otherAnimal.energyForMating = 0;
+        this.setEnergyForMating(0);
+        otherAnimal.setEnergyForMating(0);
     }
 }

@@ -1,12 +1,9 @@
 package cz.cvut.fel.pjv.simulation.view;
 
 import cz.cvut.fel.pjv.simulation.Simulation;
-import cz.cvut.fel.pjv.simulation.model.Map;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 /**
  * Stats of simulation can be seen here
@@ -49,12 +46,12 @@ public class JFrameStats extends JFrame {
 
     public void updateLabels() {
         this.day.setText("Day: " + this.simulation.day);
-        this.sizeOfMap.setText("Size of map: " + this.simulation.map.sizeOfMap+"x"+this.simulation.map.sizeOfMap);
-        this.numOfGrassBlocks.setText("Num of grass blocks: " + this.simulation.map.numOfGBlocks);
-        this.numOfBushBlocks.setText("Num of bush blocks: " + this.simulation.map.numOfBBlocks);
-        this.numOfWaterBlocks.setText("Num of water blocks: " + this.simulation.map.numOfWBlocks);
-        this.numOfAnimals.setText("Num of animals: " + this.simulation.map.numOfAnimals);
-        this.numOfFoxes.setText("Num of foxes: " + this.simulation.map.numOfFoxes);
-        this.numOfHare.setText("Num of hare: " + this.simulation.map.numOfHare);
+        this.sizeOfMap.setText("Size of map: " + this.simulation.map.getSizeOfMap() +"x"+ this.simulation.map.getSizeOfMap());
+        this.numOfGrassBlocks.setText("Num of grass blocks: " + this.simulation.map.getNumOfGBlocks());
+        this.numOfBushBlocks.setText("Num of bush blocks: " + this.simulation.map.getNumOfBBlocks());
+        this.numOfWaterBlocks.setText("Num of water blocks: " + this.simulation.map.getNumOfWBlocks());
+        this.numOfAnimals.setText("Num of animals: " + this.simulation.map.getNumOfAnimals());
+        this.numOfFoxes.setText("Num of foxes: " + this.simulation.map.getNumOfFoxes());
+        this.numOfHare.setText("Num of hare: " + this.simulation.map.getNumOfHare());
     }
 }

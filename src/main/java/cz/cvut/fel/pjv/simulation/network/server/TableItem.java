@@ -6,11 +6,10 @@ import cz.cvut.fel.pjv.simulation.model.Map;
 import java.util.Comparator;
 
 /**
- * is table entry with connection, its minx, maxx, miny, maxy identifier and its block after each round. also its status
+ * Table item has information about connection, its minX, minY, maxX, maxY global map identifying coordinates. Also it's state that can be READY, SET or GO. Also after each round, it stores updated version of their block[][] representation fo map.
  */
 public class TableItem {
     SimulationServerThread connection;
-    static int numberOfItems = 0;
     String status;
     Block[][] blocks;
     int position;
@@ -25,18 +24,16 @@ public class TableItem {
         this.position = position;
     }
 
-    public static int getNumberOfItems() {
-        return numberOfItems;
-    }
-
-    public static void setNumberOfItems(int numberOfItems) {
-        TableItem.numberOfItems = numberOfItems;
-    }
-
+    /**
+     * Position indicates where is connection placed on global simulation map.
+     */
     public int getPosition() {
         return position;
     }
 
+    /**
+     * Position indicates where is connection placed on global simulation map.
+     */
     public void setPosition(int position) {
         this.position = position;
     }
@@ -98,33 +95,21 @@ public class TableItem {
         return tableItem;
     }
 
-    private int getMinX() {
-        return minX;
-    }
 
     private void setMinX(int minX) {
         this.minX = minX;
     }
 
-    private int getMaxX() {
-        return maxX;
-    }
 
     private void setMaxX(int maxX) {
         this.maxX = maxX;
     }
 
-    private int getMinY() {
-        return minY;
-    }
 
     private void setMinY(int minY) {
         this.minY = minY;
     }
 
-    private int getMaxY() {
-        return maxY;
-    }
 
     private void setMaxY(int maxY) {
         this.maxY = maxY;

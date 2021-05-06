@@ -3,7 +3,7 @@ package cz.cvut.fel.pjv.simulation.network.server;
 import java.util.Comparator;
 
 /**
- * this is so it can be sorted by position
+ * Comparator so that table can be sorted by position.
  */
 public class TableItemComparator implements Comparator<TableItem> {
     @Override

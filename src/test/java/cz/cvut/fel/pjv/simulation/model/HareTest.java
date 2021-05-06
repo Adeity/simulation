@@ -27,11 +27,11 @@ class HareTest {
 
         assertEquals(
                 hare1ExpectedNewEnergy,
-                hare1.energyForMating
+                hare1.getEnergyForMating()
         );
         assertEquals(
                 hare2ExpectedNewEnergy,
-                hare2.energyForMating
+                hare2.getEnergyForMating()
         );
     }
 
@@ -47,36 +47,36 @@ class HareTest {
         simulation.setMap(map);
 
         map.setAnimalAtCoord(hare1, 2, 1);
-        assertEquals(hare1, map.blocks[2][1].animal);
-        assertEquals(hare1.block, map.blocks[2][1]);
+        assertEquals(hare1, map.getBlocks()[2][1].getAnimal());
+        assertEquals(hare1.getBlock(), map.getBlocks()[2][1]);
         assertEquals(
                 1,
-                map.numOfHare
+                map.getNumOfHare()
         );
 
         map.setAnimalAtCoord(hare2, 2, 2);
-        assertEquals(hare2, map.blocks[2][2].animal);
-        assertEquals(hare2.block, map.blocks[2][2]);
+        assertEquals(hare2, map.getBlocks()[2][2].getAnimal());
+        assertEquals(hare2.getBlock(), map.getBlocks()[2][2]);
         assertEquals(
                 2,
-                map.numOfHare
+                map.getNumOfHare()
         );
 
         hare1.interact(simulation, hare2);
 
         assertEquals(
                 3,
-                map.numOfHare
+                map.getNumOfHare()
         );
 
-        Animal newborn = map.blocks[1][0].animal;
+        Animal newborn = map.getBlocks()[1][0].getAnimal();
         assertEquals(
                 0,
-                newborn.age
+                newborn.getAge()
         );
 
         Animal newBornInAnimalList = null;
-        for (Animal a : map.animals) {
+        for (Animal a : map.getAnimals()) {
             if(a.equals(newborn)) {
                 newBornInAnimalList = newborn;
                 break;
@@ -87,13 +87,13 @@ class HareTest {
                 newborn
         );
 
-        for (Animal a : map.animals) {
-            a.didEvaluate = false;
+        for (Animal a : map.getAnimals()) {
+            a.setDidEvaluate(false);
             a.nextDayChangeStats();
         }
 
         assertEquals(
-                newborn.age,
+                newborn.getAge(),
                 1
         );
 
@@ -113,8 +113,8 @@ class HareTest {
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoHareMateInFiveRounds.txt", simulation);
         simulation.setMap(map);
-        Animal hare1 = map.blocks[0][0].getAnimal();
-        Animal hare2 = map.blocks[0][1].getAnimal();
+        Animal hare1 = map.getBlocks()[0][0].getAnimal();
+        Animal hare2 = map.getBlocks()[0][1].getAnimal();
 
         //  set energy for mating needed
         CONF.ENERGY_FOR_MATING = 100;
@@ -157,7 +157,7 @@ class HareTest {
             map.evaluate();
             assertEquals(
                     2,
-                    map.numOfAnimals
+                    map.getNumOfAnimals()
             );
         }
 
@@ -172,7 +172,7 @@ class HareTest {
         LOG.info("Hare2 energy after last eval: " + hare2.getEnergyForMating());
         assertEquals(
                 3,
-                map.numOfAnimals
+                map.getNumOfAnimals()
         );
     }
 
@@ -236,7 +236,7 @@ class HareTest {
         );
         assertEquals(
                 expectedDidEvaluate,
-                newBorn.didEvaluate
+                newBorn.isDidEvaluate()
         );
         assertEquals(
                 expectedBlock,
@@ -267,58 +267,58 @@ class HareTest {
 
         assertEquals(
                 hare1,
-                map.blocks[1][0].getAnimal()
+                map.getBlocks()[1][0].getAnimal()
         );
         assertEquals(
                 hare2,
-                map.blocks[1][1].getAnimal()
+                map.getBlocks()[1][1].getAnimal()
         );
 
         Mockito.doReturn(true).when(hare1).areReadyForMating(hare2);
         Mockito.doReturn(true).when(hare2).areReadyForMating(hare1);
 
-        LOG.info("size of map: " + map.animals.size());
+        LOG.info("size of map: " + map.getAnimals().size());
 
         map.evaluate();
         assertEquals(
                 3,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 4,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 5,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 6,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 7,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 8,
-                map.animals.size()
+                map.getAnimals().size()
         );
 
         map.evaluate();
         assertEquals(
                 9,
-                map.animals.size()
+                map.getAnimals().size()
         );
     }
 }

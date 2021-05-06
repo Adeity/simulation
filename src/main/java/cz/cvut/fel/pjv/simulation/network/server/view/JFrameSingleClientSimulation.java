@@ -10,6 +10,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+/**
+ * This is a window that shows one specific client map in server side application
+ */
 public class JFrameSingleClientSimulation extends JFrame {
     private static final Logger LOG = Logger.getLogger(JFrameSingleClientSimulation.class.getName());
 

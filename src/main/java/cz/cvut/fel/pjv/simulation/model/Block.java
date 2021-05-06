@@ -1,10 +1,12 @@
 package cz.cvut.fel.pjv.simulation.model;
 
-import cz.cvut.fel.pjv.simulation.model.Animal;
-
 import java.io.Serializable;
 
+/**
+ * Block is what map is made of. It carries information about terrain, animal currently standing on it and row and column coordinates.
+ */
 public class Block implements Serializable, Cloneable {
+
     /**
      * enumaration of possible terrains of a block
      */
@@ -41,28 +43,10 @@ public class Block implements Serializable, Cloneable {
     }
 
     private Terrain terrain;
-    public Animal animal;
-    public int coordX;
-    public int coordY;
+    private Animal animal;
+    private int coordX;
+    private int coordY;
 
-    /**
-     * getters and setters
-     */
-    public Terrain getTerrain() {
-        return terrain;
-    }
-
-    public void setTerrain(Terrain terrain) {
-        this.terrain = terrain;
-    }
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
-    }
 
     /**
      * in this constructor with only three parameters, animal is automatically set to null
@@ -72,10 +56,10 @@ public class Block implements Serializable, Cloneable {
         this(terrain, null, coordX, coordY);
     }
     public Block(Terrain terrain, Animal animal, int coordX, int coordY) {
-        this.terrain = terrain;
-        this.animal = animal;
-        this.coordX = coordX;
-        this.coordY = coordY;
+        this.setTerrain(terrain);
+        this.setAnimal(animal);
+        this.setCoordX(coordX);
+        this.setCoordY(coordY);
     }
 
     /**
@@ -83,10 +67,10 @@ public class Block implements Serializable, Cloneable {
      * @return true if block is free, false otherwise
      */
     public boolean isBlockFree() {
-        if (this.terrain == Terrain.WATER) {
+        if (this.getTerrain() == Terrain.WATER) {
             return false;
         }
-        return this.animal == null;
+        return this.getAnimal() == null;
     }
 
 
@@ -94,18 +78,75 @@ public class Block implements Serializable, Cloneable {
     public String toString() {
         String animal;
         String terrain;
-        if(this.animal == null) {
+        if(this.getAnimal() == null) {
             animal = "N";
         }
         else{
-            animal = this.animal.animalCode();
+            animal = this.getAnimal().animalCode();
         }
-        if(this.terrain == null){
+        if(this.getTerrain() == null){
             terrain = "N";
         }
         else {
-            terrain = this.terrain.terrainCode();
+            terrain = this.getTerrain().terrainCode();
         }
         return terrain+animal;
+    }
+
+    /**
+     * What terrain is currently on block
+     */
+    public Terrain getTerrain() {
+        return terrain;
+    }
+
+    /**
+     * What terrain is currently on block
+     */
+    public void setTerrain(Terrain terrain) {
+        this.terrain = terrain;
+    }
+
+    /**
+     * What animal is currently standing on block
+     */
+    public Animal getAnimal() {
+        return animal;
+    }
+
+    /**
+     * What animal is currently standing on block
+     */
+    public void setAnimal(Animal animal) {
+        this.animal = animal;
+    }
+
+
+    /**
+     * Row coordinate of block
+     */
+    public int getCoordX() {
+        return coordX;
+    }
+
+    /**
+     * Row coordinate of block
+     */
+    public void setCoordX(int coordX) {
+        this.coordX = coordX;
+    }
+
+    /**
+     * Column coordinate of block
+     */
+    public int getCoordY() {
+        return coordY;
+    }
+
+    /**
+     * Column coordinate of block
+     */
+    public void setCoordY(int coordY) {
+        this.coordY = coordY;
     }
 }

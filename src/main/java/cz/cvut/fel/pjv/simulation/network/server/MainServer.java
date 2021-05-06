@@ -2,6 +2,9 @@ package cz.cvut.fel.pjv.simulation.network.server;
 
 import cz.cvut.fel.pjv.simulation.network.server.view.View;
 
+/**
+ * Run this to start server side simulation application.
+ */
 public class MainServer {
     public static void main(String[] args) {
         SimulationServer simulationServer = new SimulationServer(8888);

@@ -9,14 +9,17 @@ import java.util.logging.Logger;
 import static cz.cvut.fel.pjv.simulation.CONF.ENERGY_FOR_MATING;
 import static cz.cvut.fel.pjv.simulation.utils.Utilities.getRandomNumber;
 
+/**
+ * Hare is an animal that moves around the map, gets eaten by fox and mates with other hare.
+ */
 public class Hare extends Animal implements Victim {
     private static final Logger LOG = Logger.getLogger(Hare.class.getName());
     public Hare(Block block) {
-        this.block = block;
-        this.energyForMating = getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX);
-        this.age = getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE);
-        this.energy = getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY);
-        this.direction = CONF.HARE_INIT_DIRECTION;
+        this.setBlock(block);
+        this.setEnergyForMating(getRandomNumber(CONF.ENERGY_FOR_MATING_MIN, CONF.ENERGY_FOR_MATING_MAX));
+        this.setAge(getRandomNumber(CONF.HARE_INIT_MIN_AGE, CONF.HARE_INIT_MAX_AGE));
+        this.setEnergy(getRandomNumber(CONF.HARE_INIT_MIN_ENERGY, CONF.HARE_INIT_MAX_ENERGY));
+        this.setDirection(CONF.HARE_INIT_DIRECTION);
     }
 
     public Hare() {
@@ -37,10 +40,10 @@ public class Hare extends Animal implements Victim {
         Hare newBorn = (Hare) createNewBorn(freeBlockForNewBorn);
 
 
-        if (simulation.isOnMyMap(freeBlockForNewBorn.coordX, freeBlockForNewBorn.coordY)) {
-            simulation.map.animals.add(newBorn);
-            simulation.map.numOfHare++;
-            simulation.map.numOfAnimals++;
+        if (simulation.isOnMyMap(freeBlockForNewBorn.getCoordX(), freeBlockForNewBorn.getCoordY())) {
+            simulation.map.getAnimals().add(newBorn);
+            simulation.map.setNumOfHare(simulation.map.getNumOfHare() + 1);
+            simulation.map.setNumOfAnimals(simulation.map.getNumOfAnimals() + 1);
             freeBlockForNewBorn.setAnimal(newBorn);
             mateChangeStats(otherAnimal);
             return true;
@@ -51,7 +54,7 @@ public class Hare extends Animal implements Victim {
                 try {
                     blockCopy = (Block) freeBlockForNewBorn.clone();
                     blockCopy.setAnimal(newBorn);
-                    if (simulation.simulationClient.setBlock(blockCopy.coordX, blockCopy.coordY, blockCopy)) {
+                    if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
                         LOG.info("Animal was born on another map.");
                         mateChangeStats(otherAnimal);
                         return true;
@@ -115,13 +118,13 @@ public class Hare extends Animal implements Victim {
     @Override
     protected boolean areReadyForMating(Animal otherAnimal) {
         if(
-                this.age < CONF.HARE_MATING_MIN_AGE
+                this.getAge() < CONF.HARE_MATING_MIN_AGE
                         ||
-                        otherAnimal.age < CONF.HARE_MATING_MIN_AGE
+                        otherAnimal.getAge() < CONF.HARE_MATING_MIN_AGE
                 ||
-                this.energyForMating < CONF.ENERGY_FOR_MATING
+                this.getEnergyForMating() < CONF.ENERGY_FOR_MATING
                 ||
-                otherAnimal.energyForMating < CONF.ENERGY_FOR_MATING
+                otherAnimal.getEnergyForMating() < CONF.ENERGY_FOR_MATING
         ){
             return false;
         }
@@ -130,10 +133,10 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected void nextDayChangeStats() {
-        this.energy -= CONF.HARE_DAILY_ENERGY_DECREASE;
-        this.age += CONF.HARE_DAILY_AGE_INCREASE;
-        if(this.energyForMating < ENERGY_FOR_MATING) {
-            this.energyForMating += CONF.ENERGY_FOR_MATING_DAILY_INCREASE;
+        this.setEnergy(this.getEnergy() - CONF.HARE_DAILY_ENERGY_DECREASE);
+        this.setAge(this.getAge() + CONF.HARE_DAILY_AGE_INCREASE);
+        if(this.getEnergyForMating() < ENERGY_FOR_MATING) {
+            this.setEnergyForMating(this.getEnergyForMating() + CONF.ENERGY_FOR_MATING_DAILY_INCREASE);
         }
     }
 
@@ -148,8 +151,8 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected void mateChangeStats(Animal otherAnimal) {
-        this.energyForMating = 0;
-        otherAnimal.energyForMating = 0;
+        this.setEnergyForMating(0);
+        otherAnimal.setEnergyForMating(0);
     }
 
     @Override
