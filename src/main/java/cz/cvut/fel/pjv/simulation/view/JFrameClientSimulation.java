@@ -44,7 +44,7 @@ public class JFrameClientSimulation extends JFrame implements ActionListener {
         mapPanel.setSize(new Dimension(500, 500));
         this.mapComponent = new MapComponent(this.simulation, mapPanel.getWidth());
         mapPanel.add(mapComponent);
-        LOG.info("map panel width: " + mapPanel.getWidth());
+        LOG.fine("map panel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));
@@ -69,7 +69,7 @@ public class JFrameClientSimulation extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
             case "Show stats":
-                LOG.info("Opening stats");
+                LOG.fine("Opening stats");
                 this.simulation.getView().openJFrameStats();
                 break;
         }

@@ -97,7 +97,7 @@ public class NetworkProtocol {
         try {
             out += SerializationUtils.toString(block);
         } catch (IOException e) {
-            LOG.info("BLOCK UUID serialized block failed, from server to client");
+            LOG.fine("BLOCK UUID serialized block failed, from server to client");
         }
         return out;
     }
@@ -230,7 +230,7 @@ public class NetworkProtocol {
             out += SerializationUtils.toString(blocks);
         } catch (IOException e) {
             e.printStackTrace();
-            LOG.info("Build state message map serialization failed");
+            LOG.fine("Build state message map serialization failed");
         }
         return out;
     }

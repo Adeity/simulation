@@ -88,7 +88,7 @@ public class JFrameServerSimulation extends JFrame implements ActionListener {
         mapPanel.setSize(new Dimension(width, heigth));
         this.mapComponent = new MapComponent(this.simulationServer, mapPanel.getWidth(), mapPanel.getHeight(), widthDimension, heightDimension);
         mapPanel.add(mapComponent);
-        LOG.info("mapPanel width: " + mapPanel.getWidth());
+        LOG.fine("mapPanel width: " + mapPanel.getWidth());
 
         verticalBox.add(mapPanel);
         verticalBox.add(Box.createVerticalStrut(50));
@@ -114,7 +114,7 @@ public class JFrameServerSimulation extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         switch (e.getActionCommand()) {
             case "Client1":
-                LOG.info("Opening client1 JFrame");
+                LOG.fine("Opening client1 JFrame");
                 this.simulationServer.getView().openJFrameSingleClientSimulation(0);
                 break;
             case "Client2":

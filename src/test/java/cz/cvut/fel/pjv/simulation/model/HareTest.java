@@ -2,6 +2,7 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
+import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -33,6 +34,51 @@ class HareTest {
                 hare2ExpectedNewEnergy,
                 hare2.getEnergyForMating()
         );
+    }
+
+    @Test
+    void test_hareCanGetKilledByFoxFromServer() {
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_setAnimalAtCoord_blankmap.txt", simulation);
+        simulation.setMap(map);
+        simulation.simulationClient = mock(SimulationClient.class);
+
+        when(simulation.simulationClient.getBlock(anyInt(), anyInt())).thenReturn(new Block(Block.Terrain.GRASS, new Hare(new Block(Block.Terrain.GRASS, 100, 100)), 1, 1));
+
+        Fox fox = new Fox(new Block(Block.Terrain.GRASS, -1, -1));
+        when(simulation.simulationClient.getBlock(-1, -1)).thenReturn(new Block(Block.Terrain.GRASS, fox, 1, 1));
+
+
+        Hare hare = spy(new Hare(new Block(Block.Terrain.GRASS, 0, 0)));
+        map.setAnimalAtCoord(hare, 0, 0);
+
+        hare.evaluate(simulation.map, simulation);
+
+        verify(hare, times(1)).willAnimalGetKilled(fox);
+    }
+
+    @Test
+    void test_hareCanMateWithHareFromServer() {
+        CONF.HARE_MATING_MIN_AGE = 0;
+        CONF.ENERGY_FOR_MATING = 0;
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_setAnimalAtCoord_blankmap.txt", simulation);
+        simulation.setMap(map);
+        simulation.simulationClient = mock(SimulationClient.class);
+
+        when(simulation.simulationClient.getBlock(anyInt(), anyInt())).thenReturn(new Block(Block.Terrain.GRASS, new Hare(new Block(Block.Terrain.GRASS, 100, 100)), 1, 1));
+
+        Hare hareFromServer = new Hare(new Block(Block.Terrain.GRASS, -1, -1));
+        when(simulation.simulationClient.getBlock(-1, -1)).thenReturn(new Block(Block.Terrain.GRASS, hareFromServer, -1, -1));
+
+
+        Hare hare = spy(new Hare(new Block(Block.Terrain.GRASS, 0, 0)));
+        map.setAnimalAtCoord(hare, 0, 0);
+
+        hare.evaluate(simulation.map, simulation);
+
+
+        verify(hare, times(1)).mate(simulation, hareFromServer);
     }
 
     @Test
@@ -108,7 +154,9 @@ class HareTest {
             "10"
     })
     void test_testTemplateMap_twoHareMateInFiveRounds(int numOfRounds) {
+        CONF.ENERGY_FOR_MATING_DAILY_INCREASE = 1;
         CONF.HARE_INIT_DIRECTION = null;
+        CONF.HARE_MATING_MIN_AGE = 0;
         CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoHareMateInFiveRounds.txt", simulation);
@@ -154,7 +202,8 @@ class HareTest {
 
             LOG.info("iteration: " + i + " | hare1 energy: " + hare1.getEnergyForMating());
             LOG.info("iteration: " + i + " | hare2 energy: " + hare2.getEnergyForMating());
-            map.evaluate();
+            simulation.simulateDay();
+            System.out.println(simulation.map);
             assertEquals(
                     2,
                     map.getNumOfAnimals()
@@ -162,12 +211,12 @@ class HareTest {
         }
 
         //  when they have enough energy for mating finally a new hare is born
-
+        System.out.println(simulation.map);
         LOG.info("Hare1 energy before last eval: " + hare1.getEnergyForMating());
         LOG.info("Hare2 energy before last eval: " + hare2.getEnergyForMating());
-        map.evaluate();
+        simulation.simulateDay();
 
-
+        System.out.println(simulation.map);
         LOG.info("Hare1 energy after last eval: " + hare1.getEnergyForMating());
         LOG.info("Hare2 energy after last eval: " + hare2.getEnergyForMating());
         assertEquals(
@@ -201,8 +250,8 @@ class HareTest {
                         hare1.getAge() >= minimumAge
         );
 
-        LOG.info("Min energy for mating: " + minimumEnergyForMating + " | Max energy for mating: " + maximumEnergyForMating);
-        LOG.info("Hare energy for mating on spawn: " + hare1.getEnergyForMating());
+        LOG.fine("Min energy for mating: " + minimumEnergyForMating + " | Max energy for mating: " + maximumEnergyForMating);
+        LOG.fine("Hare energy for mating on spawn: " + hare1.getEnergyForMating());
         assertTrue(
                 hare1.getEnergyForMating() <= maximumEnergyForMating
                         &&
@@ -249,7 +298,7 @@ class HareTest {
     }
 
     @Test
-    void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
+    void test_mockito_twoHareMateSevenTimesInARow_blankmap() {
         //  make sure newborns arent ready for mating
         CONF.FOX_MATING_MIN_AGE = 100;
         Simulation simulation = new Simulation();
@@ -277,7 +326,7 @@ class HareTest {
         Mockito.doReturn(true).when(hare1).areReadyForMating(hare2);
         Mockito.doReturn(true).when(hare2).areReadyForMating(hare1);
 
-        LOG.info("size of map: " + map.getAnimals().size());
+        LOG.fine("size of map: " + map.getAnimals().size());
 
         map.evaluate();
         assertEquals(

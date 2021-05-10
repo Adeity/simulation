@@ -150,7 +150,7 @@ class AnimalTest {
         expectedNumOfAnimals = 1;
         currentNumOfAnimalsAttribute = map.getNumOfAnimals();
         currentSizeOfAnimalsList = map.getAnimals().size();
-        LOG.info(map.toString());
+        LOG.fine(map.toString());
         assertEquals(
                 expectedNumOfAnimals,
                 currentNumOfAnimalsAttribute
@@ -226,12 +226,12 @@ class AnimalTest {
         map.setAnimalAtCoord(fox, 1, 1);
 
         int numOfRounds = 8;
-        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.fine("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = numOfRounds; i > 0; i--) {
-            LOG.info("before iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
+            LOG.fine("before iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
             map.evaluate();
             int expectedNumOfAnimals = i;
-            LOG.info("after iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
+            LOG.fine("after iteration: " + i + " | numOfAnimals: " + map.getAnimals().size());
             assertEquals(
                     expectedNumOfAnimals,
                     map.getNumOfAnimals()

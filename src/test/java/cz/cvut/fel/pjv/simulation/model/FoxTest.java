@@ -2,6 +2,7 @@ package cz.cvut.fel.pjv.simulation.model;
 
 import cz.cvut.fel.pjv.simulation.CONF;
 import cz.cvut.fel.pjv.simulation.Simulation;
+import cz.cvut.fel.pjv.simulation.network.client.SimulationClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -21,7 +22,10 @@ class FoxTest {
             "10"
     })
     void test_testTemplateMap_twoFoxesMateInFiveRounds(int numOfRounds) {
+        CONF.ENERGY_FOR_MATING_DAILY_INCREASE = 1;
+        CONF.HARE_MATING_MIN_AGE = 0;
         CONF.HARE_INIT_DIRECTION = null;
+        CONF.FOX_DAILY_ENERGY_DECREASE = 1;
         CONF.FOX_INIT_DIRECTION = null;
         Simulation simulation = new Simulation();
         Map map = new Map("test_twoFoxesMateInFiveRounds.txt", simulation);
@@ -73,11 +77,11 @@ class FoxTest {
                 fox2.getAge()
         );
 
-        LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
+        LOG.fine("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = 0; i < numOfRounds; i++) {
 
-            LOG.info("iteration: " + i + " | fox1 energy: " + fox1.getEnergyForMating());
-            LOG.info("iteration: " + i + " | fox2 energy: " + fox2.getEnergyForMating());
+            LOG.fine("iteration: " + i + " | fox1 energy: " + fox1.getEnergyForMating());
+            LOG.fine("iteration: " + i + " | fox2 energy: " + fox2.getEnergyForMating());
             map.evaluate();
             assertEquals(
                     2,
@@ -86,13 +90,13 @@ class FoxTest {
         }
 
         //  when they have enough energy for mating finally a new fox is born
-        LOG.info("Hare1 energy before last eval: " + fox1.getEnergyForMating());
-        LOG.info("Hare2 energy before last eval: " + fox2.getEnergyForMating());
+        LOG.fine("Hare1 energy before last eval: " + fox1.getEnergyForMating());
+        LOG.fine("Hare2 energy before last eval: " + fox2.getEnergyForMating());
         map.evaluate();
 
 
-        LOG.info("Hare1 energy after last eval: " + fox1.getEnergyForMating());
-        LOG.info("Hare2 energy after last eval: " + fox2.getEnergyForMating());
+        LOG.fine("Hare1 energy after last eval: " + fox1.getEnergyForMating());
+        LOG.fine("Hare2 energy after last eval: " + fox2.getEnergyForMating());
         assertEquals(
                 3,
                 map.getNumOfAnimals()
@@ -132,6 +136,27 @@ class FoxTest {
     }
 
     @Test
+    void test_foxCanInteractWithHareFromServer() {
+        Simulation simulation = new Simulation();
+        Map map = new Map("test_setAnimalAtCoord_blankmap.txt", simulation);
+        simulation.setMap(map);
+        simulation.simulationClient = mock(SimulationClient.class);
+
+        when(simulation.simulationClient.getBlock(anyInt(), anyInt())).thenReturn(new Block(Block.Terrain.GRASS, new Hare(new Block(Block.Terrain.GRASS, 100, 100)), 1, 1));
+
+        Hare hare = new Hare(new Block(Block.Terrain.GRASS, -1, -1));
+        when(simulation.simulationClient.getBlock(-1, -1)).thenReturn(new Block(Block.Terrain.GRASS, hare, 1, 1));
+
+
+        Fox fox = spy(new Fox(new Block(Block.Terrain.BUSH, 0, 0)));
+        map.setAnimalAtCoord(fox, 0, 0);
+
+        fox.evaluate(simulation.map, simulation);
+
+        verify(fox, times(1)).interact(simulation, hare);
+    }
+
+    @Test
     void test_mockito_twoFoxesMateSevenTimesInARow_blankmap() {
         //  make sure newborns arent ready for mating
         CONF.FOX_MATING_MIN_AGE = 100;
@@ -161,7 +186,7 @@ class FoxTest {
         Mockito.doReturn(true).when(fox1).areReadyForMating(fox2);
         Mockito.doReturn(true).when(fox2).areReadyForMating(fox1);
 
-        LOG.info("Size of map: " + map.getAnimals().size());
+        LOG.fine("Size of map: " + map.getAnimals().size());
 
         map.evaluate();
         assertEquals(
@@ -246,6 +271,8 @@ class FoxTest {
 
     @Test
     void test_foxDiesOfHunger() {
+        CONF.ENERGY_FOR_MATING_DAILY_INCREASE = 1;
+        CONF.FOX_DAILY_ENERGY_DECREASE = 1;
         Simulation simulation = new Simulation();
         Map map = new Map("test_foxDiesOfHunger.txt", simulation);
         simulation.setMap(map);
@@ -253,16 +280,18 @@ class FoxTest {
         Animal fox = map.getBlocks()[0][0].getAnimal();
 
         fox.setEnergy(5);
+        System.out.println(map);
 
         int numOfRounds = 4;
         LOG.info("-------------numofrounds: " + numOfRounds + " --------------------");
         for (int i = 0; i < numOfRounds; i++) {
-
+            System.out.println(map);
             LOG.info("iteration: " + i + " | fox1 energy: " + fox.getEnergy());
-            map.evaluate();
+            simulation.simulateDay();
+            System.out.println(map);
             assertEquals(
                     1,
-                    map.getNumOfAnimals()
+                    map.getAnimals().size()
             );
         }
 

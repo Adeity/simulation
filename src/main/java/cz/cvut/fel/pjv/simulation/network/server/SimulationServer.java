@@ -142,17 +142,17 @@ public class SimulationServer {
             while (true) {
                 if (running) {
 
-                    LOG.info("Running is true so I stop listening");
+                    LOG.fine("Running is true so I stop listening");
                     break;
                 }
-                LOG.info("Connection num is: " + connectionNum);
+                LOG.fine("Connection num is: " + connectionNum);
                 Socket clientSocket = serverSocket.accept();
                 if (running) {
-                    LOG.info("Simulation is running so server stops listening for client connections");
+                    LOG.fine("Simulation is running so server stops listening for client connections");
                     break;
                 }
                 if (numOfConnectedClients >= getMaxNumOfClients()) {
-                    LOG.info("There are already maximum of: "+ getMaxNumOfClients() + "  clients connected. Declining connection.");
+                    LOG.fine("There are already maximum of: "+ getMaxNumOfClients() + "  clients connected. Declining connection.");
                     continue;
                 }
                 serverSocket.getLocalSocketAddress();
@@ -166,7 +166,7 @@ public class SimulationServer {
                 connectionNum++;
                 t.start();
             }
-            LOG.info("Server stopped listening for client connections");
+            LOG.fine("Server stopped listening for client connections");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -200,26 +200,26 @@ public class SimulationServer {
 
         for (TableItem tableItem : table) {
             if (tableItem.minX == 0 && tableItem.minY == 0) {
-                LOG.info("Position 0 is taken");
+                LOG.fine("Position 0 is taken");
                 positions[0] = true;
             }
             else if (tableItem.minX == 0 && tableItem.minY == localMapSize) {
-                LOG.info("Position 1 is taken");
+                LOG.fine("Position 1 is taken");
                 positions[1] = true;
             }
             else if (tableItem.minX == localMapSize && tableItem.minY == 0) {
-                LOG.info("Position 2 is taken");
+                LOG.fine("Position 2 is taken");
                 positions[2] = true;
             }
             else if (tableItem.minX == localMapSize && tableItem.minY == localMapSize) {
-                LOG.info("Position 3 is taken");
+                LOG.fine("Position 3 is taken");
                 positions[3] = true;
             }
         }
 
         for (int i = 0; i < positions.length; i++) {
             if (!positions[i]) {
-                LOG.info("Adding client to position: " + i);
+                LOG.fine("Adding client to position: " + i);
                 this.table.add(TableItem.getInstance(i, this.localMapSize, sst, "READY"));
                 this.setNumOfConnectedClients(table.size());
                 break;
@@ -235,7 +235,7 @@ public class SimulationServer {
         this.table.sort(new TableItemComparator());
         ArrayList<Block[][]> blocks = new ArrayList<>();
         for (TableItem tableItem : table) {
-            LOG.info("Adding blocks from tableItem with position: " + tableItem.getPosition());
+            LOG.fine("Adding blocks from tableItem with position: " + tableItem.getPosition());
             blocks.add(tableItem.getBlocks());
         }
         return blocks;
@@ -258,7 +258,7 @@ public class SimulationServer {
         }
         this.table.remove(tableItemToRemove);
         this.setNumOfConnectedClients(table.size());
-        LOG.info("Connection was removed from table");
+        LOG.fine("Connection was removed from table");
     }
 
 //    public void addConnectionToTableIfThereIsntAlready(SimulationServerThread sst, String status) {
@@ -283,17 +283,17 @@ public class SimulationServer {
      * @return the connection
      */
     public TableItem findTableItemWithConnectionByGlobalCoordinates (int globalX, int globalY) {
-        LOG.info("Finding connection by global coordinates: " + globalX + ", " + globalY);
+        LOG.fine("Finding connection by global coordinates: " + globalX + ", " + globalY);
         TableItem connectionTarget = null;
         for (TableItem tableItem : table) {
-            LOG.info("This one has: [minX, globalX, maxX] (" + tableItem.minX + ", " + globalX + ", " + tableItem.maxX + ") [minY, globalY, maxY] (" + tableItem.minY + ", " + globalY + ", " + tableItem.maxY + ")");
+            LOG.fine("This one has: [minX, globalX, maxX] (" + tableItem.minX + ", " + globalX + ", " + tableItem.maxX + ") [minY, globalY, maxY] (" + tableItem.minY + ", " + globalY + ", " + tableItem.maxY + ")");
             if (
                             globalX >= tableItem.minX
                             && globalX <= tableItem.maxX
                             && globalY >= tableItem.minY
                             && globalY <= tableItem.maxY
             ) {
-                LOG.info("This is the connection I was looking for. Breaking cycle.");
+                LOG.fine("This is the connection I was looking for. Breaking cycle.");
                 connectionTarget = tableItem;
                 break;
             }
@@ -443,7 +443,7 @@ public class SimulationServer {
             public void run() {
                 while (true) {
                     try {
-                        sleep(3000);
+                        sleep(100);
                     } catch (InterruptedException e) {
 
                     }

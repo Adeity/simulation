@@ -52,7 +52,7 @@ public abstract class Animal implements Serializable {
     public void evaluate(Map map, Simulation simulation) {
 //        Utilities.addHandlerToLogger(LOG);
         this.setEvaluating(true);
-        LOG.info("Evaluating now: " + this.toString());
+        LOG.fine("Evaluating now: " + this.toString());
         Block[] surroundingBlocks = simulation.getSurroundingBlocks(this.getBlock());
 
         for (Block block : surroundingBlocks) {
@@ -68,14 +68,14 @@ public abstract class Animal implements Serializable {
                 continue;
             }
             if(this.interact(simulation, otherAnimal)) {
-                LOG.info(this + " interact with " + otherAnimal);
+                LOG.fine(this + " interact with " + otherAnimal);
                 this.setDidEvaluate(true);
                 otherAnimal.setDidEvaluate(true);
                 break;
             }
         }
         if(!this.isDidEvaluate()) {
-            LOG.info("Animals moves");
+            LOG.fine("Animals moves");
             move(simulation);
             this.setDidEvaluate(true);
         }
@@ -88,48 +88,48 @@ public abstract class Animal implements Serializable {
     protected void move(Simulation simulation) {
         int changeDirectionCounter = 3;
         Block block = null;
-        LOG.info("Animal " + this.toString() + " is looking to move");
+        LOG.fine("Animal " + this.toString() + " is looking to move");
         if (this.getDirection() == Direction.RIGHT) {
             block = simulation.getBlock(this.getBlock().getCoordX(), this.getBlock().getCoordY() + 1);
-            LOG.info("Animal " + toString() + " tries to move right to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() + 1));
+            LOG.fine("Animal " + toString() + " tries to move right to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() + 1));
             if (block == null) {
-                LOG.info("The block is however null");
+                LOG.fine("The block is however null");
             }
             else {
-                LOG.info("The block is not null");
+                LOG.fine("The block is not null");
             }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.DOWN) {
             block = simulation.getBlock(this.getBlock().getCoordX() + 1, this.getBlock().getCoordY());
-            LOG.info("Animal " + toString() + " tries to move down to block at " + (this.getBlock().getCoordX() + 1) + ", " + this.getBlock().getCoordY());
+            LOG.fine("Animal " + toString() + " tries to move down to block at " + (this.getBlock().getCoordX() + 1) + ", " + this.getBlock().getCoordY());
             if (block == null) {
-                LOG.info("The block is however null");
+                LOG.fine("The block is however null");
             }
             else {
-                LOG.info("The block is not null");
+                LOG.fine("The block is not null");
             }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.LEFT) {
             block = simulation.getBlock(this.getBlock().getCoordX(), this.getBlock().getCoordY() - 1);
-            LOG.info("Animal " + toString() + " tries to move left to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() - 1));
+            LOG.fine("Animal " + toString() + " tries to move left to block at " + this.getBlock().getCoordX() + ", " + (this.getBlock().getCoordY() - 1));
             if (block == null) {
-                LOG.info("The block is however null");
+                LOG.fine("The block is however null");
             }
             else {
-                LOG.info("The block is not null");
+                LOG.fine("The block is not null");
             }
             actualMove(simulation, block);
         }
         else if (this.getDirection() == Direction.UP) {
             block = simulation.getBlock(this.getBlock().getCoordX() - 1, this.getBlock().getCoordY());
-            LOG.info("Animal " + toString() + " tries to move up to block at " + (this.getBlock().getCoordX() - 1) + ", " + this.getBlock().getCoordY());
+            LOG.fine("Animal " + toString() + " tries to move up to block at " + (this.getBlock().getCoordX() - 1) + ", " + this.getBlock().getCoordY());
             if (block == null) {
-                LOG.info("The block is however null");
+                LOG.fine("The block is however null");
             }
             else {
-                LOG.info("The block is not null");
+                LOG.fine("The block is not null");
             }
             actualMove(simulation, block);
         }
@@ -144,7 +144,7 @@ public abstract class Animal implements Serializable {
      */
     protected void actualMove(Simulation simulation, Block block) {
         if (canMoveToBlock(block)) {
-            LOG.info("Evaluated that animal " + this.toString() + " at block: " + block.getCoordX() + ", " + block.getCoordY() + " could move to block");
+            LOG.fine("Evaluated that animal " + this.toString() + " at block: " + block.getCoordX() + ", " + block.getCoordY() + " could move to block");
             if (simulation.isOnMyMap(block.getCoordX(), block.getCoordY())) {
                 simulation.map.deleteAnimalAtBlock(this.getBlock());
                 simulation.map.setAnimalAtCoord(this, block.getCoordX(), block.getCoordY());
@@ -155,10 +155,10 @@ public abstract class Animal implements Serializable {
                     try {
                         blockCopy = (Block) block.clone();
                         blockCopy.setAnimal(this);
-                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.getCoordX() + ", " + block.getCoordY());
-//                        LOG.info("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
+                        LOG.fine("Animal " + this.toString() + " wants to move to block with coordinates: " + block.getCoordX() + ", " + block.getCoordY());
+//                        LOG.fine("Animal " + this.toString() + " wants to move to block with coordinates: " + block.coordX + ", " + block.coordY);
                         if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
-                            LOG.info("Animal moved to another map");
+                            LOG.fine("Animal moved to another map");
                             this.getBlock().setAnimal(null);
                             this.die(simulation);
                         }
@@ -172,7 +172,7 @@ public abstract class Animal implements Serializable {
             }
         }
         else {
-            LOG.info("Evaluated that animal " + this.toString() + " could NOT move to desired block");
+            LOG.fine("Evaluated that animal " + this.toString() + " could NOT move to desired block");
             changeDirection();
         }
     }
@@ -182,26 +182,26 @@ public abstract class Animal implements Serializable {
      */
     protected void changeDirection() {
         if (this.getDirection() == Direction.RIGHT) {
-            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.DOWN);
+            LOG.fine("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.DOWN);
             setDirection(Direction.DOWN);
             return;
         }
         else if (this.getDirection() == Direction.DOWN) {
-            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.LEFT);
+            LOG.fine("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.LEFT);
             setDirection(Direction.LEFT);
             return;
         }
         else if (this.getDirection() == Direction.LEFT) {
-            LOG.info("Changing animals" + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.UP);
+            LOG.fine("Changing animals" + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.UP);
             setDirection(Direction.UP);
             return;
         }
         else if (this.getDirection() == Direction.UP) {
-            LOG.info("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.RIGHT);
+            LOG.fine("Changing animals " + this.toString() + " direction, current direction: " + this.getDirection() + " next direction: " + Direction.RIGHT);
             setDirection(Direction.RIGHT);
             return;
         }
-        LOG.info("Changing animals " + this.toString() + " direction method where animal doesnt have direction");
+        LOG.fine("Changing animals " + this.toString() + " direction method where animal doesnt have direction");
     }
 
     /**
@@ -210,9 +210,9 @@ public abstract class Animal implements Serializable {
      * @return true if animal can move to desired block. false otherwise
      */
     private boolean canMoveToBlock(Block block) {
-        LOG.info("Can move to block: " + block + "?");
+        LOG.fine("Can move to block: " + block + "?");
         if (block != null) {
-            LOG.info(block.toString());
+            LOG.fine(block.toString());
         }
         return block != null && block.getTerrain() != Block.Terrain.WATER && block.getAnimal() == null;
     }

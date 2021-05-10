@@ -44,7 +44,7 @@ public class SimulationClient implements Runnable{
         try {
             this.socket = new Socket(host, port);
         } catch (IOException e) {
-            LOG.info("Trouble connecting to server");
+            LOG.fine("Trouble connecting to server");
             return false;
         }
 
@@ -65,7 +65,7 @@ public class SimulationClient implements Runnable{
     public void close() {
         try{
             LOG.severe("Closing client connection");
-            LOG.info("Closing client connection");
+            LOG.fine("Closing client connection");
             socket.close();
         } catch (IOException e) {
             e.printStackTrace();
@@ -79,14 +79,14 @@ public class SimulationClient implements Runnable{
             String out;
 
             while ((in = inReader.readLine()) != null) {
-                LOG.info("S->C " + in);
+                LOG.fine("S->C " + in);
                 String[] columns = in.split(" ");
                 String messageType = columns[0];
 
                 if (messageType.equals("GO")) { // command from server came to simulate day
 
                     outWriter.println("STATE GO");
-                    LOG.info("C->S " + "STATE GO");
+                    LOG.fine("C->S " + "STATE GO");
 
                     Thread t = new Thread(new Runnable() {
                         @Override
@@ -109,10 +109,10 @@ public class SimulationClient implements Runnable{
                         continue;
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
-                        LOG.info("UUID from set_block_result matches");
-                        LOG.info("Received resposnse to SET_BLOCK request: " + in);
+                        LOG.fine("UUID from set_block_result matches");
+                        LOG.fine("Received resposnse to SET_BLOCK request: " + in);
                         synchronized (lock) {
-                            LOG.info("Setting response to my SET_BLOCK request and notifying");
+                            LOG.fine("Setting response to my SET_BLOCK request and notifying");
                             this.currentRequest.setResponse(in);
                             lock.notify();
                         }
@@ -137,9 +137,9 @@ public class SimulationClient implements Runnable{
                         continue;
                     }
                     if (currentRequest.uuid.equals(messageUUID)) {
-                        LOG.info("UUID from block matches");
+                        LOG.fine("UUID from block matches");
                         synchronized (lock) {
-                            LOG.info("Setting response to my GET_BLOCK request and notifying");
+                            LOG.fine("Setting response to my GET_BLOCK request and notifying");
                             this.currentRequest.setResponse(in);
                             lock.notify();
                         }
@@ -160,7 +160,7 @@ public class SimulationClient implements Runnable{
 
                     Block block = this.simulation.map.getBlock(coordX, coordY);
                     outWriter.println(NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, block));
-                    LOG.info("C->S " + NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, block));
+                    LOG.fine("C->S " + NetworkProtocol.buildBlockMessage(messageUUID, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, block));
                 }
 
                 else if (messageType.equals("SET_BLOCK")) { //  server asks to set local block, includes serialized version of new block to be set on current local block
@@ -185,7 +185,7 @@ public class SimulationClient implements Runnable{
                         String response = NetworkProtocol.buildSetBlockResultMessage(uuid, coordX, coordY, globalX, globalY, requestorMinX, requestorMinY, resultStr);
 
                         outWriter.println(response);
-                        LOG.info("C->S " + response);
+                        LOG.fine("C->S " + response);
                     } catch (ClassNotFoundException | IOException e) {
                         e.printStackTrace();
                     }
@@ -214,14 +214,14 @@ public class SimulationClient implements Runnable{
 
         synchronized(lock){
             outWriter.println(currentRequest.getRequest());
-            LOG.info("My GET_BLOCK request to server: C->S " + currentRequest.getRequest());
-//            LOG.info("C->S " + currentRequest.getRequest());
+            LOG.fine("My GET_BLOCK request to server: C->S " + currentRequest.getRequest());
+//            LOG.fine("C->S " + currentRequest.getRequest());
 
             try {
-                LOG.info("Calling wait in getBlock method");
+                LOG.fine("Calling wait in getBlock method");
                 lock.wait();
             } catch (InterruptedException e) {
-                LOG.info("getBlock wait was interrupted");
+                LOG.fine("getBlock wait was interrupted");
             }
         }
 //
@@ -236,23 +236,23 @@ public class SimulationClient implements Runnable{
 //                return null;
 //            }
 //        }
-        LOG.info("Response to my GET_BLOCK request from server: " + "S->C " + currentRequest.getResponse());
-//        LOG.info("S->C " + currentRequest.getResponse());
+        LOG.fine("Response to my GET_BLOCK request from server: " + "S->C " + currentRequest.getResponse());
+//        LOG.fine("S->C " + currentRequest.getResponse());
 
         String[] response = currentRequest.response.split(" ");
         Block block;
         try {
             block = (Block) SerializationUtils.fromString(response[8]);
         } catch (IOException  | ClassNotFoundException e) {
-            LOG.info("Deserialization of block failed");
+            LOG.fine("Deserialization of block failed");
             return null;
         }
         currentRequest = null;
         if (block == null) {
-            LOG.info("Networking received block: null and returning it to simulation " + x + " " + y);
+            LOG.fine("Networking received block: null and returning it to simulation " + x + " " + y);
         }
         else {
-            LOG.info("Networking received block: " + block.toString() + " and returning it to simulation " + x + " " + y);
+            LOG.fine("Networking received block: " + block.toString() + " and returning it to simulation " + x + " " + y);
         }
 
         return block;
@@ -266,7 +266,7 @@ public class SimulationClient implements Runnable{
      * @return true if server sends back positive response. false otherwise
      */
     public boolean setBlock(int x, int y, Block block) {
-        LOG.info("Trying to set block with relative coordinates to me: " + x + ", " + y + " block with x attribute: " + x + ", " + y + " Tostring: " + block.toString());
+        LOG.fine("Trying to set block with relative coordinates to me: " + x + ", " + y + " block with x attribute: " + x + ", " + y + " Tostring: " + block.toString());
         String uuid = UUID.randomUUID().toString();
         currentRequest = new Request(
                 NetworkProtocol.buildSetBlockMessage(x, y, uuid, block),
@@ -276,13 +276,13 @@ public class SimulationClient implements Runnable{
 
         synchronized(lock){
             outWriter.println(currentRequest.request);
-            LOG.info("C->S " + currentRequest.getRequest());
+            LOG.fine("C->S " + currentRequest.getRequest());
             boolean finished = false;
             try {
-                LOG.info("Calling wait in setBlock method");
+                LOG.fine("Calling wait in setBlock method");
                 lock.wait();
             } catch (InterruptedException e) {
-                LOG.info("setBlock wait was interrupted");
+                LOG.fine("setBlock wait was interrupted");
             }
         }
 //        synchronized (currentRequest) {
@@ -298,14 +298,14 @@ public class SimulationClient implements Runnable{
             return false;
         }
 
-        LOG.info("S->C " + currentRequest.getResponse());
+        LOG.fine("S->C " + currentRequest.getResponse());
         String[] columns = currentRequest.response.split(" ");
 
         String booleanResponseStr = columns[8];
 
         boolean booleanResponse = booleanResponseStr.equals("TRUE") || booleanResponseStr.equals("true") || booleanResponseStr.equals("True");
 
-        LOG.info("Received set block result: " + booleanResponse);
+        LOG.fine("Received set block result: " + booleanResponse);
 
         currentRequest = null;
 
@@ -318,7 +318,7 @@ public class SimulationClient implements Runnable{
     public void sendStateReady() {
         String response = NetworkProtocol.buildStateReadyMessage();
         outWriter.println(response);
-        LOG.info("C->S " + response);
+        LOG.fine("C->S " + response);
     }
 
     /**
@@ -327,7 +327,7 @@ public class SimulationClient implements Runnable{
     public void sendStateSet() {
         String response = NetworkProtocol.buildStateSetMessage(this.simulation.map.getBlocks());
         outWriter.println(response);
-        LOG.info("C->S " + response);
+        LOG.fine("C->S " + response);
         simulation.getView().repaintJFrameClientSimulation();
         simulation.getView().repaintJFrameStats();
     }

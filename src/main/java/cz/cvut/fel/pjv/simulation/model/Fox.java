@@ -78,12 +78,12 @@ public class Fox extends Animal implements Killer{
 
     @Override
     protected boolean mate(Simulation simulation, Animal otherAnimal) {
-        LOG.info(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
+        LOG.fine(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
         mateChangeStats(otherAnimal);
-        LOG.info("Asking simulation to find free block for mating.");
+        LOG.fine("Asking simulation to find free block for mating.");
         Block freeBlockForNewBorn = simulation.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
-            LOG.info("No space for mating");
+            LOG.fine("No space for mating");
             return false;
         }
 
@@ -105,7 +105,7 @@ public class Fox extends Animal implements Killer{
                     blockCopy = (Block) freeBlockForNewBorn.clone();
                     blockCopy.setAnimal(newBorn);
                     if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
-                        LOG.info("Animal was born on another map.");
+                        LOG.fine("Animal was born on another map.");
                         mateChangeStats(otherAnimal);
                         return true;
                     }

@@ -58,7 +58,7 @@ public class Map implements Serializable{
      */
     public Map(String filename, Simulation simulation) {
         this.setSimulation(simulation);
-        LOG.info(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename);
+        LOG.fine(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename);
         try (
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(CONF.MAP_TEMPLATE_DIRECTORY + CONF.fS + filename), StandardCharsets.UTF_8));
                 )
@@ -74,7 +74,7 @@ public class Map implements Serializable{
                     }
                 }
                 catch (NumberFormatException e) {
-                    LOG.info("Template is invalid!");
+                    LOG.fine("Template is invalid!");
                 }
                 if(line.equals("----------")) {
                     break;
@@ -91,7 +91,7 @@ public class Map implements Serializable{
                 line = br.readLine();
                 String[] blocks = line.split(" ");
                 if(blocks.length != this.getSizeOfMap()) {
-                    LOG.info("Wrong amount of blocks in map template.");
+                    LOG.fine("Wrong amount of blocks in map template.");
                     return;
                 }
                 for (int k = 0; k < blocks.length; k++) {
@@ -154,7 +154,7 @@ public class Map implements Serializable{
             br.close();
         }
         catch (FileNotFoundException | UnsupportedEncodingException e) {
-            LOG.info("map not found");
+            LOG.fine("map not found");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -165,7 +165,7 @@ public class Map implements Serializable{
      * Evaluates each animal. It gets rid of dead animals and shuffles the list at the end.
      */
     public void evaluate() {
-        LOG.info("Starting evaluation of day. There are: " + this.getAnimals().size() + " animals.");
+        LOG.fine("Starting evaluation of day. There are: " + this.getAnimals().size() + " animals.");
         LOG.setLevel(Level.INFO);
         for (int i = 0; i < getAnimals().size(); i++) {
             Animal a = getAnimals().get(i);
@@ -206,7 +206,7 @@ public class Map implements Serializable{
         }
         //  get rid of dead animals now that they have been accounted for
         this.getAnimals().removeIf(a -> a.isDead());
-        LOG.info("Done evaluating");
+        LOG.fine("Done evaluating");
 
         Collections.shuffle(getAnimals());
     }
@@ -294,7 +294,7 @@ public class Map implements Serializable{
             return getBlocks()[coordX][coordY];
         }
         catch (ArrayIndexOutOfBoundsException e) {
-//            LOG.info(e.getMessage());
+//            LOG.fine(e.getMessage());
             return null;
         }
     }
@@ -471,7 +471,7 @@ public class Map implements Serializable{
         else if(a instanceof Fox) {
             setNumOfFoxes(getNumOfFoxes() + 1);
         }
-        LOG.info("Adding animal: " + a.toString() + " to animals list");
+        LOG.fine("Adding animal: " + a.toString() + " to animals list");
         this.getAnimals().add(a);
         setNumOfAnimals(getNumOfAnimals() + 1);
     }
@@ -490,7 +490,7 @@ public class Map implements Serializable{
         a.setDidEvaluate(true);
 
         if (!this.getAnimals().contains(a)) { // this is very likely
-            LOG.info("Animal came from server, so I must put it to queue before adding it straigth to animals list.");
+            LOG.fine("Animal came from server, so I must put it to queue before adding it straigth to animals list.");
             getAnimalQueue().add(a);
         }
         if(a instanceof  Hare) {
@@ -519,7 +519,7 @@ public class Map implements Serializable{
             this.getBlocks()[block.getCoordX()][block.getCoordY()].setAnimal(null);
         }
         else {
-            LOG.info("There is no animal on this block");
+            LOG.fine("There is no animal on this block");
         }
     }
 
@@ -527,15 +527,15 @@ public class Map implements Serializable{
      * Print stats of current state of map
      */
     public void printStats() {
-        LOG.info("Size of map: " + this.getSizeOfMap());
-        LOG.info("Num of grass blocks: " + getNumOfGBlocks() + " | Num of grass with grains blocks: " + getNumOfRBlocks() + " | Num of grass with water blocks: " + getNumOfWBlocks() + " | Num of bush blocks: " + getNumOfBBlocks());
-        LOG.info("Number of animals in animals list: " + this.getAnimals().size());
-        LOG.info("Animals in animals list: ");
+        LOG.fine("Size of map: " + this.getSizeOfMap());
+        LOG.fine("Num of grass blocks: " + getNumOfGBlocks() + " | Num of grass with grains blocks: " + getNumOfRBlocks() + " | Num of grass with water blocks: " + getNumOfWBlocks() + " | Num of bush blocks: " + getNumOfBBlocks());
+        LOG.fine("Number of animals in animals list: " + this.getAnimals().size());
+        LOG.fine("Animals in animals list: ");
         for (Animal a : this.getAnimals()) {
-            LOG.info(a.toString());
+            LOG.fine(a.toString());
         }
-        LOG.info("Num of foxes: " + getNumOfFoxes());
-        LOG.info("Num of hare: " + getNumOfHare());
+        LOG.fine("Num of foxes: " + getNumOfFoxes());
+        LOG.fine("Num of hare: " + getNumOfHare());
 
     }
 

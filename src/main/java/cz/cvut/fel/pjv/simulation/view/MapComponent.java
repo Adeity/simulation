@@ -150,7 +150,7 @@ public class MapComponent extends JComponent {
     private class MouseHandler implements MouseListener {
         @Override
         public void mouseClicked(MouseEvent e) {
-            LOG.info(e.paramString());
+            LOG.fine(e.paramString());
         }
 
         @Override

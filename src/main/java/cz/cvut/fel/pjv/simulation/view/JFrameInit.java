@@ -600,7 +600,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                 if(pathnames != null) {
                     for(String pathname : pathnames) {
                         if(pathname.equals(templateName.getText())) {
-                            LOG.info("Template found: " + pathname);
+                            LOG.fine("Template found: " + pathname);
                             templateFound = true;
                             break;
                         }
@@ -610,7 +610,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                     cardLayout.show(c, "cardParams");
                     break;
                 }
-                LOG.info("Template " + templateName.getText() + " not found");
+                LOG.fine("Template " + templateName.getText() + " not found");
                 cardLayout.show(c, "cardTemplateError");
                 break;
             case "SAVE_TO_PARAMS":
@@ -627,7 +627,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                 if(pathnamesSaves != null) {
                     for(String pathname : pathnamesSaves) {
                         if(pathname.equals(saveName.getText())) {
-                            LOG.info("Save found: " + pathname);
+                            LOG.fine("Save found: " + pathname);
                             saveFound = true;
                             break;
                         }
@@ -637,7 +637,7 @@ public class JFrameInit extends JFrame implements ActionListener{
                     cardLayout.show(c, "cardParams");
                     break;
                 }
-                LOG.info("Save " + saveName.getText() + " not found");
+                LOG.fine("Save " + saveName.getText() + " not found");
                 cardLayout.show(c, "cardSaveError");
                 break;
             case "FROM_PARAM_TO_TEMPLATE_PANEL":

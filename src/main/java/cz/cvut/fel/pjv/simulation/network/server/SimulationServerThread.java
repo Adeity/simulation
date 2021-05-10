@@ -40,21 +40,21 @@ public class SimulationServerThread implements Runnable {
             String message, outputLine;
 
             //  Initiate conversation with client
-//            outWriter.println("MAP " + simulationServer.localMapSize);
-//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+            outWriter.println("MAP " + simulationServer.localMapSize);
+            LOG.fine("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
 
 //              SHOWCASE
-            outWriter.println("MAP showcase1.txt");
-//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
+//            outWriter.println("MAP showcase2.txt");
+//            LOG.fine("S->C" + Thread.currentThread().getName() + " MAP map10.txt");
 
 
-//            LOG.info("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
+//            LOG.fine("S->C" + Thread.currentThread().getName() + " MAP " + simulationServer.localMapSize);
 
             SimpleDateFormat formatter= new SimpleDateFormat("yyyy-MM-dd 'at' HH:mm:ss z");
 
             while ((message = inReader.readLine()) != null) {
-//                LOG.info("C"+Thread.currentThread().getName()+"->S " + message);
-                LOG.info("C"+Thread.currentThread().getName()+"->S " + message);
+//                LOG.fine("C"+Thread.currentThread().getName()+"->S " + message);
+                LOG.fine("C"+Thread.currentThread().getName()+"->S " + message);
                 String[] columns = message.split(" ");
 
                 String messageType = columns[0];
@@ -82,7 +82,7 @@ public class SimulationServerThread implements Runnable {
                 }
                 else if (messageType.equals("GET_BLOCK")) { // client sends GET_BLOCK request, server reroutes to another connection, or sends response straigth back, if there is no fitting connection which owns clients desired block
                     //  GET_BLOCK UUID -1 -1
-                     LOG.info("Received GET_BLOCK request");
+                     LOG.fine("Received GET_BLOCK request");
                     String uuid = columns[1];
                     int relativeX = Integer.parseInt(columns[2]);
                     int relativeY = Integer.parseInt(columns[3]);
@@ -93,22 +93,22 @@ public class SimulationServerThread implements Runnable {
                     int globalY = globaCoords[1];
 
                     TableItem thisConnection = this.simulationServer.findTableItemByConnection(this);
-                    LOG.info("Found that connection asking for this blocks has global coordinates: [minX, maxX][minY, maxY]: " + thisConnection.minX + ", " + thisConnection.maxX + " | " + thisConnection.minY + ", " + thisConnection.maxY);
+                    LOG.fine("Found that connection asking for this blocks has global coordinates: [minX, maxX][minY, maxY]: " + thisConnection.minX + ", " + thisConnection.maxX + " | " + thisConnection.minY + ", " + thisConnection.maxY);
 
                     TableItem targetConnection = this.simulationServer.findTableItemWithConnectionByGlobalCoordinates(globalX, globalY);
 
 
                     if (targetConnection == null) {
-                        LOG.info("Found that connection who was that block doesnt exist. Sending back null block");
+                        LOG.fine("Found that connection who was that block doesnt exist. Sending back null block");
 
                         String response = NetworkProtocol.buildBlockMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY,null);
                         outWriter.println(response);
-//                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
-                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
+//                        LOG.fine("S->C" + Thread.currentThread().getName() + " " + response);
+                        LOG.fine("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
 
-                     LOG.info("Found that connection who was that block is connection with global coordinates: [minX, maxX][minY, maxY]: " + targetConnection.minX + ", " + targetConnection.maxX + " | " + targetConnection.minY + ", " + targetConnection.maxY);
+                     LOG.fine("Found that connection who was that block is connection with global coordinates: [minX, maxX][minY, maxY]: " + targetConnection.minX + ", " + targetConnection.maxX + " | " + targetConnection.minY + ", " + targetConnection.maxY);
 
 
                      SimulationServerThread connection = targetConnection.getConnection();
@@ -147,8 +147,8 @@ public class SimulationServerThread implements Runnable {
                         result = false;
                         response = NetworkProtocol.buildSetBlockResultMessage(uuid, relativeX, relativeY, globalX, globalY, thisConnection.minX, thisConnection.minY, "FALSE");
                         outWriter.println(response);
-//                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
-                        LOG.info("S->C" + Thread.currentThread().getName() + " " + response);
+//                        LOG.fine("S->C" + Thread.currentThread().getName() + " " + response);
+                        LOG.fine("S->C" + Thread.currentThread().getName() + " " + response);
                         continue;
                     }
                      SimulationServerThread connection = targetConnection.getConnection();
@@ -247,8 +247,8 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
-        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     /**
@@ -267,16 +267,16 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
-        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     /**
      * send GO command to client
      */
     synchronized public void go() {
-//        LOG.info("S->C" + Thread.currentThread().getName() + " GO");
-        LOG.info("S->C" + Thread.currentThread().getName() + " GO");
+//        LOG.fine("S->C" + Thread.currentThread().getName() + " GO");
+        LOG.fine("S->C" + Thread.currentThread().getName() + " GO");
         outWriter.println("GO");
     }
 
@@ -303,8 +303,8 @@ public class SimulationServerThread implements Runnable {
                 uuid
         );
         outWriter.println(currentRequest.getRequest());
-//        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
-        LOG.info("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+//        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
+        LOG.fine("S->C" + Thread.currentThread().getName() + " " + currentRequest.getRequest());
     }
 
     /**
@@ -320,7 +320,7 @@ public class SimulationServerThread implements Runnable {
     synchronized public void setBlockResult(String uuid, int targetX, int targetY, int globalX, int globalY, int minX, int minY, String result) {
         String answerToClient = NetworkProtocol.buildSetBlockResultMessage(uuid, targetX, targetY, globalX, globalY, minX, minY, result);
         outWriter.println(answerToClient);
-        LOG.info("S->C" + Thread.currentThread().getName() + " " + answerToClient);
-        LOG.info("S->C" + Thread.currentThread().getName() + " " + answerToClient);
+        LOG.fine("S->C" + Thread.currentThread().getName() + " " + answerToClient);
+        LOG.fine("S->C" + Thread.currentThread().getName() + " " + answerToClient);
     }
 }

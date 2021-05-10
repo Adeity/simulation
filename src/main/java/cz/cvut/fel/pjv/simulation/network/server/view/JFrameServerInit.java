@@ -194,8 +194,8 @@ public class JFrameServerInit extends JFrame implements ActionListener {
                     }
                 });
                 t.start();
-                LOG.info("Simulation server started listening for clients on port: " + simulationServer.getPort());
-                LOG.info("Each local map size was set to: " + eachLocalMapsize);
+                LOG.fine("Simulation server started listening for clients on port: " + simulationServer.getPort());
+                LOG.fine("Each local map size was set to: " + eachLocalMapsize);
                 cardLayout.show(c, "cardWaitRoom");
                 break;
             case "GO":
@@ -252,7 +252,7 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         btnBackFromMapPanel.setActionCommand("BACK_FROM_MAP_SIZE");
         btnOkFromMapPanel.setActionCommand("OK_FROM_MAP_SIZE");
         btnGoFromWaitPanel.setActionCommand("GO");
-        LOG.info("Action commands were added to buttons");
+        LOG.fine("Action commands were added to buttons");
     }
 
     /**
@@ -266,7 +266,7 @@ public class JFrameServerInit extends JFrame implements ActionListener {
         btnBackFromMapPanel.addActionListener(this);
         btnOkFromMapPanel.addActionListener(this);
         btnGoFromWaitPanel.addActionListener(this);
-        LOG.info("Action listeners were added to buttons");
+        LOG.fine("Action listeners were added to buttons");
     }
 
     /**

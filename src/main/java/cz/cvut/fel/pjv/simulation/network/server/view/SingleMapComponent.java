@@ -98,7 +98,7 @@ public class SingleMapComponent extends JComponent {
                     animalColor = Colors.HARE;
                 }
 
-                LOG.info("i index is: " + i + " | j index is: " + j);
+                LOG.fine("i index is: " + i + " | j index is: " + j);
                 if (this.terrainGrid[i][j] == null) {
                     this.terrainGrid[i][j] = new Tile(terrainColor, animalColor, i, j, this.panelWidth / widthDimension);
                 } else {

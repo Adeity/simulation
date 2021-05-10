@@ -75,17 +75,17 @@ public class MapComponent extends JComponent {
         Color terrainColor;
         Color animalColor;
         int tileWidth;
-        LOG.info("Heigth dimension is: " + heigthDimension + " | Width dimension is: " + widthDimension);
-        LOG.info("Panel heigth is: " + panelHeight + " | Panel width is: " + panelWidth);
+        LOG.fine("Heigth dimension is: " + heigthDimension + " | Width dimension is: " + widthDimension);
+        LOG.fine("Panel heigth is: " + panelHeight + " | Panel width is: " + panelWidth);
         if (heigthDimension > widthDimension || heigthDimension == widthDimension) {
-            LOG.info("Heigth dimension is bigger or they are the same.");
+            LOG.fine("Heigth dimension is bigger or they are the same.");
             tileWidth = panelHeight / heigthDimension;
-            LOG.info("Tile width ended up beign: " + panelHeight + " / " + heigthDimension + " = " + tileWidth);
+            LOG.fine("Tile width ended up beign: " + panelHeight + " / " + heigthDimension + " = " + tileWidth);
         }
         else {
-            LOG.info("Heigth dimension is smaller than width dimension.");
+            LOG.fine("Heigth dimension is smaller than width dimension.");
             tileWidth = panelWidth / widthDimension;
-            LOG.info("Tile width ended up beign: " + panelWidth + " / " + widthDimension + " = " + tileWidth);
+            LOG.fine("Tile width ended up beign: " + panelWidth + " / " + widthDimension + " = " + tileWidth);
         }
         int eachMapSize = this.simulationServer.getLocalMapSize();
         for (int i = 0; i < eachMapSize ; i++) {
@@ -119,8 +119,8 @@ public class MapComponent extends JComponent {
                 }
                 int finalI = i + startX;
                 int finalJ = j + startY;
-                LOG.info("StartX: " + startX + " | StartY: " +  startY);
-                LOG.info("i index is: " + i + " | j index is: " + j + " and adding to terraint: " +finalI + ", "+finalJ);
+                LOG.fine("StartX: " + startX + " | StartY: " +  startY);
+                LOG.fine("i index is: " + i + " | j index is: " + j + " and adding to terraint: " +finalI + ", "+finalJ);
                 if (this.terrainGrid[i + startX][j + startY] == null) {
                     this.terrainGrid[i + startX][j + startY] = new Tile(terrainColor, animalColor, i + startX, j + startY, this.panelWidth / widthDimension);
                 } else {

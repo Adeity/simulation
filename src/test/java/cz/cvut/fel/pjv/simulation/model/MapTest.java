@@ -47,7 +47,7 @@ class MapTest {
                             }
                         }
                         catch (NumberFormatException e) {
-                            LOG.info("Template has invalid number values!");
+                            LOG.fine("Template has invalid number values!");
                         }
                         if(line.equals("----------")) {
                             break;
@@ -74,7 +74,7 @@ class MapTest {
                         );
                     }
                     else {
-                        LOG.info("numOfanimals not defined in: " +template.getName());
+                        LOG.fine("numOfanimals not defined in: " +template.getName());
                     }
                     if(expectedNumOfFoxes != null) {
                         assertEquals(
@@ -84,7 +84,7 @@ class MapTest {
                         );
                     }
                     else {
-                        LOG.info("numOfFoxes not defined in: " +template.getName());
+                        LOG.fine("numOfFoxes not defined in: " +template.getName());
                     }
                     if(expectedNumOfHare != null) {
                         assertEquals(
@@ -94,7 +94,7 @@ class MapTest {
                         );
                     }
                     else {
-                        LOG.info("numOfHare not defined in: " +template.getName());
+                        LOG.fine("numOfHare not defined in: " +template.getName());
                     }
 
 
@@ -120,6 +120,7 @@ class MapTest {
     void test_sizeMapConstructor(int mapSizeParam, int expectedNumOfBlocks) {
         Simulation simulation = new Simulation();
         Map map = new Map(mapSizeParam, simulation);
+        map.initMap(mapSizeParam);
 
         int actualNumOfBlocks = 0;
         for (Block[] blocks : map.getBlocks()) {
@@ -144,7 +145,6 @@ class MapTest {
         Map map = new Map("testmap3.txt", simulationSpy);
         simulationSpy.setMap(map);
         Map mapSpy = spy(map);
-        Animal animalMock = mock(Animal.class);
 
         Hare hare1 = new Hare(
                 mapSpy.getBlocks()[2][1]

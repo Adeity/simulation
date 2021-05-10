@@ -96,8 +96,10 @@ public class Simulation implements Serializable{
             simulationClient.sendStateReady();
         }
         else {
-            getView().repaintJFrameSimulation();
-            getView().repaintJFrameStats();
+            if (getView() != null) {
+                getView().repaintJFrameSimulation();
+                getView().repaintJFrameStats();
+            }
         }
         day++;
     }
@@ -107,7 +109,7 @@ public class Simulation implements Serializable{
      */
     public void printStats() {
         if(isRunning) {
-            LOG.info("Simulation is running");
+            LOG.fine("Simulation is running");
             map.printStats();
         }
     }
@@ -192,22 +194,21 @@ public class Simulation implements Serializable{
      * @return the block
      */
     public Block getBlock(int coordX, int coordY) {
-        LOG.info("Getting block on: " + coordX + ", " + coordY);
+        LOG.fine("Getting block on: " + coordX + ", " + coordY);
         if (isOnMyMap(coordX, coordY)) {
-            LOG.info("The block on " + coordX + ", " + coordY + " is on local map.");
+            LOG.fine("The block on " + coordX + ", " + coordY + " is on local map.");
             return map.getBlock(coordX, coordY);
         }
         else {
             if (simulationClient != null) {
-                LOG.info("The block on " + coordX + ", " + coordY + " is NOT on local map. Asking server to get this block.");
+                LOG.fine("The block on " + coordX + ", " + coordY + " is NOT on local map. Asking server to get this block.");
                 Block block = simulationClient.getBlock(coordX, coordY);
                 if (block == null) {
-                    LOG.info("This is simulation speaking, thank you for the block: null " + coordX + " " + coordY);
+                    LOG.fine("This is simulation speaking, thank you for the block: null " + coordX + " " + coordY);
                 }
                 else {
-                    LOG.info("This is simulation speaking, thank you for the block: " + block.toString()+ " " +  coordX + " " + coordY);
+                    LOG.fine("This is simulation speaking, thank you for the block: " + block.toString()+ " " +  coordX + " " + coordY);
                 }
-
                 return block;
             }
             else {
@@ -228,7 +229,6 @@ public class Simulation implements Serializable{
         return isLocalX && isLocalY;
     }
 
-
     /**
      * checks surrounding blocks of both animals
      * @param a1 animal1
@@ -244,7 +244,7 @@ public class Simulation implements Serializable{
                 continue;
             }
             if (b.isBlockFree()) {
-                LOG.info("Returning free block to animals: " + b.getCoordX() + ", " + b.getCoordY());
+                LOG.fine("Returning free block to animals: " + b.getCoordX() + ", " + b.getCoordY());
                 return b;
             }
         }
@@ -262,7 +262,7 @@ public class Simulation implements Serializable{
         int blockY = block.getCoordY();
 
         if (isOnMyMap(blockX, blockY)) {
-            LOG.info("Deleting animal at local map");
+            LOG.fine("Deleting animal at local map");
             map.deleteAnimalAtBlock(block);
             return true;
         }
@@ -293,7 +293,7 @@ public class Simulation implements Serializable{
             return map.setBlock(x, y, newBlock);
         }
         else {
-            LOG.info("Server asks to set block that is not on my map");
+            LOG.fine("Server asks to set block that is not on my map");
             return false;
         }
     }

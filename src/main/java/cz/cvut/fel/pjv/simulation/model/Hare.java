@@ -28,12 +28,11 @@ public class Hare extends Animal implements Victim {
 
     @Override
     protected boolean mate(Simulation simulation, Animal otherAnimal) {
-        LOG.info(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
-        mateChangeStats(otherAnimal);
-        LOG.info("Asking simulation to find free block for mating.");
+        LOG.fine(this.toString() + " and " + otherAnimal.toString() + " are trying to mate.");
+        LOG.fine("Asking simulation to find free block for mating.");
         Block freeBlockForNewBorn = simulation.findFreeBlockForMating(this, otherAnimal);
         if (freeBlockForNewBorn == null) {
-            LOG.info("No space for mating");
+            LOG.fine("No space for mating");
             return false;
         }
 
@@ -55,7 +54,7 @@ public class Hare extends Animal implements Victim {
                     blockCopy = (Block) freeBlockForNewBorn.clone();
                     blockCopy.setAnimal(newBorn);
                     if (simulation.simulationClient.setBlock(blockCopy.getCoordX(), blockCopy.getCoordY(), blockCopy)) {
-                        LOG.info("Animal was born on another map.");
+                        LOG.fine("Animal was born on another map.");
                         mateChangeStats(otherAnimal);
                         return true;
                     }
@@ -73,9 +72,11 @@ public class Hare extends Animal implements Victim {
         return false;
     }
 
+
+
     @Override
     protected boolean interact(Simulation simulation, Animal otherAnimal) {
-        LOG.info(this.toString() + " interacts with " + otherAnimal.toString());
+        LOG.fine(this.toString() + " interacts with " + otherAnimal.toString());
         if (
                 otherAnimal instanceof Fox
                         &&
@@ -83,7 +84,7 @@ public class Hare extends Animal implements Victim {
                 &&
                         foxSeesHare(otherAnimal, this)
         ) {
-            LOG.info("Evaluated that this animal will get killed by other animal. This animal dies.");
+            LOG.fine("Evaluated that this animal will get killed by other animal. This animal dies.");
             die(simulation);
             ((Fox) otherAnimal).killHareAddStats();
         }
@@ -94,7 +95,7 @@ public class Hare extends Animal implements Victim {
             mate(simulation, otherAnimal);
         }
         else {
-            LOG.info(this.toString() + " didnt interact with " + otherAnimal.toString() + " at all.");
+            LOG.fine(this.toString() + " didnt interact with " + otherAnimal.toString() + " at all.");
             return false;
         }
         return true;
