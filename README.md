@@ -1,5 +1,9 @@
 # simulation
-Semester project for ,,Programming in Java" subject. Summer semester 2020/2021
+Semester project for ,,Programming in Java" subject. Summer semester 2020/2021. Here you can see a video of it running in distrubuted mode(most left window represents server, other windows represent clients):
+
+https://www.youtube.com/watch?v=AUp1kyzgO08
+
+
 
 
 Simulation simulates life of foxes and hare on a two dimensional square shaped map made of tiles with various terrains (grass, bush, water).
