@@ -19,8 +19,6 @@ The same goes with mating. Two foxes (hare) can mate with each if they stand on 
 
 If an animal either fox or hare looks around and doesn't see another animal to interact with, it moves. Animals move one tile per simulation cyclus (day). Possible move directions are up, down, left or right.
 It is possible to move to a tile if tile exists and there isn't already another animal or if terrain allows it.
-## GUI
-I am using Java Swing libraries to render GUI.
 
 ## Distributed Simulation
 Simulation can work in client-server mode. Connection between them uses TCP protocol, therefore there is a socket implementation of this connection.
@@ -45,3 +43,6 @@ Communication protocol:
 - GET_BLOCK [UUID] 9 9 10 10 0 0 // server version. GET_BLOCK request comes from client and server sends this request to client who owns desired block. 
 - GET_BLOCK [UUID] -1 -1 // client version. client needs information about a block
 - BLOCK [UUID] 0 0 10 10 0 0 [SERIALIZED_BLOCK] // this is a response to GET_BLOCK request
+
+## GUI
+I am using Java Swing libraries to render GUI.
