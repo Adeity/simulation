@@ -17,7 +17,7 @@ I am using Java Swing libraries to render GUI.
 ## Distributed Simulation
 Simulation can work in client-server mode. Connection between them uses TCP protocol, therefore there is a socket implementation of this connection.
 
-Clients can connect their to the server. Clients will send their simplified representation of their local map to the server, so server can graphically render a global map made of each client's map.
+Clients can connect to the server. Clients will send their simplified representation of their local map to the server, so server can graphically render a global map made of each client's map.
 
 Also clients send requests to the server, e.g. if they need to know what is on a tile (block) that an animal wants to move to, client sends GET_BLOCK request.
 
