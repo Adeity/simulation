@@ -1,6 +1,10 @@
 # simulation
-Semester project for ,,Programming in Java" subject. Summer semester 2020/2021. Here you can see a video of it running in distrubuted mode(most left window represents server, other windows represent clients):
+Semester project for ,,Programming in Java" subject. Summer semester 2020/2021. 
 
+Detailed documentation including testing details and strategies: [SimulaceDokumentace.v2.pdf](https://github.com/Adeity/simulation/files/6724896/SimulaceDokumentace.v2.pdf) (only in Czech)
+
+
+Here you can see a video of it running in distrubuted mode(most left window represents server, other windows represent clients):
 https://www.youtube.com/watch?v=AUp1kyzgO08
 
 
