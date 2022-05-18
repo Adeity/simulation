@@ -1,5 +1,4 @@
 # simulation
-Semester project for ,,Programming in Java" subject. Summer semester 2020/2021. 
 
 Detailed documentation including testing details and strategies: [SimulaceDokumentace.v2.pdf](https://github.com/Adeity/simulation/files/6724896/SimulaceDokumentace.v2.pdf) (only in Czech)
 
